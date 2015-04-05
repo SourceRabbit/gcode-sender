@@ -25,7 +25,7 @@ Goals:
 Downloads
 ------
 
-[1.0.2](https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.2/1.0.2.zip) - Requires Java 7 or higher.
+[1.0.2](https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.2/SourceRabbit-GCode-Sender-1.0.2.zip) - Requires Java 7 or higher.
 
 
 ![Connect to your CNC!](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ConnectForm.png "Connect to your CNC!")

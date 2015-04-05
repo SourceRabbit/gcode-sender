@@ -1,6 +1,6 @@
 # SourceRabbit-GCode-Sender
 
-SourceRabbit GCode Sender (SGS) is a GRBL compatible, cross platform G-Code sender written in Java. It features a highly optimized and asynchronous (event-driven) UI and USB-to-Serial communication and can be also used on computers with small amount of RAM and CPU.
+SourceRabbit GCode Sender is a GRBL compatible, cross platform G-Code sender written in Java. It features a highly optimized and asynchronous (event-driven) UI and USB-to-Serial communication and can be also used on computers with small amount of RAM and CPU.
 
 Technical details:
 * Compatible only with GRBL 0.9 and later versions

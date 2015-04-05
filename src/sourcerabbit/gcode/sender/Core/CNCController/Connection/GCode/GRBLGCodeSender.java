@@ -42,6 +42,8 @@ public class GRBLGCodeSender
     private boolean fKeepGCodeCycle = false;
     private Thread fGCodeCycleThread;
 
+    private long fGCodeCycleStartedTimestamp = -1;
+
     public GRBLGCodeSender(ConnectionHandler myHandler)
     {
         fMyConnectionHandler = myHandler;
@@ -93,6 +95,7 @@ public class GRBLGCodeSender
             {
                 // Create a new Queue and starting sending gcode from that
                 final Queue<String> gcodes = new ArrayDeque<>(fGCodeQueue);
+                fGCodeCycleStartedTimestamp = System.currentTimeMillis();
 
                 try
                 {
@@ -100,6 +103,7 @@ public class GRBLGCodeSender
                     while (fKeepGCodeCycle && gcodes.size() > 0)
                     {
                         String line = gcodes.remove();
+                        line = line.trim();
                         // Remove comments from line
                         if (line.contains(";"))
                         {
@@ -108,7 +112,7 @@ public class GRBLGCodeSender
                             fMyConnectionHandler.SendData(tmpLine.replace(" ", ""));
                             fRowsSent += 1;
                         }
-                        else if (line.startsWith("("))
+                        else if (line.startsWith("(") || line.equals(""))
                         {
                             fRowsSent += 1;
                         }
@@ -125,7 +129,17 @@ public class GRBLGCodeSender
                 }
 
                 // Fire GCodeCycleFinishedEvent
-                fGCodeCycleEventManager.FireGCodeCycleFinishedEvent(new GCodeCycleEvent("Finished"));
+                if (gcodes.size() == 0)
+                {
+                    long millis = System.currentTimeMillis() - fGCodeCycleStartedTimestamp;
+                    long second = (millis / 1000) % 60;
+                    long minute = (millis / (1000 * 60)) % 60;
+                    long hour = (millis / (1000 * 60 * 60)) % 24;
+
+                    String time = String.format("%02d:%02d:%02d", hour, minute, second);
+                    fGCodeCycleStartedTimestamp = - 1;
+                    fGCodeCycleEventManager.FireGCodeCycleFinishedEvent(new GCodeCycleEvent("Finished!\nTime: " + time));
+                }
             }
         });
         fGCodeCycleThread.setPriority(Thread.NORM_PRIORITY);
@@ -148,6 +162,7 @@ public class GRBLGCodeSender
 
             }
             fGCodeCycleEventManager.FireGCodeCycleCanceledEvent(new GCodeCycleEvent("Canceled"));
+            fGCodeCycleStartedTimestamp = -1;
         }
     }
 
@@ -201,5 +216,10 @@ public class GRBLGCodeSender
     public GCodeCycleEventManager getCycleEventManager()
     {
         return fGCodeCycleEventManager;
+    }
+
+    public long getGCodeCycleStartedTimestamp()
+    {
+        return fGCodeCycleStartedTimestamp;
     }
 }

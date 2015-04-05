@@ -31,7 +31,7 @@ public class SettingsManager
     private static final Properties fAppSettings = new Properties();
     private static String fSettingsFilePath = "";
 
-    private static String fAppVersion = "1.0.1";
+    private static String fAppVersion = "1.0.2";
 
     static
     {

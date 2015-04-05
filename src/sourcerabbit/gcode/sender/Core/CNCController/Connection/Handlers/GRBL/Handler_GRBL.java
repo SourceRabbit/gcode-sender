@@ -17,6 +17,7 @@
 package sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers.GRBL;
 
 import jssc.SerialPortException;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers.ConnectionHandler;
@@ -32,12 +33,16 @@ public class Handler_GRBL extends ConnectionHandler
     // Commands
     private final Object fSendDataLock = new Object();
     private ManualResetEvent fWaitForCommandToBeExecuted;
+    private ManualResetEvent fWaitForGetStatusCommandReply;
 
     // Status thread
     private long fLastMachinePositionReceivedTimestamp;
-    private final long fMillisecondsToGetMachineTimestamp = 400;
+    private final long fMillisecondsToGetMachineStatus = 250;
     private boolean fKeepStatusThread = false;
     private Thread fStatusThread;
+
+    // This string holds the active command that has been send to GRBL controller for execution
+    private String fCurrentCommandSentToController = "";
 
     public Handler_GRBL()
     {
@@ -68,6 +73,7 @@ public class Handler_GRBL extends ConnectionHandler
             public void ConnectionClosed(SerialConnectionEvent evt)
             {
                 fKeepStatusThread = false;
+                fWaitForGetStatusCommandReply.Set();
                 try
                 {
                     fStatusThread.interrupt();
@@ -87,40 +93,46 @@ public class Handler_GRBL extends ConnectionHandler
         receivedStr = receivedStr.replace("\r", "");
         System.out.println("Data received:" + receivedStr);
 
-        if (receivedStr.toLowerCase().startsWith("grbl"))
+        if (receivedStr.startsWith("<") && receivedStr.endsWith(">"))
         {
-            // Fire the ConnectionEstablishedEvent
-            fConnectionEstablished = true;
-            fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
-        }
-        else if (receivedStr.equals("ok"))
-        {
-            fWaitForCommandToBeExecuted.Set();
-        }
-        else if (receivedStr.startsWith("error"))
-        {
-            fWaitForCommandToBeExecuted.Set();
+            // Machine status received !
+            receivedStr = receivedStr.toLowerCase();
+            receivedStr = receivedStr.replace("mpos", "").replace("wpos", "").replace(":", "").replace("<", "").replace(">", "");
+            String[] parts = receivedStr.split(",");
+
+            fActiveState = parts[0];
+
+            fMachinePosition.setX(Double.parseDouble(parts[1]));
+            fMachinePosition.setY(Double.parseDouble(parts[2]));
+            fMachinePosition.setZ(Double.parseDouble(parts[3]));
+
+            fWorkPosition.setX(Double.parseDouble(parts[4]));
+            fWorkPosition.setY(Double.parseDouble(parts[5]));
+            fWorkPosition.setZ(Double.parseDouble(parts[6]));
+
+            fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
+            fWaitForGetStatusCommandReply.Set();
         }
         else
         {
-            if (receivedStr.startsWith("<") && receivedStr.endsWith(">"))
+            //fWaitForGetStatusCommandReply.WaitOne();
+            if (receivedStr.toLowerCase().startsWith("grbl"))
             {
-                // Machine status received !
-                fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
-
-                receivedStr = receivedStr.toLowerCase();
-                receivedStr = receivedStr.replace("mpos", "").replace("wpos", "").replace(":", "").replace("<", "").replace(">", "");
-                String[] parts = receivedStr.split(",");
-
-                fActiveState = parts[0];
-
-                fMachinePosition.setX(Double.parseDouble(parts[1]));
-                fMachinePosition.setY(Double.parseDouble(parts[2]));
-                fMachinePosition.setZ(Double.parseDouble(parts[3]));
-
-                fWorkPosition.setX(Double.parseDouble(parts[4]));
-                fWorkPosition.setY(Double.parseDouble(parts[5]));
-                fWorkPosition.setZ(Double.parseDouble(parts[6]));
+                // Fire the ConnectionEstablishedEvent
+                fConnectionEstablished = true;
+                fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
+            }
+            else if (receivedStr.equals("ok"))
+            {
+                this.getGCodeExecutionEventsManager().FireGCodeExecutedSuccessfully(new GCodeExecutionEvent(fCurrentCommandSentToController, fCurrentCommandSentToController, ""));
+                fCurrentCommandSentToController = "";
+                fWaitForCommandToBeExecuted.Set();
+            }
+            else if (receivedStr.startsWith("error"))
+            {
+                this.getGCodeExecutionEventsManager().FireGCodeExecutedWithError(new GCodeExecutionEvent(fCurrentCommandSentToController, fCurrentCommandSentToController, receivedStr));
+                fCurrentCommandSentToController = "";
+                fWaitForCommandToBeExecuted.Set();
             }
         }
     }
@@ -130,6 +142,9 @@ public class Handler_GRBL extends ConnectionHandler
     {
         synchronized (fSendDataLock)
         {
+            //System.out.println("Data Sent: " + data);
+            fCurrentCommandSentToController = data;
+            this.getGCodeExecutionEventsManager().FireGCodeCommandSentToController(new GCodeExecutionEvent(data, data, ""));
             fWaitForCommandToBeExecuted.Reset();
 
             // Send data !!!!
@@ -153,26 +168,6 @@ public class Handler_GRBL extends ConnectionHandler
         return true;
     }
 
-    @Override
-    public boolean SendDataImmediately(String data) throws SerialPortException
-    {
-        if (super.SendData(data))
-        {
-            return true;
-        }
-        else
-        {
-            try
-            {
-                CloseConnection();
-            }
-            catch (Exception ex)
-            {
-            }
-            return false;
-        }
-    }
-
     /**
      * Send "?" command to the GRBL Controller
      */
@@ -188,12 +183,23 @@ public class Handler_GRBL extends ConnectionHandler
                 {
                     while (fKeepStatusThread)
                     {
-                        if ((System.currentTimeMillis() - fLastMachinePositionReceivedTimestamp) > fMillisecondsToGetMachineTimestamp)
+                        if ((System.currentTimeMillis() - fLastMachinePositionReceivedTimestamp) > fMillisecondsToGetMachineStatus)
                         {
                             try
                             {
-                                // Ask for status report
-                                SendDataImmediately(GRBLCommands.COMMAND_GET_STATUS);
+                                // Ask for status report           
+                                fWaitForGetStatusCommandReply = new ManualResetEvent(false);
+                                fWaitForGetStatusCommandReply.Reset();
+                                if (SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_GET_STATUS))
+                                {
+                                    // Wait for Get Status Command Reply
+                                    fWaitForGetStatusCommandReply.WaitOne();
+                                }
+                                else
+                                {
+                                    CloseConnection();
+                                }
+
                             }
                             catch (Exception ex)
                             {
@@ -202,7 +208,7 @@ public class Handler_GRBL extends ConnectionHandler
 
                         try
                         {
-                            Thread.sleep(fMillisecondsToGetMachineTimestamp + 1);
+                            Thread.sleep(fMillisecondsToGetMachineStatus + 1);
                         }
                         catch (Exception ex)
                         {

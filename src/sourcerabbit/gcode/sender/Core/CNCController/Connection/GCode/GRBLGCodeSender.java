@@ -141,7 +141,7 @@ public class GRBLGCodeSender
             PauseSendingGCode();
             try
             {
-                fMyConnectionHandler.SendDataImmediately(GRBLCommands.COMMAND_SOFT_RESET);
+                fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_SOFT_RESET);
             }
             catch (Exception ex)
             {
@@ -155,7 +155,7 @@ public class GRBLGCodeSender
     {
         try
         {
-            fMyConnectionHandler.SendDataImmediately("!");
+            fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector("!");
         }
         catch (Exception ex)
         {
@@ -168,7 +168,7 @@ public class GRBLGCodeSender
     {
         try
         {
-            fMyConnectionHandler.SendDataImmediately("~");
+            fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector("~");
         }
         catch (Exception ex)
         {

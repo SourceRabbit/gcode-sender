@@ -20,6 +20,7 @@ import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEventsManager;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEventManager;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.GRBLGCodeSender;
@@ -53,6 +54,7 @@ public class ConnectionHandler implements SerialPortEventListener
 
     // Event Managers
     protected SerialConnectionEventManager fSerialConnectionEventManager = new SerialConnectionEventManager();
+    protected GCodeExecutionEventsManager fGCodeExecutionEventsManager = new GCodeExecutionEventsManager();
 
     // GCode
     protected final GRBLGCodeSender fMyGCodeSender;
@@ -186,9 +188,23 @@ public class ConnectionHandler implements SerialPortEventListener
         }
     }
 
-    public boolean SendDataImmediately(String data) throws SerialPortException
+    public boolean SendDataImmediately_WithoutMessageCollector(String data) throws SerialPortException
     {
-        return false;
+        try
+        {
+            return fSerialPort.writeString(data);
+        }
+        catch (Exception ex)
+        {
+            try
+            {
+                CloseConnection();
+            }
+            catch (Exception ex1)
+            {
+            }
+            throw ex;
+        }
     }
 
     /**
@@ -239,6 +255,16 @@ public class ConnectionHandler implements SerialPortEventListener
     public SerialConnectionEventManager getSerialConnectionEventManager()
     {
         return fSerialConnectionEventManager;
+    }
+
+    /**
+     * Returns the GCodeExecutionEventsManager
+     *
+     * @return GCodeExecutionEventsManager
+     */
+    public GCodeExecutionEventsManager getGCodeExecutionEventsManager()
+    {
+        return fGCodeExecutionEventsManager;
     }
 
     /**

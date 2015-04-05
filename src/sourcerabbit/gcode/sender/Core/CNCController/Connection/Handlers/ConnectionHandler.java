@@ -86,8 +86,8 @@ public class ConnectionHandler implements SerialPortEventListener
             throw new Exception("Serial port not found!");
         }
 
-        fMachinePosition = new Position3D(0, 0, 0);
-        fWorkPosition = new Position3D(0, 0, 0);
+        fMachinePosition = new Position3D((double) 0, (double) 0, (double) 0);
+        fWorkPosition = new Position3D((double) 0, (double) 0, (double) 0);
 
         return true;
     }

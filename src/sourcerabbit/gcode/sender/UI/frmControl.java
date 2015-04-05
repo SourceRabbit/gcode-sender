@@ -16,19 +16,30 @@
  */
 package sourcerabbit.gcode.sender.UI;
 
+import info.monitorenter.gui.chart.Chart2D;
+import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.Random;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.GCodeCycleEvents.GCodeCycleEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.GCodeCycleEvents.IGCodeCycleListener;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.Parser.GCodeCommand;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.Parser.GCodeParser;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers.GRBL.GRBLCommands;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position3D;
+import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
 import sourcerabbit.gcode.sender.UI.Tools.UITools;
 
 /**
@@ -53,6 +64,7 @@ public class frmControl extends javax.swing.JFrame
 
         InitEvents();
         InitUIThreads();
+
     }
 
     private void InitEvents()
@@ -277,6 +289,7 @@ public class frmControl extends javax.swing.JFrame
         jButtonGCodeSend = new javax.swing.JButton();
         jButtonGCodePause = new javax.swing.JButton();
         jButtonGCodeCancel = new javax.swing.JButton();
+        jButtonGCodeVisualize = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SourceRabbit GCODE Sender ver 1.0");
@@ -662,6 +675,15 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jButtonGCodeVisualize.setText("Visualize");
+        jButtonGCodeVisualize.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonGCodeVisualizeActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -676,7 +698,9 @@ public class frmControl extends javax.swing.JFrame
                         .addComponent(jButtonGCodePause, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButtonGCodeCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 109, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
+                        .addComponent(jButtonGCodeVisualize)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonGCodeBrowse))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -710,7 +734,8 @@ public class frmControl extends javax.swing.JFrame
                     .addComponent(jButtonGCodeBrowse)
                     .addComponent(jButtonGCodeSend)
                     .addComponent(jButtonGCodePause)
-                    .addComponent(jButtonGCodeCancel))
+                    .addComponent(jButtonGCodeCancel)
+                    .addComponent(jButtonGCodeVisualize))
                 .addGap(15, 15, 15)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelRowsInFile)
@@ -745,13 +770,15 @@ public class frmControl extends javax.swing.JFrame
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanelMachineControl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -874,11 +901,23 @@ public class frmControl extends javax.swing.JFrame
 
     private void jButtonGCodeBrowseActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGCodeBrowseActionPerformed
     {//GEN-HEADEREND:event_jButtonGCodeBrowseActionPerformed
-        final JFileChooser fc = new JFileChooser();
+        String path = SettingsManager.getLastGCodeBrowsedDirectory();
+        JFileChooser fc;
+        try
+        {
+            fc = new JFileChooser(new File(path));
+        }
+        catch (Exception ex)
+        {
+            fc = new JFileChooser();
+        }
         fc.showOpenDialog(this);
+
         File gcodeFile = fc.getSelectedFile();
         String gcodeFilePath = fc.getSelectedFile().getPath();
         jTextFieldGCodeFile.setText(gcodeFilePath);
+
+        SettingsManager.setLastGCodeBrowsedDirectory(gcodeFile.getParent());
 
         // Ask the GCodeSender of the active connection handler to load the GCode File
         if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().LoadGCodeFile(gcodeFile))
@@ -966,6 +1005,53 @@ public class frmControl extends javax.swing.JFrame
         }
     }//GEN-LAST:event_jButtonKilleAlarmActionPerformed
 
+    private void jButtonGCodeVisualizeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGCodeVisualizeActionPerformed
+    {//GEN-HEADEREND:event_jButtonGCodeVisualizeActionPerformed
+        try
+        {
+            Chart2D chart = new Chart2D();
+            // Create an ITrace: 
+            ITrace2D trace = new Trace2DSimple();
+            // Add the trace to the chart. This has to be done before adding points (deadlock prevention): 
+            chart.addTrace(trace);
+
+            Queue<String> gcodeQueue = new ArrayDeque(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeQueue());
+
+            double x = 0;
+            double y = 0;
+            while (gcodeQueue.size() > 0)
+            {
+                String line = gcodeQueue.remove();
+                GCodeCommand command = GCodeParser.CreateCommand(line);
+                if (command != null)
+                {
+                    if (command.getCoordinates().getX() != null)
+                    {
+                        x = command.getCoordinates().getX();
+                    }
+
+                    if (command.getCoordinates().getY() != null)
+                    {
+                        y = command.getCoordinates().getY();
+                    }
+                    trace.addPoint(x, y);
+                }
+            }
+
+            // Make it visible:
+            // Create a frame.
+            JFrame frame = new JFrame("GCode Visualizer");
+            // add the chart to the frame: 
+            frame.getContentPane().add(chart);
+            frame.setSize(800, 600);
+            frame.setVisible(true);
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }//GEN-LAST:event_jButtonGCodeVisualizeActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonConnectDisconnect;
@@ -973,6 +1059,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JButton jButtonGCodeCancel;
     private javax.swing.JButton jButtonGCodePause;
     private javax.swing.JButton jButtonGCodeSend;
+    private javax.swing.JButton jButtonGCodeVisualize;
     private javax.swing.JButton jButtonKilleAlarm;
     private javax.swing.JButton jButtonResetZero;
     private javax.swing.JButton jButtonSoftReset;

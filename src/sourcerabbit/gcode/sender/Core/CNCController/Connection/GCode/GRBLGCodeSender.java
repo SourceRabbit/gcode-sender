@@ -103,8 +103,7 @@ public class GRBLGCodeSender
                         // Remove comments from line
                         if (line.contains(";"))
                         {
-                            int semicolonPosition = line.indexOf(";");
-                            String tmpLine = line.substring(0, semicolonPosition);
+                            String tmpLine = line.substring(0, line.indexOf(";"));
                             tmpLine = tmpLine.trim();
                             fMyConnectionHandler.SendData(tmpLine.replace(" ", ""));
                             fRowsSent += 1;

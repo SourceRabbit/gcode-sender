@@ -14,63 +14,26 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sourcerabbit.gcode.sender.Core.CNCController.Tools;
+package sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.Parser;
+
+import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position3D;
 
 /**
  *
  * @author Nikos Siatras
  */
-public class Position3D
+public class GCodeCommand
 {
 
-    private Double fX, fY, fZ;
+    private Position3D fCoordinates;
 
-    public Position3D()
+    public GCodeCommand(Position3D coordinates)
     {
-
+        fCoordinates = coordinates;
     }
 
-    public Position3D(Double x, Double y, Double z)
+    public Position3D getCoordinates()
     {
-        fX = x;
-        fY = y;
-        fZ = z;
-    }
-
-    public void setX(Double x)
-    {
-        fX = x;
-    }
-
-    public void setY(Double y)
-    {
-        fY = y;
-    }
-
-    public void setZ(Double z)
-    {
-        fZ = z;
-    }
-
-    public void setPosition(Double x, Double y, Double z)
-    {
-        fX = x;
-        fY = y;
-        fZ = z;
-    }
-
-    public Double getX()
-    {
-        return fX;
-    }
-
-    public Double getY()
-    {
-        return fY;
-    }
-
-    public Double getZ()
-    {
-        return fZ;
+        return fCoordinates;
     }
 }

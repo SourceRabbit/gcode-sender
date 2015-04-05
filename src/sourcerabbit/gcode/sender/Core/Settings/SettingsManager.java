@@ -97,6 +97,35 @@ public class SettingsManager
     }
 
     /**
+     * Returns the last GCodeBrowsedDirectory
+     *
+     * @return
+     */
+    public static String getLastGCodeBrowsedDirectory()
+    {
+        String value = fAppSettings.getProperty("LastGCodeBrowsedDirectory");
+        if (value == null || value.equals(""))
+        {
+            return System.getProperty("user.home") + File.separator;
+        }
+        else
+        {
+            return value;
+        }
+    }
+
+    /**
+     * Set the last GCodeBrowsedDirectory
+     *
+     * @param dir
+     */
+    public static void setLastGCodeBrowsedDirectory(String dir)
+    {
+        fAppSettings.setProperty("LastGCodeBrowsedDirectory", dir);
+        SaveSettings();
+    }
+
+    /**
      * Returns the file path of the SourceRabbitGCodeSender.cfg file
      *
      * @return

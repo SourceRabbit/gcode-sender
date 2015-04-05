@@ -14,7 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.GCodeCycleEvents;
+package sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents;
 
 import java.util.EventObject;
 

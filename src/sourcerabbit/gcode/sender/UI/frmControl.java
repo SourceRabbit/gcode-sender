@@ -21,11 +21,9 @@ import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayDeque;
 import java.util.Queue;
-import java.util.Random;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
@@ -34,8 +32,8 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecu
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.IGCodeExecutionEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.GCodeCycleEvents.GCodeCycleEvent;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.GCodeCycleEvents.IGCodeCycleListener;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.GCodeCycleEvent;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.IGCodeCycleListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.Parser.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.Parser.GCodeParser;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers.GRBL.GRBLCommands;
@@ -51,13 +49,13 @@ import sourcerabbit.gcode.sender.UI.Tools.UITools;
  */
 public class frmControl extends javax.swing.JFrame
 {
-
+    
     private ManualResetEvent fMachineStatusThreadWait;
     private boolean fKeepMachineStatusThreadRunning;
     private Thread fMachineStatusThread;
     private String fInchesOrMillimetersGCode = "G21";
     private static final Object fAddRemoveLogTableLines = new Object();
-
+    
     public frmControl()
     {
         initComponents();
@@ -65,12 +63,14 @@ public class frmControl extends javax.swing.JFrame
         // Set form in middle of screen
         Position2D pos = UITools.getPositionForFormToOpenInMiddleOfScreen(this.getSize().width, this.getSize().height);
         this.setLocation((int) pos.getX(), (int) pos.getY());
-
+        
         InitEvents();
         InitUIThreads();
-
+        
+        this.setTitle("SourceRabbit GCode Sender (Version " + SettingsManager.getAppVersion() + ")");
+        
     }
-
+    
     private void InitEvents()
     {
         // Serial Connection Events
@@ -88,7 +88,7 @@ public class frmControl extends javax.swing.JFrame
 
                 // Enable Machine Control Components
                 SetMachineControlsEnabled(true);
-
+                
                 jButtonGCodeBrowse.setEnabled(true);
                 jButtonGCodeSend.setEnabled(true);
                 jButtonGCodePause.setEnabled(false);
@@ -96,12 +96,12 @@ public class frmControl extends javax.swing.JFrame
                 jButtonGCodePause.setText("Pause");
                 SetMachineControlsEnabled(true);
             }
-
+            
             @Override
             public void ConnectionClosed(SerialConnectionEvent evt)
             {
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode();
-
+                
                 jLabelConnectionStatus.setForeground(Color.red);
                 jLabelConnectionStatus.setText("Disconnected");
                 jButtonConnectDisconnect.setText("Connect");
@@ -128,10 +128,10 @@ public class frmControl extends javax.swing.JFrame
                 SetMachineControlsEnabled(false);
                 jButtonResetZero.setEnabled(false);
                 jButtonSoftReset.setEnabled(false);
-
+                
                 jTextFieldGCodeFile.setEnabled(false);
             }
-
+            
             @Override
             public void GCodeCycleFinished(GCodeCycleEvent evt)
             {
@@ -143,10 +143,10 @@ public class frmControl extends javax.swing.JFrame
                 SetMachineControlsEnabled(true);
                 jButtonResetZero.setEnabled(true);
                 jButtonSoftReset.setEnabled(true);
-
+                
                 jTextFieldGCodeFile.setEnabled(true);
             }
-
+            
             @Override
             public void GCodeCycleCanceled(GCodeCycleEvent evt)
             {
@@ -158,16 +158,16 @@ public class frmControl extends javax.swing.JFrame
                 SetMachineControlsEnabled(true);
                 jButtonResetZero.setEnabled(true);
                 jButtonSoftReset.setEnabled(true);
-
+                
                 jTextFieldGCodeFile.setEnabled(true);
             }
-
+            
             @Override
             public void GCodeCyclePaused(GCodeCycleEvent evt)
             {
                 jButtonGCodePause.setText("Resume");
             }
-
+            
             @Override
             public void GCodeCycleResumed(GCodeCycleEvent evt)
             {
@@ -178,7 +178,7 @@ public class frmControl extends javax.swing.JFrame
         // GCode Execution Events
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getGCodeExecutionEventsManager().AddListener(new IGCodeExecutionEventListener()
         {
-
+            
             @Override
             public void GCodeCommandSentToController(GCodeExecutionEvent evt)
             {
@@ -196,10 +196,10 @@ public class frmControl extends javax.swing.JFrame
                 }
                 catch (Exception ex)
                 {
-
+                    
                 }
             }
-
+            
             @Override
             public void GCodeExecutedSuccessfully(GCodeExecutionEvent evt)
             {
@@ -217,11 +217,11 @@ public class frmControl extends javax.swing.JFrame
                 }
                 catch (Exception ex)
                 {
-
+                    
                 }
-
+                
             }
-
+            
             @Override
             public void GCodeExecutedWithError(GCodeExecutionEvent evt)
             {
@@ -240,12 +240,12 @@ public class frmControl extends javax.swing.JFrame
                 }
                 catch (Exception ex)
                 {
-
+                    
                 }
             }
         });
     }
-
+    
     private void SetMachineControlsEnabled(boolean state)
     {
         // Enable Machine Control Components
@@ -254,7 +254,7 @@ public class frmControl extends javax.swing.JFrame
             c.setEnabled(state);
         }
     }
-
+    
     private void InitUIThreads()
     {
         fMachineStatusThread = new Thread(new Runnable()
@@ -300,13 +300,13 @@ public class frmControl extends javax.swing.JFrame
                             break;
                     }
                     jLabelActiveState.setText(activeState);
-
+                    
                     jButtonKilleAlarm.setVisible(activeState.equals("alarm"));
 
                     // Update remaining rows & rows sent
                     jLabelSentRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsSent()));
                     jLabelRemainingRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsRemaining()));
-
+                    
                     fMachineStatusThreadWait.WaitOne(250);
                 }
             }
@@ -316,7 +316,7 @@ public class frmControl extends javax.swing.JFrame
         fMachineStatusThreadWait = new ManualResetEvent(false);
         fMachineStatusThread.start();
     }
-
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents()
@@ -373,7 +373,8 @@ public class frmControl extends javax.swing.JFrame
         jButtonClearLog = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("SourceRabbit GCODE Sender ver 1.0");
+        setTitle("SourceRabbit GCODE Sender");
+        setResizable(false);
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Machine Status"));
 
@@ -1064,11 +1065,11 @@ public class frmControl extends javax.swing.JFrame
             fc = new JFileChooser();
         }
         fc.showOpenDialog(this);
-
+        
         File gcodeFile = fc.getSelectedFile();
         String gcodeFilePath = fc.getSelectedFile().getPath();
         jTextFieldGCodeFile.setText(gcodeFilePath);
-
+        
         SettingsManager.setLastGCodeBrowsedDirectory(gcodeFile.getParent());
 
         // Ask the GCodeSender of the active connection handler to load the GCode File
@@ -1112,7 +1113,7 @@ public class frmControl extends javax.swing.JFrame
                 {
                     ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData("G21G90G0Z2");
                 }
-
+                
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData("G21G90G28X0Y0");
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData("G21G90G0Z0");
                 //ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData("G92");
@@ -1166,9 +1167,9 @@ public class frmControl extends javax.swing.JFrame
             ITrace2D trace = new Trace2DSimple();
             // Add the trace to the chart. This has to be done before adding points (deadlock prevention): 
             chart.addTrace(trace);
-
+            
             Queue<String> gcodeQueue = new ArrayDeque(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeQueue());
-
+            
             double x = 0;
             double y = 0;
             while (gcodeQueue.size() > 0)
@@ -1181,7 +1182,7 @@ public class frmControl extends javax.swing.JFrame
                     {
                         x = command.getCoordinates().getX();
                     }
-
+                    
                     if (command.getCoordinates().getY() != null)
                     {
                         y = command.getCoordinates().getY();
@@ -1200,7 +1201,7 @@ public class frmControl extends javax.swing.JFrame
         }
         catch (Exception ex)
         {
-
+            
         }
     }//GEN-LAST:event_jButtonGCodeVisualizeActionPerformed
 

@@ -22,8 +22,8 @@ import java.io.FileReader;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers.ConnectionHandler;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.GCodeCycleEvents.GCodeCycleEvent;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.GCodeCycleEvents.GCodeCycleEventManager;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.GCodeCycleEvent;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.GCodeCycleEventManager;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers.GRBL.GRBLCommands;
 
 /**

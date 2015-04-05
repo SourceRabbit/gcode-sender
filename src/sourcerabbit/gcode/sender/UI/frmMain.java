@@ -52,6 +52,8 @@ public class frmMain extends javax.swing.JFrame
         // Set form in middle of screen
         Position2D pos = UITools.getPositionForFormToOpenInMiddleOfScreen(this.getSize().width, this.getSize().height);
         this.setLocation((int) pos.getX(), (int) pos.getY());
+
+        this.setTitle("SourceRabbit GCode Sender (Version " + SettingsManager.getAppVersion() + ")");
     }
 
     private void InitUI()

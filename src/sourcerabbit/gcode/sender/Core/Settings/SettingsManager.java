@@ -31,6 +31,8 @@ public class SettingsManager
     private static final Properties fAppSettings = new Properties();
     private static String fSettingsFilePath = "";
 
+    private static String fAppVersion = "1.0.1";
+
     static
     {
         fSettingsFilePath = getAppSettingsFilePath();
@@ -133,6 +135,11 @@ public class SettingsManager
     public static String getAppSettingsFilePath()
     {
         return System.getProperty("user.home") + File.separator + "SourceRabbitGCodeSender.cfg";
+    }
+
+    public static String getAppVersion()
+    {
+        return fAppVersion;
     }
 
 }

@@ -6,17 +6,17 @@ SourceRabbit GCode Sender
 
 SourceRabbit GCode Sender is a <b>GRBL</b> compatible, cross platform G-Code sender written in Java. It features a highly optimized and asynchronous (event-driven) UI and USB-to-Serial communication and can be also used on computers with small amount of RAM and CPU.
 
-To run simply download and unzip the .zip file and double click the SourceRabbit-GCODE-Sender.jar file. On some platforms you will need to run an included start script.
+To run simply <b>download</b> and <b>unzip</b> the .zip file and <b>double click</b> the SourceRabbit-GCODE-Sender.jar file. On some platforms you will need to run an included start script.
 
 Note for MAC users: You may need to create a "/var/lock" directory on OSX to fix a bug in the serial library. To do this open the Terminal application and run the following two commands: 
 sudo mkdir /var/lock 
 sudo chmod 777 /var/lock 
 
 Technical details:
-* Compatible only with GRBL 0.9 and later versions
+* Compatible only with <b>GRBL 0.9</b> and later versions
 * Uses JSSC for serial communication
 * Event-Driven UI and USB-to-Serial communication
-* Developed with NetBeans 8.0.2
+* Developed with <b>NetBeans 8.0.2</b>
 * To build you need to open the project in Netbeans and just... build.
 
 Goals:
@@ -31,7 +31,6 @@ Downloads
 ![Connect to your CNC!](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ConnectForm.png "Connect to your CNC!")
 
 ![CNC Control Form](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ControllForm.png "CNC Control Form")
-
 
 
 Changelog

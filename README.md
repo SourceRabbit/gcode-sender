@@ -20,7 +20,7 @@ Technical details:
 * To build you need to open the project in Netbeans and just... build.
 
 Goals:
-* Provide a fast, accurate and easyto use software
+* Provide a fast, accurate and easy to use software
 * Support all GRBL CNC router and milling machines
 * Can be runned in computers with small amount of RAM and CPU.
 

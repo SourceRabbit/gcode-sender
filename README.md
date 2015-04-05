@@ -23,6 +23,10 @@ Downloads
 
 Changelog
 ------
+1.0.1 -> 1.0.2
+* Fixed several UI bugs.
+* Information Message box on GCode cycle finish.
+
 1.0.0 -> 1.0.1
 * Clicking the cancel button during GCode cycle stops the machine instantly.
 * GCode cycle events implemented.

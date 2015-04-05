@@ -22,7 +22,7 @@ Technical details:
 Goals:
 * Provide a fast, accurate and easy to use software
 * Support all GRBL CNC router and milling machines
-* Can be runned in computers with small amount of RAM and CPU.
+* Can be used on computers with small amount of RAM and CPU.
 
 
 Downloads

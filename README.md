@@ -23,7 +23,7 @@ Changelog
 1.0.0 -> 1.0.1
 * Clicking the cancel button during GCode cycle stops the machine instantly.
 * GCode cycle events implemented.
-* In case you unplug the USB cable from the GRBL controller GCode Sender indicates the connection as disconnected.
+* GCode Sender identifies if the USB cable is plugged or not...
 * Automatically skip blank lines and comments when sending a file.
 
 

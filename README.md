@@ -4,7 +4,7 @@ SourceRabbit GCode Sender
 <img src="https://raw.githubusercontent.com/nsiatras/sourcerabbit-gcode-sender/master/Images/SourceRabbit.png" alt="SourceRabbit.com"> 
 </p>
 
-SourceRabbit GCode Sender is a GRBL compatible, cross platform G-Code sender written in Java. It features a highly optimized and asynchronous (event-driven) UI and USB-to-Serial communication and can be also used on computers with small amount of RAM and CPU.
+SourceRabbit GCode Sender is a <b>GRBL</b> compatible, cross platform G-Code sender written in Java. It features a highly optimized and asynchronous (event-driven) UI and USB-to-Serial communication and can be also used on computers with small amount of RAM and CPU.
 
 To run simply download and unzip the .zip file and double click the SourceRabbit-GCODE-Sender.jar file. On some platforms you will need to run an included start script.
 

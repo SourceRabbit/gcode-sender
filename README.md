@@ -10,6 +10,6 @@ Technical details:
 * To build you need to open the project in Netbeans and just... build.
 
 Goals:
-*SourceRabbit GCode Sender's primary goal is to provide an easy to use, fast and accurate GCode sender software for all GRBL compatible CNC router and milling machines that can be operated by everyone and run on every computer you can get (included those with small amount of ram and slow cpus). 
+* SourceRabbit GCode Sender's primary goal is to provide an easy to use, fast and accurate GCode sender software for all GRBL compatible CNC router and milling machines that can be operated by everyone and run on every computer you can get (included those with small amount of ram and slow cpus). 
 
 

@@ -29,6 +29,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConn
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.SerialPortUtilities;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
+import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
 import sourcerabbit.gcode.sender.UI.Tools.UITools;
 
 /**
@@ -63,12 +64,21 @@ public class frmMain extends javax.swing.JFrame
         }
         else
         {
+            String preselectedSerialPort = SettingsManager.getPreselectedSerialPort();
+
             // Add serial ports to jComboBoxPort
+            int index = 0;
+            int selectedIndex = 0;
             for (String port : serialPorts)
             {
                 jComboBoxPort.addItem(port);
+                if (port.equals(preselectedSerialPort))
+                {
+                    selectedIndex = index;
+                }
+                index += 1;
             }
-            jComboBoxPort.setSelectedIndex(0);
+            jComboBoxPort.setSelectedIndex(selectedIndex);
 
             // Add Baud rates
             jComboBoxBaud.addItem("115200");
@@ -82,11 +92,20 @@ public class frmMain extends javax.swing.JFrame
         }
     }
 
+    /**
+     * The SourceRabbit GCode Sender managed to connect successfully to the CNC
+     * controller. Now the Control Form must be opened!
+     */
     private void OpenControlForm()
     {
         // Remove the fConnectionEstablishedEventListener (We dont need it any more)
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getSerialConnectionEventManager().RemoveListener(fConnectionEstablishedEventListener);
 
+        // Set the selected port as the preselected port for later use
+        String port = jComboBoxPort.getSelectedItem().toString();
+        SettingsManager.setPreselectedSerialPort(port);
+
+        // Show to control form
         frmControl frm = new frmControl();
         frm.setVisible(true);
         this.setVisible(false);

@@ -17,7 +17,7 @@ Technical details:
 * Uses JSSC for serial communication
 * Event-Driven UI and USB-to-Serial communication
 * Developed with <b>NetBeans 8.0.2</b>
-* To build you need to open the project in Netbeans and just... build.
+* To build you need to open the project in Netbeans and just... build
 
 Goals:
 * Provide a fast, accurate and easy to use software

@@ -17,6 +17,8 @@ Downloads
 ------
 ![Connect to your CNC!](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ConnectForm.png "Connect to your CNC!")
 
+![CNC Control Form](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ControllForm.png "CNC Control Form")
+
 
 
 Changelog

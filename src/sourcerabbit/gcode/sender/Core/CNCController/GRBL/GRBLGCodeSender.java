@@ -25,7 +25,6 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.GCodeCycleEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.GCodeCycleEventManager;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
-import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLCommands;
 
 /**
  *
@@ -88,6 +87,11 @@ public class GRBLGCodeSender
      */
     public void StartSendingGCode()
     {
+        if (fGCodeQueue.isEmpty())
+        {
+            return;
+        }
+
         // Fire GCodeCycleStartedEvent
         fGCodeCycleEventManager.FireGCodeCycleStartedEvent(new GCodeCycleEvent("Started"));
 
@@ -109,10 +113,8 @@ public class GRBLGCodeSender
 
                     while (fKeepGCodeCycle && gcodes.size() > 0)
                     {
-                        final String line = gcodes.remove();
-
                         // Create a GCode Command to send
-                        final GCodeCommand command = new GCodeCommand(line);
+                        final GCodeCommand command = new GCodeCommand(gcodes.remove());
                         fMyConnectionHandler.SendGCodeCommand(command);
 
                         fRowsSent += 1;
@@ -123,14 +125,14 @@ public class GRBLGCodeSender
                 }
 
                 // Fire GCodeCycleFinishedEvent
-                if (gcodes.size() == 0)
+                if (gcodes.isEmpty())
                 {
-                    long millis = System.currentTimeMillis() - fGCodeCycleStartedTimestamp;
-                    long second = (millis / 1000) % 60;
-                    long minute = (millis / (1000 * 60)) % 60;
-                    long hour = (millis / (1000 * 60 * 60)) % 24;
+                    final long millis = System.currentTimeMillis() - fGCodeCycleStartedTimestamp;
+                    final long second = (millis / 1000) % 60;
+                    final long minute = (millis / (1000 * 60)) % 60;
+                    final long hour = (millis / (1000 * 60 * 60)) % 24;
 
-                    String time = String.format("%02d:%02d:%02d", hour, minute, second);
+                    final String time = String.format("%02d:%02d:%02d", hour, minute, second);
                     fGCodeCycleStartedTimestamp = - 1;
                     fGCodeCycleEventManager.FireGCodeCycleFinishedEvent(new GCodeCycleEvent("Finished!\nTime: " + time));
                 }
@@ -161,7 +163,6 @@ public class GRBLGCodeSender
             }
             catch (Exception ex)
             {
-
             }
 
             // Fire GCodeCycleCanceledEvent
@@ -181,7 +182,6 @@ public class GRBLGCodeSender
         }
         catch (Exception ex)
         {
-
         }
         fGCodeCycleEventManager.FireGCodeCyclePausedEvent(new GCodeCycleEvent("Paused"));
     }
@@ -197,9 +197,7 @@ public class GRBLGCodeSender
         }
         catch (Exception ex)
         {
-
         }
-
         fGCodeCycleEventManager.FireGCodeCycleResumedEvent(new GCodeCycleEvent("Resumed"));
     }
 

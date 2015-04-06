@@ -149,7 +149,6 @@ public class frmControl extends javax.swing.JFrame
 
                 jTextFieldGCodeFile.setEnabled(true);
 
-                //JOptionPane.showMessageDialog(fInstance, evt.getSource().toString(), JOptionPane.INFORMATION_MESSAGE);
                 JOptionPane.showMessageDialog(fInstance, evt.getSource().toString(), "Finished", JOptionPane.INFORMATION_MESSAGE);
             }
 
@@ -291,7 +290,7 @@ public class frmControl extends javax.swing.JFrame
                                 break;
 
                             case GRBLActiveStates.HOLD:
-                                jLabelActiveState.setForeground(Color.yellow);
+                                jLabelActiveState.setForeground(Color.red);
                                 jLabelActiveState.setText("Hold");
                                 break;
 
@@ -1161,19 +1160,19 @@ public class frmControl extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButtonReturnToZeroActionPerformed
         try
         {
-            Position4D machinePos = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition();
+            final Position4D machinePos = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition();
             if (machinePos.getX() != 0 || machinePos.getY() != 0 || machinePos.getZ() != 0)
             {
                 if (machinePos.getZ() < 2)
                 {
-                    GCodeCommand command1 = new GCodeCommand("G21G90G0Z2");
+                    final GCodeCommand command1 = new GCodeCommand("G21 G90 G0 Z2");
                     ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command1);
                 }
 
-                GCodeCommand command2 = new GCodeCommand("G21G90G28X0Y0");
+                final GCodeCommand command2 = new GCodeCommand("G21 G90 G28 X0 Y0");
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command2);
 
-                GCodeCommand command3 = new GCodeCommand("G21G90G0Z0");
+                final GCodeCommand command3 = new GCodeCommand("G21 G90 G0 Z0");
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command3);
             }
         }
@@ -1186,7 +1185,8 @@ public class frmControl extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButtonResetZeroActionPerformed
         try
         {
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData(GRBLCommands.GCODE_RESET_COORDINATES_TO_ZERO);
+            final GCodeCommand command = new GCodeCommand(GRBLCommands.GCODE_RESET_COORDINATES_TO_ZERO);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
         }
         catch (Exception ex)
         {
@@ -1220,20 +1220,19 @@ public class frmControl extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButtonGCodeVisualizeActionPerformed
         try
         {
-            Chart2D chart = new Chart2D();
+            final Chart2D chart = new Chart2D();
             // Create an ITrace: 
             ITrace2D trace = new Trace2DSimple();
             // Add the trace to the chart. This has to be done before adding points (deadlock prevention): 
             chart.addTrace(trace);
 
-            Queue<String> gcodeQueue = new ArrayDeque(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeQueue());
+            final Queue<String> gcodeQueue = new ArrayDeque(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeQueue());
 
             double x = 0;
             double y = 0;
             while (gcodeQueue.size() > 0)
             {
-                String line = gcodeQueue.remove();
-                GCodeCommand command = new GCodeCommand(line);
+                final GCodeCommand command = new GCodeCommand(gcodeQueue.remove());
                 if (command.getCoordinates().getX() != null || command.getCoordinates().getY() != null)
                 {
                     if (command.getCoordinates().getX() != null)
@@ -1251,7 +1250,7 @@ public class frmControl extends javax.swing.JFrame
 
             // Make it visible:
             // Create a frame.
-            JFrame frame = new JFrame("GCode Visualizer");
+            final JFrame frame = new JFrame("GCode Visualizer");
             // add the chart to the frame: 
             frame.getContentPane().add(chart);
             frame.setSize(800, 600);

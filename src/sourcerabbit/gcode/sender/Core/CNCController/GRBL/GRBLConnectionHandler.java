@@ -73,16 +73,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
             @Override
             public void ConnectionClosed(SerialConnectionEvent evt)
             {
-                fKeepStatusThread = false;
-                fWaitForGetStatusCommandReply.Set();
-                try
-                {
-                    fStatusThread.interrupt();
-                }
-                catch (Exception ex)
-                {
-
-                }
+                StopStatusReportThread();
             }
         });
     }
@@ -114,6 +105,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 fWorkPosition.setZ(Float.parseFloat(parts[6]));
 
                 fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
+
+                // Set the WaitForGetStatusCommandReply manual reset event
                 fWaitForGetStatusCommandReply.Set();
             }
             else
@@ -193,7 +186,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
     }
 
     /**
-     * Send "?" command to the GRBL Controller
+     * Start a thread to ask and receive the GRBL controller's status.
      */
     private void StartStatusReportThread()
     {
@@ -232,7 +225,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
                         try
                         {
-                            Thread.sleep(fMillisecondsToGetMachineStatus + 1);
+                            Thread.sleep(fMillisecondsToGetMachineStatus);
                         }
                         catch (Exception ex)
                         {
@@ -246,11 +239,27 @@ public class GRBLConnectionHandler extends ConnectionHandler
         }
     }
 
+    /**
+     * Stop the Status Report Thread
+     */
+    private void StopStatusReportThread()
+    {
+        fKeepStatusThread = false;
+        fWaitForGetStatusCommandReply.Set();
+        try
+        {
+            fStatusThread.interrupt();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
     @Override
     public void CloseConnection() throws Exception
     {
         super.CloseConnection();
         fWaitForCommandToBeExecuted.Set();
     }
-
 }

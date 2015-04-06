@@ -8,7 +8,7 @@ SourceRabbit GCode Sender is a <b>GRBL</b> compatible, cross platform G-Code sen
 
 To run simply <b>download</b> and <b>unzip</b> the .zip file and <b>double click</b> the SourceRabbit-GCODE-Sender.jar file. On some platforms you will need to run an included start script.
 
-Note for MAC users: You may need to create a "/var/lock" directory on OSX to fix a bug in the serial library. To do this open the Terminal application and run the following two commands: 
+<b>Note for MAC users:</b> You may need to create a "/var/lock" directory with write permission. To do this open the Terminal application and run the following two commands: 
 sudo mkdir /var/lock 
 sudo chmod 777 /var/lock 
 

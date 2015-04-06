@@ -194,6 +194,11 @@ public class ConnectionHandler implements SerialPortEventListener
         throw new Exception("Not implemented yet!");
     }
 
+    public String SendGCodeCommandAndGetResponse(GCodeCommand command)
+    {
+        return "";
+    }
+
     public boolean SendDataImmediately_WithoutMessageCollector(String data) throws SerialPortException
     {
         try

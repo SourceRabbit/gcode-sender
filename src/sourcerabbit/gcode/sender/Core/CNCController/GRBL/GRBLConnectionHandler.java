@@ -44,6 +44,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
     // This holds the active command that has been send to GRBL controller for execution
     private GCodeCommand fLastCommandSentToController = null;
+    private String fGCodeCommandResponse = "";
 
     public GRBLConnectionHandler()
     {
@@ -119,12 +120,14 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 }
                 else if (receivedStr.equals("ok"))
                 {
+                    fGCodeCommandResponse = receivedStr;
                     this.getGCodeExecutionEventsManager().FireGCodeExecutedSuccessfully(new GCodeExecutionEvent(fLastCommandSentToController));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
                 }
                 else if (receivedStr.startsWith("error"))
                 {
+                    fGCodeCommandResponse = receivedStr;
                     fLastCommandSentToController.setError(receivedStr);
                     this.getGCodeExecutionEventsManager().FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
                     fLastCommandSentToController = null;
@@ -183,6 +186,27 @@ public class GRBLConnectionHandler extends ConnectionHandler
             }
         }
         return true;
+    }
+
+    /**
+     * Send GCodeCommand and wait for response
+     *
+     * @param command
+     * @return
+     */
+    @Override
+    public String SendGCodeCommandAndGetResponse(GCodeCommand command)
+    {
+        fGCodeCommandResponse = "";
+        try
+        {
+            SendGCodeCommand(command);
+        }
+        catch (Exception ex)
+        {
+        }
+
+        return fGCodeCommandResponse;
     }
 
     /**

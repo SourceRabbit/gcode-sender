@@ -85,7 +85,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
         {
             String receivedStr = new String(data);
             receivedStr = receivedStr.replace("\r", "");
-            System.out.println("Data received:" + receivedStr);
+            //System.out.println("Data received:" + receivedStr);
 
             if (receivedStr.startsWith("<") && receivedStr.endsWith(">"))
             {
@@ -149,7 +149,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 return true;
             }
 
-            System.out.println("Data Sent: " + optimizedCommand);
+            //System.out.println("Data Sent: " + optimizedCommand);
             fLastCommandSentToController = command;
 
             // Fire GCodeCommandSentToController

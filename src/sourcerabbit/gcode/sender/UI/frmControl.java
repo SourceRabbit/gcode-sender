@@ -72,6 +72,8 @@ public class frmControl extends javax.swing.JFrame
         InitUIThreads();
 
         this.setTitle("SourceRabbit GCode Sender (Version " + SettingsManager.getAppVersion() + ")");
+
+        this.jCheckBoxEnableGCodeLog.setSelected(SettingsManager.getIsGCodeLogEnabled());
     }
 
     private void InitEvents()
@@ -188,14 +190,16 @@ public class frmControl extends javax.swing.JFrame
             {
                 try
                 {
-                    synchronized (fAddRemoveLogTableLines)
+                    if (jCheckBoxEnableGCodeLog.isSelected())
                     {
-                        DefaultTableModel model = (DefaultTableModel) jTableGCodeLog.getModel();
-                        model.addRow(new Object[]
+                        synchronized (fAddRemoveLogTableLines)
                         {
-                            evt.getCommand().getCommand(), true, false
-                        });
-                        //jTableGCodeLog.scrollRectToVisible(jTableGCodeLog.getCellRect(jTableGCodeLog.getRowCount(), 0, true));
+                            DefaultTableModel model = (DefaultTableModel) jTableGCodeLog.getModel();
+                            model.addRow(new Object[]
+                            {
+                                evt.getCommand().getCommand(), true, false
+                            });
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -208,13 +212,16 @@ public class frmControl extends javax.swing.JFrame
             {
                 try
                 {
-                    synchronized (fAddRemoveLogTableLines)
+                    if (jCheckBoxEnableGCodeLog.isSelected())
                     {
-                        DefaultTableModel model = (DefaultTableModel) jTableGCodeLog.getModel();
-                        if (!evt.getCommand().getCommand().equals(""))
+                        synchronized (fAddRemoveLogTableLines)
                         {
-                            int lastRow = model.getRowCount() - 1;
-                            model.setValueAt(true, lastRow, 2);
+                            DefaultTableModel model = (DefaultTableModel) jTableGCodeLog.getModel();
+                            if (!evt.getCommand().getCommand().equals(""))
+                            {
+                                int lastRow = model.getRowCount() - 1;
+                                model.setValueAt(true, lastRow, 2);
+                            }
                         }
                     }
                 }
@@ -398,12 +405,13 @@ public class frmControl extends javax.swing.JFrame
         jScrollPane1 = new javax.swing.JScrollPane();
         jTableGCodeLog = new javax.swing.JTable();
         jButtonClearLog = new javax.swing.JButton();
+        jCheckBoxEnableGCodeLog = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SourceRabbit GCODE Sender");
         setResizable(false);
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Machine Status"));
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Machine Status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
         jLabelWorkX.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabelWorkX.setText("X: 0");
@@ -423,6 +431,7 @@ public class frmControl extends javax.swing.JFrame
         jLabelMachineZ.setText("Z: 0");
 
         jButtonResetZero.setText("Reset Zero");
+        jButtonResetZero.setToolTipText("Reset the Work Position to 0,0,0");
         jButtonResetZero.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -519,7 +528,7 @@ public class frmControl extends javax.swing.JFrame
                 .addGap(158, 158, 158))
         );
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Connection"));
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
         jLabel1.setText("Status:");
 
@@ -576,7 +585,7 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap())
         );
 
-        jPanelMachineControl.setBorder(javax.swing.BorderFactory.createTitledBorder("Machine Control"));
+        jPanelMachineControl.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Machine Control", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
         jRadioButtonInches.setText("inches");
         jRadioButtonInches.addActionListener(new java.awt.event.ActionListener()
@@ -656,6 +665,7 @@ public class frmControl extends javax.swing.JFrame
         });
 
         jButtonReturnToZero.setText("Return to 0");
+        jButtonReturnToZero.setToolTipText("Return to initial Work Position (0,0,0)");
         jButtonReturnToZero.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -732,7 +742,7 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("GCode"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "GCode", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
         jLabel5.setText("File:");
 
@@ -825,9 +835,8 @@ public class frmControl extends javax.swing.JFrame
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addComponent(jLabelRowsInFile3)
                                         .addGap(42, 42, 42)
-                                        .addComponent(jLabelRowsInFile, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(2, 2, 2)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabelRowsInFile, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(2, 2, 2)
                                 .addComponent(jLabelRowsInFile4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jLabelTimeElapsed, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -874,6 +883,8 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
+        jTabbedPane1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+
         jTableGCodeLog.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][]
             {
@@ -916,11 +927,22 @@ public class frmControl extends javax.swing.JFrame
         }
 
         jButtonClearLog.setText("Clear Log");
+        jButtonClearLog.setToolTipText("Clear the GCode Log");
         jButtonClearLog.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
                 jButtonClearLogActionPerformed(evt);
+            }
+        });
+
+        jCheckBoxEnableGCodeLog.setText("Enable GCode Log");
+        jCheckBoxEnableGCodeLog.setToolTipText("You may uncheck it on slower computers");
+        jCheckBoxEnableGCodeLog.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jCheckBoxEnableGCodeLogActionPerformed(evt);
             }
         });
 
@@ -934,16 +956,19 @@ public class frmControl extends javax.swing.JFrame
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jButtonClearLog)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jCheckBoxEnableGCodeLog)))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonClearLog)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButtonClearLog)
+                    .addComponent(jCheckBoxEnableGCodeLog))
                 .addContainerGap())
         );
 
@@ -1228,8 +1253,8 @@ public class frmControl extends javax.swing.JFrame
 
             final Queue<String> gcodeQueue = new ArrayDeque(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeQueue());
 
-            double x = 0;
-            double y = 0;
+            double x = 0, y = 0, maxX = 0, maxY = 0;
+
             while (gcodeQueue.size() > 0)
             {
                 final GCodeCommand command = new GCodeCommand(gcodeQueue.remove());
@@ -1238,11 +1263,13 @@ public class frmControl extends javax.swing.JFrame
                     if (command.getCoordinates().getX() != null)
                     {
                         x = command.getCoordinates().getX();
+                        maxX = Math.max(x, maxX);
                     }
 
                     if (command.getCoordinates().getY() != null)
                     {
                         y = command.getCoordinates().getY();
+                        maxY = Math.max(x, maxY);
                     }
                     trace.addPoint(x, y);
                 }
@@ -1253,7 +1280,7 @@ public class frmControl extends javax.swing.JFrame
             final JFrame frame = new JFrame("GCode Visualizer");
             // add the chart to the frame: 
             frame.getContentPane().add(chart);
-            frame.setSize(800, 600);
+            frame.setSize((int) maxX * 10, (int) maxY * 10);
             frame.setVisible(true);
         }
         catch (Exception ex)
@@ -1275,6 +1302,18 @@ public class frmControl extends javax.swing.JFrame
         }
     }//GEN-LAST:event_jButtonClearLogActionPerformed
 
+    private void jCheckBoxEnableGCodeLogActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jCheckBoxEnableGCodeLogActionPerformed
+    {//GEN-HEADEREND:event_jCheckBoxEnableGCodeLogActionPerformed
+        try
+        {
+            SettingsManager.setIsGCodeLogEnabled(jCheckBoxEnableGCodeLog.isSelected());
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }//GEN-LAST:event_jCheckBoxEnableGCodeLogActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClearLog;
     private javax.swing.JButton jButtonConnectDisconnect;
@@ -1293,6 +1332,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JButton jButtonYPlus;
     private javax.swing.JButton jButtonZMinus;
     private javax.swing.JButton jButtonZPlus;
+    private javax.swing.JCheckBox jCheckBoxEnableGCodeLog;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

@@ -28,7 +28,6 @@ import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position4D;
 public class GCodeCommand
 {
 
-    private int fID = -1;
     private String fCommand;
     private String fComment = "", fError = "";
 
@@ -41,6 +40,7 @@ public class GCodeCommand
         if (command.startsWith("("))
         {
             fCommand = "";
+            return;
         }
         else
         {
@@ -75,12 +75,12 @@ public class GCodeCommand
     {
         if (fCoordinates == null)
         {
-            Pattern pattern = Pattern.compile("[AXYZ][+-]?[0-9]*\\.?[0-9]*\\.?[0-9]­*");
-            Matcher m = pattern.matcher(fCommand);
+            final Pattern pattern = Pattern.compile("[AXYZ][+-]?[0-9]*\\.?[0-9]*\\.?[0-9]­*");
+            final Matcher m = pattern.matcher(fCommand);
             Float x = null, y = null, z = null, a = null;
             while (m.find())
             {
-                String groupStr = m.group();
+                final String groupStr = m.group();
                 if (groupStr.contains("X"))
                 {
                     x = Float.parseFloat(groupStr.replace("X", ""));
@@ -145,17 +145,32 @@ public class GCodeCommand
     {
         return fCommand;
     }
-    
+
+    /**
+     * Returns the command's comment
+     *
+     * @return the command comment
+     */
     public String getComment()
     {
         return fComment;
     }
 
+    /**
+     * Set command's error
+     *
+     * @param error
+     */
     public void setError(String error)
     {
         fError = error;
     }
 
+    /**
+     * Returns command's error
+     *
+     * @return command's error
+     */
     public String getError()
     {
         return fError;

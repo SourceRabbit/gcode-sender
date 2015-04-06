@@ -32,6 +32,7 @@ public class SettingsManager
 
     private static final Properties fAppSettings = new Properties();
     private static String fSettingsFilePath = "";
+    private static boolean fIsGCodeLogEnabled = false;
 
     static
     {
@@ -135,6 +136,35 @@ public class SettingsManager
     public static String getAppSettingsFilePath()
     {
         return System.getProperty("user.home") + File.separator + "SourceRabbitGCodeSender.cfg";
+    }
+
+    /**
+     * Returns the last GCodeBrowsedDirectory
+     *
+     * @return
+     */
+    public static boolean getIsGCodeLogEnabled()
+    {
+        String value = fAppSettings.getProperty("IsGCodeLogEnabled");
+        if (value == null || value.equals(""))
+        {
+            return false;
+        }
+        else
+        {
+            return Boolean.parseBoolean(value);
+        }
+    }
+
+    /**
+     * Set the last IsGCodeLogEnabled
+     *
+     * @param value
+     */
+    public static void setIsGCodeLogEnabled(boolean value)
+    {
+        fAppSettings.setProperty("IsGCodeLogEnabled", String.valueOf(value));
+        SaveSettings();
     }
 
     public static String getAppVersion()

@@ -6,7 +6,7 @@ SourceRabbit GCode Sender
 
 SourceRabbit GCode Sender is a <b>GRBL</b> compatible, cross platform G-Code sender written in Java. It features a highly optimized and asynchronous (event-driven) UI and USB-to-Serial communication and can be also used on computers with small amount of RAM and CPU.
 
-To run simply <b>download</b> and <b>unzip</b> the .zip file and <b>double click</b> the SourceRabbit-GCODE-Sender.jar file. On some platforms you will need to run an included start script.
+To run simply <b>download</b>, <b>unzip</b> the .zip file and <b>double click</b> the SourceRabbit-GCODE-Sender.jar file. On some platforms you will need to run an included start script.
 
 <b>Note for MAC users:</b> You may need to create a "/var/lock" directory with write permission. To do this open the Terminal application and run the following two commands: <br>
 sudo mkdir /var/lock <br>

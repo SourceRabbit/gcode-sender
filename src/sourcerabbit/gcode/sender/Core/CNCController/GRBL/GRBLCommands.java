@@ -14,26 +14,26 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.Parser;
-
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position3D;
+package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
 /**
  *
  * @author Nikos Siatras
  */
-public class GCodeCommand
+public class GRBLCommands
 {
 
-    private Position3D fCoordinates;
+    // Real time commands
+    public static final String COMMAND_PAUSE = "!";
+    public static final String COMMAND_START_CYCLE = "~";
+    public static final String COMMAND_GET_STATUS = "?";
+    public static final String COMMAND_SOFT_RESET = String.valueOf((char) 24);
 
-    public GCodeCommand(Position3D coordinates)
-    {
-        fCoordinates = coordinates;
-    }
+    // Non real time commands
+    public static final String COMMAND_KILL_ALARM_LOCK = "$X";
+    public static final String COMMAND_TOGGLE_CHECK_MODE = "$C";
+    public static final String COMMAND_VIEW_PARSER_STATE = "$G";
 
-    public Position3D getCoordinates()
-    {
-        return fCoordinates;
-    }
+    // GCode Commands
+    public static final String GCODE_RESET_COORDINATES_TO_ZERO = "G10 P0 L20 X0 Y0 Z0";
 }

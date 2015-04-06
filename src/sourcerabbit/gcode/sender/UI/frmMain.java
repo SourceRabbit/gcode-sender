@@ -22,7 +22,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.CNCControlFramework;
 import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.CNCControlFrameworkManager;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers.ConnectionHandler;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;

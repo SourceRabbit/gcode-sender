@@ -14,7 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers;
+package sourcerabbit.gcode.sender.Core.CNCController.Connection;
 
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
@@ -23,9 +23,10 @@ import jssc.SerialPortException;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEventsManager;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEventManager;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.GRBLGCodeSender;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLGCodeSender;
+import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.ByteArrayBuilder;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position3D;
+import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position4D;
 
 /**
  *
@@ -48,9 +49,9 @@ public class ConnectionHandler implements SerialPortEventListener
     protected final Object fLockSerialEvent = new Object();
 
     // CNC position and status
-    protected String fActiveState = "";
-    protected Position3D fMachinePosition;
-    protected Position3D fWorkPosition;
+    protected int fActiveState = 1;
+    protected Position4D fMachinePosition;
+    protected Position4D fWorkPosition;
 
     // Event Managers
     protected SerialConnectionEventManager fSerialConnectionEventManager = new SerialConnectionEventManager();
@@ -88,8 +89,8 @@ public class ConnectionHandler implements SerialPortEventListener
             throw new Exception("Serial port not found!");
         }
 
-        fMachinePosition = new Position3D((double) 0, (double) 0, (double) 0);
-        fWorkPosition = new Position3D((double) 0, (double) 0, (double) 0);
+        fMachinePosition = new Position4D((float) 0, (float) 0, (float) 0, null);
+        fWorkPosition = new Position4D((float) 0, (float) 0, (float) 0, null);
 
         return true;
     }
@@ -188,6 +189,11 @@ public class ConnectionHandler implements SerialPortEventListener
         }
     }
 
+    public boolean SendGCodeCommand(GCodeCommand command) throws Exception
+    {
+        throw new Exception("Not implemented yet!");
+    }
+
     public boolean SendDataImmediately_WithoutMessageCollector(String data) throws SerialPortException
     {
         try
@@ -232,17 +238,22 @@ public class ConnectionHandler implements SerialPortEventListener
         return fConnectionEstablished;
     }
 
-    public Position3D getMachinePosition()
+    public Position4D getMachinePosition()
     {
         return fMachinePosition;
     }
 
-    public String getActiveState()
+    /**
+     * Returns the active state of the controller
+     *
+     * @return the active state of the controller
+     */
+    public int getActiveState()
     {
         return fActiveState;
     }
 
-    public Position3D getWorkPosition()
+    public Position4D getWorkPosition()
     {
         return fWorkPosition;
     }

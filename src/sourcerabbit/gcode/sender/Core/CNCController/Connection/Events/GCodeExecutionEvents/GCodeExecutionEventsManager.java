@@ -56,4 +56,13 @@ public class GCodeExecutionEventsManager extends EventManager
             listener.GCodeExecutedWithError(evt);
         }
     }
+
+    public void FireGCodeCommandHasComment(GCodeExecutionEvent evt)
+    {
+        for (Object obj : fEventListeners)
+        {
+            IGCodeExecutionEventListener listener = (IGCodeExecutionEventListener) obj;
+            listener.GCodeExecutedWithError(evt);
+        }
+    }
 }

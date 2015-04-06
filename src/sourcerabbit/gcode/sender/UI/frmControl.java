@@ -35,12 +35,12 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConn
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.GCodeCycleEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.IGCodeCycleListener;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.Parser.GCodeCommand;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCode.Parser.GCodeParser;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers.GRBL.GRBLCommands;
+import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLCommands;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position3D;
+import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position4D;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
 import sourcerabbit.gcode.sender.UI.Tools.UITools;
 
@@ -57,6 +57,7 @@ public class frmControl extends javax.swing.JFrame
     private Thread fMachineStatusThread;
     private String fInchesOrMillimetersGCode = "G21";
     private static final Object fAddRemoveLogTableLines = new Object();
+    private int fLastActiveState = -1;
 
     public frmControl()
     {
@@ -71,7 +72,6 @@ public class frmControl extends javax.swing.JFrame
         InitUIThreads();
 
         this.setTitle("SourceRabbit GCode Sender (Version " + SettingsManager.getAppVersion() + ")");
-
     }
 
     private void InitEvents()
@@ -184,7 +184,6 @@ public class frmControl extends javax.swing.JFrame
         // GCode Execution Events
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getGCodeExecutionEventsManager().AddListener(new IGCodeExecutionEventListener()
         {
-
             @Override
             public void GCodeCommandSentToController(GCodeExecutionEvent evt)
             {
@@ -195,14 +194,13 @@ public class frmControl extends javax.swing.JFrame
                         DefaultTableModel model = (DefaultTableModel) jTableGCodeLog.getModel();
                         model.addRow(new Object[]
                         {
-                            evt.getCommand(), true, false
+                            evt.getCommand().getCommand(), true, false
                         });
                         //jTableGCodeLog.scrollRectToVisible(jTableGCodeLog.getCellRect(jTableGCodeLog.getRowCount(), 0, true));
                     }
                 }
                 catch (Exception ex)
                 {
-
                 }
             }
 
@@ -214,7 +212,7 @@ public class frmControl extends javax.swing.JFrame
                     synchronized (fAddRemoveLogTableLines)
                     {
                         DefaultTableModel model = (DefaultTableModel) jTableGCodeLog.getModel();
-                        if (!evt.getCommand().equals(""))
+                        if (!evt.getCommand().getCommand().equals(""))
                         {
                             int lastRow = model.getRowCount() - 1;
                             model.setValueAt(true, lastRow, 2);
@@ -223,9 +221,7 @@ public class frmControl extends javax.swing.JFrame
                 }
                 catch (Exception ex)
                 {
-
                 }
-
             }
 
             @Override
@@ -240,16 +236,22 @@ public class frmControl extends javax.swing.JFrame
                         {
                             int lastRow = model.getRowCount() - 1;
                             model.setValueAt(true, lastRow, 2);
-                            model.setValueAt(evt.getError(), lastRow, 3);
+                            model.setValueAt(evt.getCommand().getError(), lastRow, 3);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-
                 }
             }
-        });
+
+            @Override
+            public void GCodeCommandHasComment(GCodeExecutionEvent evt)
+            {
+                System.out.println(evt.getCommand().getCommandComment());
+            }
+        }
+        );
     }
 
     private void SetMachineControlsEnabled(boolean state)
@@ -272,6 +274,39 @@ public class frmControl extends javax.swing.JFrame
                 {
                     fMachineStatusThreadWait.Reset();
 
+                    // Update Active State
+                    int activeState = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState();
+                    if (fLastActiveState != activeState)
+                    {
+                        switch (activeState)
+                        {
+                            case GRBLActiveStates.IDLE:
+                                jLabelActiveState.setForeground(new Color(0, 153, 51));
+                                jLabelActiveState.setText("Idle");
+                                break;
+
+                            case GRBLActiveStates.RUN:
+                                jLabelActiveState.setForeground(Color.blue);
+                                jLabelActiveState.setText("Run");
+                                break;
+
+                            case GRBLActiveStates.HOLD:
+                                jLabelActiveState.setForeground(Color.yellow);
+                                jLabelActiveState.setText("Hold");
+                                break;
+
+                            case GRBLActiveStates.ALARM:
+                                jLabelActiveState.setForeground(Color.red);
+                                jLabelActiveState.setText("Alarm!");
+                                break;
+                        }
+
+                        jButtonKillAlarm.setVisible(activeState == GRBLActiveStates.ALARM);
+                        jButtonResetZero.setEnabled(activeState == GRBLActiveStates.IDLE);
+                        jButtonReturnToZero.setEnabled(activeState == GRBLActiveStates.IDLE);
+                        jButtonGCodeSend.setEnabled(activeState == GRBLActiveStates.IDLE);
+                    }
+
                     // Update Machine Position
                     jLabelMachineX.setText("X: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX());
                     jLabelMachineY.setText("Y: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY());
@@ -281,33 +316,6 @@ public class frmControl extends javax.swing.JFrame
                     jLabelWorkX.setText("X: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX());
                     jLabelWorkY.setText("Y: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY());
                     jLabelWorkZ.setText("Z: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ());
-
-                    // Update Active State
-                    String activeState = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState();
-                    switch (activeState)
-                    {
-                        case "run":
-                            if (!jLabelActiveState.getText().equals(activeState))
-                            {
-                                jLabelActiveState.setForeground(new Color(0, 153, 51));
-                            }
-                            break;
-                        case "idle":
-                            if (!jLabelActiveState.getText().equals(activeState))
-                            {
-                                jLabelActiveState.setForeground(Color.blue);
-                            }
-                            break;
-                        default:
-                            if (!jLabelActiveState.getText().equals(activeState))
-                            {
-                                jLabelActiveState.setForeground(Color.red);
-                            }
-                            break;
-                    }
-                    jLabelActiveState.setText(activeState);
-
-                    jButtonKilleAlarm.setVisible(activeState.equals("alarm"));
 
                     // Update remaining rows & rows sent
                     jLabelSentRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsSent()));
@@ -325,7 +333,7 @@ public class frmControl extends javax.swing.JFrame
                         jLabelTimeElapsed.setText(time);
                     }
 
-                    fMachineStatusThreadWait.WaitOne(250);
+                    fMachineStatusThreadWait.WaitOne(200);
                 }
             }
         });
@@ -352,7 +360,7 @@ public class frmControl extends javax.swing.JFrame
         jLabel2 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabelActiveState = new javax.swing.JLabel();
-        jButtonKilleAlarm = new javax.swing.JButton();
+        jButtonKillAlarm = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabelConnectionStatus = new javax.swing.JLabel();
@@ -369,7 +377,7 @@ public class frmControl extends javax.swing.JFrame
         jButtonXMinus = new javax.swing.JButton();
         jButtonZMinus = new javax.swing.JButton();
         jButtonZPlus = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        jButtonReturnToZero = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jTextFieldGCodeFile = new javax.swing.JTextField();
@@ -432,12 +440,12 @@ public class frmControl extends javax.swing.JFrame
         jLabelActiveState.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabelActiveState.setText("Restarting...");
 
-        jButtonKilleAlarm.setText("Kill Alarm");
-        jButtonKilleAlarm.addActionListener(new java.awt.event.ActionListener()
+        jButtonKillAlarm.setText("Kill Alarm");
+        jButtonKillAlarm.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                jButtonKilleAlarmActionPerformed(evt);
+                jButtonKillAlarmActionPerformed(evt);
             }
         });
 
@@ -478,7 +486,7 @@ public class frmControl extends javax.swing.JFrame
                                             .addComponent(jLabelMachineY, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                             .addComponent(jLabelMachineZ, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                                 .addGap(8, 8, 8))
-                            .addComponent(jButtonKilleAlarm, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(jButtonKillAlarm, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -488,7 +496,7 @@ public class frmControl extends javax.swing.JFrame
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(jLabelActiveState)
-                    .addComponent(jButtonKilleAlarm))
+                    .addComponent(jButtonKillAlarm))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
@@ -648,12 +656,12 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
-        jButton1.setText("Return to 0");
-        jButton1.addActionListener(new java.awt.event.ActionListener()
+        jButtonReturnToZero.setText("Return to 0");
+        jButtonReturnToZero.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                jButton1ActionPerformed(evt);
+                jButtonReturnToZeroActionPerformed(evt);
             }
         });
 
@@ -664,7 +672,7 @@ public class frmControl extends javax.swing.JFrame
             .addGroup(jPanelMachineControlLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanelMachineControlLayout.createSequentialGroup()
                         .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelMachineControlLayout.createSequentialGroup()
@@ -721,7 +729,7 @@ public class frmControl extends javax.swing.JFrame
                         .addGap(31, 31, 31)
                         .addComponent(jButtonXMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -815,22 +823,24 @@ public class frmControl extends javax.swing.JFrame
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel5)
-                                    .addComponent(jLabelRowsInFile2))
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabelRemainingRows, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jLabelRowsInFile3)
+                                        .addGap(42, 42, 42)
+                                        .addComponent(jLabelRowsInFile, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(2, 2, 2)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabelRowsInFile4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabelTimeElapsed, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabelRowsInFile3)
+                                    .addComponent(jLabelRowsInFile2)
                                     .addComponent(jLabelRowsInFile1))
-                                .addGap(42, 42, 42)
+                                .addGap(18, 18, Short.MAX_VALUE)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabelSentRows, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabelRowsInFile, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(2, 2, 2)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabelRowsInFile4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabelTimeElapsed, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabelSentRows, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabelRemainingRows, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(169, 169, 169)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -854,15 +864,15 @@ public class frmControl extends javax.swing.JFrame
                     .addComponent(jLabelRowsInFile3)
                     .addComponent(jLabelRowsInFile4)
                     .addComponent(jLabelTimeElapsed))
-                .addGap(4, 4, 4)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabelRowsInFile1)
-                    .addComponent(jLabelSentRows))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelSentRows)
+                    .addComponent(jLabelRowsInFile1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelRowsInFile2)
                     .addComponent(jLabelRemainingRows))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
 
         jTableGCodeLog.setModel(new javax.swing.table.DefaultTableModel(
@@ -872,7 +882,7 @@ public class frmControl extends javax.swing.JFrame
             },
             new String []
             {
-                "Command", "Sent", "Received", "Error"
+                "Command", "TX", "RX", "Error"
             }
         )
         {
@@ -896,6 +906,15 @@ public class frmControl extends javax.swing.JFrame
             }
         });
         jScrollPane1.setViewportView(jTableGCodeLog);
+        if (jTableGCodeLog.getColumnModel().getColumnCount() > 0)
+        {
+            jTableGCodeLog.getColumnModel().getColumn(1).setMinWidth(50);
+            jTableGCodeLog.getColumnModel().getColumn(1).setPreferredWidth(50);
+            jTableGCodeLog.getColumnModel().getColumn(1).setMaxWidth(50);
+            jTableGCodeLog.getColumnModel().getColumn(2).setMinWidth(50);
+            jTableGCodeLog.getColumnModel().getColumn(2).setPreferredWidth(50);
+            jTableGCodeLog.getColumnModel().getColumn(2).setMaxWidth(50);
+        }
 
         jButtonClearLog.setText("Clear Log");
         jButtonClearLog.addActionListener(new java.awt.event.ActionListener()
@@ -913,7 +932,7 @@ public class frmControl extends javax.swing.JFrame
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jButtonClearLog)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -923,13 +942,13 @@ public class frmControl extends javax.swing.JFrame
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonClearLog)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
-        jTabbedPane1.addTab("Log", jPanel4);
+        jTabbedPane1.addTab("GCode Commands Log", jPanel4);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -951,18 +970,18 @@ public class frmControl extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jTabbedPane1)))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         getAccessibleContext().setAccessibleName("frmControl");
@@ -1001,7 +1020,8 @@ public class frmControl extends javax.swing.JFrame
         double stepValue = (double) jSpinnerStep.getValue();
         try
         {
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData(fInchesOrMillimetersGCode + "G91G0Y" + stepValue);
+            GCodeCommand command = new GCodeCommand(fInchesOrMillimetersGCode + "G91G0Y" + stepValue);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
         }
         catch (Exception ex)
         {
@@ -1013,7 +1033,8 @@ public class frmControl extends javax.swing.JFrame
         double stepValue = (double) jSpinnerStep.getValue();
         try
         {
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData(fInchesOrMillimetersGCode + "G91G0Y-" + stepValue);
+            GCodeCommand command = new GCodeCommand(fInchesOrMillimetersGCode + "G91G0Y-" + stepValue);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
         }
         catch (Exception ex)
         {
@@ -1025,7 +1046,8 @@ public class frmControl extends javax.swing.JFrame
         double stepValue = (double) jSpinnerStep.getValue();
         try
         {
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData(fInchesOrMillimetersGCode + "G91G0X" + stepValue);
+            GCodeCommand command = new GCodeCommand(fInchesOrMillimetersGCode + "G91G0X" + stepValue);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
         }
         catch (Exception ex)
         {
@@ -1037,7 +1059,8 @@ public class frmControl extends javax.swing.JFrame
         double stepValue = (double) jSpinnerStep.getValue();
         try
         {
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData(fInchesOrMillimetersGCode + "G91G0X-" + stepValue);
+            GCodeCommand command = new GCodeCommand(fInchesOrMillimetersGCode + "G91G0X-" + stepValue);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
         }
         catch (Exception ex)
         {
@@ -1063,7 +1086,8 @@ public class frmControl extends javax.swing.JFrame
         double stepValue = (double) jSpinnerStep.getValue();
         try
         {
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData(fInchesOrMillimetersGCode + "G91G0Z-" + stepValue);
+            GCodeCommand command = new GCodeCommand(fInchesOrMillimetersGCode + "G91G0Z-" + stepValue);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
         }
         catch (Exception ex)
         {
@@ -1075,7 +1099,8 @@ public class frmControl extends javax.swing.JFrame
         double stepValue = (double) jSpinnerStep.getValue();
         try
         {
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData(fInchesOrMillimetersGCode + "G91G0Z" + stepValue);
+            GCodeCommand command = new GCodeCommand(fInchesOrMillimetersGCode + "G91G0Z" + stepValue);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
         }
         catch (Exception ex)
         {
@@ -1132,27 +1157,30 @@ public class frmControl extends javax.swing.JFrame
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode();
     }//GEN-LAST:event_jButtonGCodeCancelActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton1ActionPerformed
-    {//GEN-HEADEREND:event_jButton1ActionPerformed
+    private void jButtonReturnToZeroActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonReturnToZeroActionPerformed
+    {//GEN-HEADEREND:event_jButtonReturnToZeroActionPerformed
         try
         {
-            Position3D machinePos = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition();
+            Position4D machinePos = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition();
             if (machinePos.getX() != 0 || machinePos.getY() != 0 || machinePos.getZ() != 0)
             {
                 if (machinePos.getZ() < 2)
                 {
-                    ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData("G21G90G0Z2");
+                    GCodeCommand command1 = new GCodeCommand("G21G90G0Z2");
+                    ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command1);
                 }
 
-                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData("G21G90G28X0Y0");
-                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData("G21G90G0Z0");
-                //ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData("G92");
+                GCodeCommand command2 = new GCodeCommand("G21G90G28X0Y0");
+                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command2);
+
+                GCodeCommand command3 = new GCodeCommand("G21G90G0Z0");
+                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command3);
             }
         }
         catch (Exception ex)
         {
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_jButtonReturnToZeroActionPerformed
 
     private void jButtonResetZeroActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonResetZeroActionPerformed
     {//GEN-HEADEREND:event_jButtonResetZeroActionPerformed
@@ -1177,8 +1205,8 @@ public class frmControl extends javax.swing.JFrame
         }
     }//GEN-LAST:event_jButtonSoftResetActionPerformed
 
-    private void jButtonKilleAlarmActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonKilleAlarmActionPerformed
-    {//GEN-HEADEREND:event_jButtonKilleAlarmActionPerformed
+    private void jButtonKillAlarmActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonKillAlarmActionPerformed
+    {//GEN-HEADEREND:event_jButtonKillAlarmActionPerformed
         try
         {
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData(GRBLCommands.COMMAND_KILL_ALARM_LOCK);
@@ -1186,7 +1214,7 @@ public class frmControl extends javax.swing.JFrame
         catch (Exception ex)
         {
         }
-    }//GEN-LAST:event_jButtonKilleAlarmActionPerformed
+    }//GEN-LAST:event_jButtonKillAlarmActionPerformed
 
     private void jButtonGCodeVisualizeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGCodeVisualizeActionPerformed
     {//GEN-HEADEREND:event_jButtonGCodeVisualizeActionPerformed
@@ -1205,8 +1233,8 @@ public class frmControl extends javax.swing.JFrame
             while (gcodeQueue.size() > 0)
             {
                 String line = gcodeQueue.remove();
-                GCodeCommand command = GCodeParser.CreateCommand(line);
-                if (command != null)
+                GCodeCommand command = new GCodeCommand(line);
+                if (command.getCoordinates().getX() != null || command.getCoordinates().getY() != null)
                 {
                     if (command.getCoordinates().getX() != null)
                     {
@@ -1249,7 +1277,6 @@ public class frmControl extends javax.swing.JFrame
     }//GEN-LAST:event_jButtonClearLogActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonClearLog;
     private javax.swing.JButton jButtonConnectDisconnect;
     private javax.swing.JButton jButtonGCodeBrowse;
@@ -1257,8 +1284,9 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JButton jButtonGCodePause;
     private javax.swing.JButton jButtonGCodeSend;
     private javax.swing.JButton jButtonGCodeVisualize;
-    private javax.swing.JButton jButtonKilleAlarm;
+    private javax.swing.JButton jButtonKillAlarm;
     private javax.swing.JButton jButtonResetZero;
+    private javax.swing.JButton jButtonReturnToZero;
     private javax.swing.JButton jButtonSoftReset;
     private javax.swing.JButton jButtonXMinus;
     private javax.swing.JButton jButtonXPlus;

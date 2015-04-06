@@ -20,57 +20,69 @@ package sourcerabbit.gcode.sender.Core.CNCController.Tools;
  *
  * @author Nikos Siatras
  */
-public class Position3D
+public class Position4D
 {
 
-    private Double fX, fY, fZ;
+    private Float fX, fY, fZ, fA;
 
-    public Position3D()
+    public Position4D()
     {
 
     }
 
-    public Position3D(Double x, Double y, Double z)
-    {
-        fX = x;
-        fY = y;
-        fZ = z;
-    }
-
-    public void setX(Double x)
-    {
-        fX = x;
-    }
-
-    public void setY(Double y)
-    {
-        fY = y;
-    }
-
-    public void setZ(Double z)
-    {
-        fZ = z;
-    }
-
-    public void setPosition(Double x, Double y, Double z)
+    public Position4D(Float x, Float y, Float z, Float a)
     {
         fX = x;
         fY = y;
         fZ = z;
+        fA = a;
     }
 
-    public Double getX()
+    public void setX(Float x)
+    {
+        fX = x;
+    }
+
+    public void setY(Float y)
+    {
+        fY = y;
+    }
+
+    public void setZ(Float z)
+    {
+        fZ = z;
+    }
+
+    public void setA(Float a)
+    {
+        fA = a;
+    }
+
+    public void setPosition(Float x, Float y, Float z, Float a)
+    {
+        fX = x;
+        fY = y;
+        fZ = z;
+        fA = a;
+    }
+
+    public Float getX()
     {
         return fX;
     }
 
-    public Double getY()
+    public Float getY()
     {
         return fY;
     }
 
-    public Double getZ()
+    public Float getZ()
     {
         return fZ;
+    }
+
+    public Float getA()
+    {
+        return fA;
     }
 }

@@ -28,10 +28,10 @@ import java.util.Properties;
 public class SettingsManager
 {
 
+    private static String fAppVersion = "1.0.3";
+
     private static final Properties fAppSettings = new Properties();
     private static String fSettingsFilePath = "";
-
-    private static String fAppVersion = "1.0.2";
 
     static
     {

@@ -16,7 +16,7 @@
  */
 package sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks;
 
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers.ConnectionHandler;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
 
 /**
  *

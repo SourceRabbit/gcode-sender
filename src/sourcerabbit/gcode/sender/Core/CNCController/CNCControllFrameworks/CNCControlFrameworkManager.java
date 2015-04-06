@@ -17,7 +17,7 @@
 package sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks;
 
 import java.util.ArrayList;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers.GRBL.Handler_GRBL;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLConnectionHandler;
 
 /**
  *
@@ -39,7 +39,7 @@ public class CNCControlFrameworkManager
         {
             // Create CNC Control Frameworks list
             fCNCControllFrameworks = new ArrayList<>();
-            fCNCControllFrameworks.add(new CNCControlFramework(1, "GRBL 0.9", new Handler_GRBL()));
+            fCNCControllFrameworks.add(new CNCControlFramework(1, "GRBL 0.9", new GRBLConnectionHandler()));
         }
 
         return fCNCControllFrameworks;

@@ -14,20 +14,21 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers.GRBL;
+package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
 import jssc.SerialPortException;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.Handlers.ConnectionHandler;
+import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
 
 /**
  *
  * @author Nikos Siatras
  */
-public class Handler_GRBL extends ConnectionHandler
+public class GRBLConnectionHandler extends ConnectionHandler
 {
 
     // Commands
@@ -41,10 +42,10 @@ public class Handler_GRBL extends ConnectionHandler
     private boolean fKeepStatusThread = false;
     private Thread fStatusThread;
 
-    // This string holds the active command that has been send to GRBL controller for execution
-    private String fCurrentCommandSentToController = "";
+    // This holds the active command that has been send to GRBL controller for execution
+    private GCodeCommand fLastCommandSentToController = null;
 
-    public Handler_GRBL()
+    public GRBLConnectionHandler()
     {
         super.fMessageSplitter = "\n";
         super.fMessageSplitterLength = fMessageSplitter.length();
@@ -89,66 +90,89 @@ public class Handler_GRBL extends ConnectionHandler
     @Override
     public void OnDataReceived(byte[] data)
     {
-        String receivedStr = new String(data);
-        receivedStr = receivedStr.replace("\r", "");
-        System.out.println("Data received:" + receivedStr);
-
-        if (receivedStr.startsWith("<") && receivedStr.endsWith(">"))
+        try
         {
-            // Machine status received !
-            receivedStr = receivedStr.toLowerCase();
-            receivedStr = receivedStr.replace("mpos", "").replace("wpos", "").replace(":", "").replace("<", "").replace(">", "");
-            String[] parts = receivedStr.split(",");
+            String receivedStr = new String(data);
+            receivedStr = receivedStr.replace("\r", "");
+            System.out.println("Data received:" + receivedStr);
 
-            fActiveState = parts[0];
+            if (receivedStr.startsWith("<") && receivedStr.endsWith(">"))
+            {
+                // Machine status received !
+                receivedStr = receivedStr.toLowerCase();
+                receivedStr = receivedStr.replace("mpos", "").replace("wpos", "").replace(":", "").replace("<", "").replace(">", "");
+                String[] parts = receivedStr.split(",");
 
-            fMachinePosition.setX(Double.parseDouble(parts[1]));
-            fMachinePosition.setY(Double.parseDouble(parts[2]));
-            fMachinePosition.setZ(Double.parseDouble(parts[3]));
+                fActiveState = GRBLActiveStates.getGRBLActiveStateFromString(parts[0]);
 
-            fWorkPosition.setX(Double.parseDouble(parts[4]));
-            fWorkPosition.setY(Double.parseDouble(parts[5]));
-            fWorkPosition.setZ(Double.parseDouble(parts[6]));
+                fMachinePosition.setX(Float.parseFloat(parts[1]));
+                fMachinePosition.setY(Float.parseFloat(parts[2]));
+                fMachinePosition.setZ(Float.parseFloat(parts[3]));
 
-            fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
-            fWaitForGetStatusCommandReply.Set();
+                fWorkPosition.setX(Float.parseFloat(parts[4]));
+                fWorkPosition.setY(Float.parseFloat(parts[5]));
+                fWorkPosition.setZ(Float.parseFloat(parts[6]));
+
+                fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
+                fWaitForGetStatusCommandReply.Set();
+            }
+            else
+            {
+                if (receivedStr.toLowerCase().startsWith("grbl"))
+                {
+                    // Fire the ConnectionEstablishedEvent
+                    fConnectionEstablished = true;
+                    fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
+                }
+                else if (receivedStr.equals("ok"))
+                {
+                    this.getGCodeExecutionEventsManager().FireGCodeExecutedSuccessfully(new GCodeExecutionEvent(fLastCommandSentToController));
+                    fLastCommandSentToController = null;
+                    fWaitForCommandToBeExecuted.Set();
+                }
+                else if (receivedStr.startsWith("error"))
+                {
+                    fLastCommandSentToController.setError(receivedStr);
+                    this.getGCodeExecutionEventsManager().FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
+                    fLastCommandSentToController = null;
+                    fWaitForCommandToBeExecuted.Set();
+                }
+            }
         }
-        else
+        catch (Exception ex)
         {
-            //fWaitForGetStatusCommandReply.WaitOne();
-            if (receivedStr.toLowerCase().startsWith("grbl"))
-            {
-                // Fire the ConnectionEstablishedEvent
-                fConnectionEstablished = true;
-                fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
-            }
-            else if (receivedStr.equals("ok"))
-            {
-                this.getGCodeExecutionEventsManager().FireGCodeExecutedSuccessfully(new GCodeExecutionEvent(fCurrentCommandSentToController, fCurrentCommandSentToController, ""));
-                fCurrentCommandSentToController = "";
-                fWaitForCommandToBeExecuted.Set();
-            }
-            else if (receivedStr.startsWith("error"))
-            {
-                this.getGCodeExecutionEventsManager().FireGCodeExecutedWithError(new GCodeExecutionEvent(fCurrentCommandSentToController, fCurrentCommandSentToController, receivedStr));
-                fCurrentCommandSentToController = "";
-                fWaitForCommandToBeExecuted.Set();
-            }
+            System.err.println("GRBLConnectionHandler.OnDataReceived Error: " + ex.getMessage());
         }
     }
 
     @Override
-    public boolean SendData(String data) throws SerialPortException
+    public boolean SendGCodeCommand(GCodeCommand command) throws SerialPortException
     {
         synchronized (fSendDataLock)
         {
-            //System.out.println("Data Sent: " + data);
-            fCurrentCommandSentToController = data;
-            this.getGCodeExecutionEventsManager().FireGCodeCommandSentToController(new GCodeExecutionEvent(data, data, ""));
+            final String optimizedCommand = command.getOptimizedCommand();
+            if (optimizedCommand.equals(""))
+            {
+                return true;
+            }
+
+            System.out.println("Data Sent: " + optimizedCommand);
+            fLastCommandSentToController = command;
+
+            // Fire GCodeCommandSentToController
+            this.getGCodeExecutionEventsManager().FireGCodeCommandSentToController(new GCodeExecutionEvent(command));
+
+            // Command has comment !
+            if (!command.getComment().equals(""))
+            {
+                this.getGCodeExecutionEventsManager().FireGCodeCommandHasComment(new GCodeExecutionEvent(command));
+            }
+
+            // Reset fWaitForCommandToBeExecuted manual reset event
             fWaitForCommandToBeExecuted.Reset();
 
             // Send data !!!!
-            if (super.SendData(data))
+            if (super.SendData(optimizedCommand))
             {
                 // Wait for "ok" or "error:" to come back
                 fWaitForCommandToBeExecuted.WaitOne();
@@ -221,4 +245,12 @@ public class Handler_GRBL extends ConnectionHandler
             fStatusThread.start();
         }
     }
+
+    @Override
+    public void CloseConnection() throws Exception
+    {
+        super.CloseConnection();
+        fWaitForCommandToBeExecuted.Set();
+    }
+
 }

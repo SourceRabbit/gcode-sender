@@ -17,6 +17,7 @@
 package sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents;
 
 import java.util.EventObject;
+import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 
 /**
  *
@@ -25,23 +26,17 @@ import java.util.EventObject;
 public class GCodeExecutionEvent extends EventObject
 {
 
-    private final String fCommand, fError;
+    private final GCodeCommand fCommand;
 
-    public GCodeExecutionEvent(Object source, String command, String error)
+    public GCodeExecutionEvent(Object source)
     {
         super(source);
-        fCommand = command;
-        fError = error;
+        fCommand = (GCodeCommand) source;
     }
 
-    public String getCommand()
+    public GCodeCommand getCommand()
     {
         return fCommand;
-    }
-
-    public String getError()
-    {
-        return fError;
     }
 
 }

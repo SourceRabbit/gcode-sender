@@ -39,7 +39,7 @@ Downloads
 
 Changelog
 ------
-1.0.1 -> 1.0.3
+1.0.2 -> 1.0.3
 * Enable GCode Log check box added to ControlForm. This helps users with slower computers
 * Point4D class added for future use with 4 Axis CNC
 * USB-to-Serial communication optimized

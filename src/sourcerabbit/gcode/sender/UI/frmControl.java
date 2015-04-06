@@ -160,7 +160,6 @@ public class frmControl extends javax.swing.JFrame
             @Override
             public void GCodeCycleFinished(GCodeCycleEvent evt)
             {
-
                 WriteToConsole("Cycle Finished!");
 
                 jButtonGCodeBrowse.setEnabled(true);

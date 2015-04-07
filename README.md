@@ -39,6 +39,9 @@ Downloads
 
 Changelog
 ------
+1.0.5 -> 1.0.6
+* Console is now showing more info (comments, GRBL Controller messages etc...)
+
 1.0.4 -> 1.0.5
 * Macro commands added inside the control form
 

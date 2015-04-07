@@ -18,7 +18,9 @@ package sourcerabbit.gcode.sender.UI;
 
 import info.monitorenter.gui.chart.Chart2D;
 import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
+import info.monitorenter.util.Range;
 import java.awt.Color;
 import java.awt.Component;
 import java.io.File;
@@ -1106,7 +1108,7 @@ public class frmControl extends javax.swing.JFrame
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(5, 5, 5)
                         .addComponent(jTabbedPane1)))
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         getAccessibleContext().setAccessibleName("frmControl");
@@ -1358,34 +1360,36 @@ public class frmControl extends javax.swing.JFrame
 
             final Queue<String> gcodeQueue = new ArrayDeque(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeQueue());
 
-            double x = 0, y = 0, maxX = 0, maxY = 0;
+            double previousZValue = Double.MAX_VALUE;
+            double previousXValue = Double.MAX_VALUE;
+            double x = 0, y = 0, z = 0, maxX = 0, maxY = 0, minZ = 0;
 
             while (gcodeQueue.size() > 0)
             {
                 final GCodeCommand command = new GCodeCommand(gcodeQueue.remove());
-                if (command.getCoordinates().getX() != null || command.getCoordinates().getY() != null)
-                {
-                    if (command.getCoordinates().getX() != null)
-                    {
-                        x = command.getCoordinates().getX();
-                        maxX = Math.max(x, maxX);
-                    }
+                x = (command.getCoordinates().getX() != null) ? command.getCoordinates().getX() : x;
+                y = (command.getCoordinates().getY() != null) ? command.getCoordinates().getY() : y;
+                z = (command.getCoordinates().getZ() != null) ? command.getCoordinates().getZ() : z;
 
-                    if (command.getCoordinates().getY() != null)
-                    {
-                        y = command.getCoordinates().getY();
-                        maxY = Math.max(x, maxY);
-                    }
+                maxX = Math.max(x, maxX);
+                maxY = Math.max(y, maxY);
+
+                if (z < 0)
+                {
                     trace.addPoint(x, y);
+
                 }
             }
+
+            chart.getAxisX().setRangePolicy(new RangePolicyFixedViewport(new Range(0, Math.max(maxY, maxX))));
+            chart.getAxisY().setRangePolicy(new RangePolicyFixedViewport(new Range(0, Math.max(maxY, maxX))));
 
             // Make it visible:
             // Create a frame.
             final JFrame frame = new JFrame("GCode Visualizer");
             // add the chart to the frame: 
             frame.getContentPane().add(chart);
-            frame.setSize((int) maxX * 10, (int) maxY * 10);
+            frame.setSize(600, 600);
             frame.setVisible(true);
         }
         catch (Exception ex)

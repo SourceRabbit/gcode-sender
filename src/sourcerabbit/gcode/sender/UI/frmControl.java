@@ -38,6 +38,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEvent;
@@ -1368,28 +1369,33 @@ public class frmControl extends javax.swing.JFrame
 
     private void jButtonGCodeBrowseActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGCodeBrowseActionPerformed
     {//GEN-HEADEREND:event_jButtonGCodeBrowseActionPerformed
-        String path = SettingsManager.getLastGCodeBrowsedDirectory();
+        final String path = SettingsManager.getLastGCodeBrowsedDirectory();
         JFileChooser fc;
         try
         {
             fc = new JFileChooser(new File(path));
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("GCode Files", "nc", "gcode", "txt");
+            fc.setFileFilter(filter);
         }
         catch (Exception ex)
         {
             fc = new JFileChooser();
         }
-        fc.showOpenDialog(this);
+        int returnVal = fc.showOpenDialog(this);
 
-        File gcodeFile = fc.getSelectedFile();
-        String gcodeFilePath = fc.getSelectedFile().getPath();
-        jTextFieldGCodeFile.setText(gcodeFilePath);
-
-        SettingsManager.setLastGCodeBrowsedDirectory(gcodeFile.getParent());
-
-        // Ask the GCodeSender of the active connection handler to load the GCode File
-        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().LoadGCodeFile(gcodeFile))
+        if (fc.getSelectedFile() != null && returnVal == JFileChooser.APPROVE_OPTION)
         {
-            jLabelRowsInFile.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsInFile()));
+            File gcodeFile = fc.getSelectedFile();
+            String gcodeFilePath = fc.getSelectedFile().getPath();
+            jTextFieldGCodeFile.setText(gcodeFilePath);
+
+            SettingsManager.setLastGCodeBrowsedDirectory(gcodeFile.getParent());
+
+            // Ask the GCodeSender of the active connection handler to load the GCode File
+            if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().LoadGCodeFile(gcodeFile))
+            {
+                jLabelRowsInFile.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsInFile()));
+            }
         }
     }//GEN-LAST:event_jButtonGCodeBrowseActionPerformed
 
@@ -1494,7 +1500,7 @@ public class frmControl extends javax.swing.JFrame
 
             /*double previousZValue = Double.MAX_VALUE;
              double previousXValue = Double.MAX_VALUE;*/
-            double x = 0, y = 0, z = 0, maxX = 0, maxY = 0, minZ = 0;
+            double x = 0, y = 0, z = 0, maxX = 0, maxY = 0;
 
             while (gcodeQueue.size() > 0)
             {
@@ -1503,10 +1509,13 @@ public class frmControl extends javax.swing.JFrame
                 y = (command.getCoordinates().getY() != null) ? command.getCoordinates().getY() : y;
                 z = (command.getCoordinates().getZ() != null) ? command.getCoordinates().getZ() : z;
 
-                maxX = Math.max(x, maxX);
-                maxY = Math.max(y, maxY);
+                if (z < 0)
+                {
+                    maxX = Math.max(x, maxX);
+                    maxY = Math.max(y, maxY);
 
-                trace.addPoint(x, y);
+                    trace.addPoint(x, y);
+                }
             }
 
             chart.getAxisX().setRangePolicy(new RangePolicyFixedViewport(new Range(0, Math.max(maxY, maxX))));

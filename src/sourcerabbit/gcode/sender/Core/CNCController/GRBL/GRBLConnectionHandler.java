@@ -90,8 +90,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
     {
         try
         {
-            String receivedStr = new String(data);
-            receivedStr = receivedStr.replace("\r", "").trim();
+            String receivedStr = new String(data).replace("\r", "").trim();
+            //receivedStr = receivedStr.replace("\r", "").trim();
             if (receivedStr.equals(""))
             {
                 return;
@@ -128,23 +128,24 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     // Fire the ConnectionEstablishedEvent
                     fConnectionEstablished = true;
                     fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
+                    fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
                 }
                 else if (receivedStr.equals("ok"))
                 {
-                    this.getGCodeExecutionEventsManager().FireGCodeExecutedSuccessfully(new GCodeExecutionEvent(fLastCommandSentToController));
+                    fGCodeExecutionEventsManager.FireGCodeExecutedSuccessfully(new GCodeExecutionEvent(fLastCommandSentToController));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
                 }
                 else if (receivedStr.startsWith("error"))
                 {
                     fLastCommandSentToController.setError(receivedStr);
-                    this.getGCodeExecutionEventsManager().FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
+                    fGCodeExecutionEventsManager.FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
                 }
                 else
                 {
-                    this.getSerialConnectionEventManager().FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
+                    fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
                 }
@@ -296,7 +297,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
         }
         catch (Exception ex)
         {
-
         }
     }
 

@@ -27,9 +27,10 @@ Goals:
 
 Downloads
 ------
+[1.0.5] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.5/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher. <br>
 [1.0.4](https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.4/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher. <br>
 [1.0.3](https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.3/SourceRabbit-GCode-Sender-1.0.3.zip) - Requires Java 7 or higher. <br>
-[1.0.2](https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.2/SourceRabbit-GCode-Sender-1.0.2.zip) - Requires Java 7 or higher.
+
 
 
 ![Connect to your CNC!](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ConnectForm.png "Connect to your CNC!")
@@ -39,6 +40,9 @@ Downloads
 
 Changelog
 ------
+1.0.4 -> 1.0.5
+* Macro commands added inside the control form
+
 1.0.3 -> 1.0.4
 * Console "output" added to ControlForm
 

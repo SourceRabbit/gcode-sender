@@ -76,6 +76,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
             {
                 StopStatusReportThread();
             }
+
+            @Override
+            public void DataReceivedFromSerialConnection(SerialConnectionEvent evt)
+            {
+                // Do nothing!
+            }
         });
     }
 
@@ -85,10 +91,14 @@ public class GRBLConnectionHandler extends ConnectionHandler
         try
         {
             String receivedStr = new String(data);
-            receivedStr = receivedStr.replace("\r", "");
+            receivedStr = receivedStr.replace("\r", "").trim();
+            if (receivedStr.equals(""))
+            {
+                return;
+            }
             //System.out.println("Data received:" + receivedStr);
 
-            if (receivedStr.startsWith("<") && receivedStr.endsWith(">"))
+            if (receivedStr.startsWith("<"))
             {
                 // Machine status received !
                 receivedStr = receivedStr.toLowerCase();
@@ -112,6 +122,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
             }
             else
             {
+                fGCodeCommandResponse = receivedStr;
                 if (receivedStr.toLowerCase().startsWith("grbl"))
                 {
                     // Fire the ConnectionEstablishedEvent
@@ -120,16 +131,20 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 }
                 else if (receivedStr.equals("ok"))
                 {
-                    fGCodeCommandResponse = receivedStr;
                     this.getGCodeExecutionEventsManager().FireGCodeExecutedSuccessfully(new GCodeExecutionEvent(fLastCommandSentToController));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
                 }
                 else if (receivedStr.startsWith("error"))
                 {
-                    fGCodeCommandResponse = receivedStr;
                     fLastCommandSentToController.setError(receivedStr);
                     this.getGCodeExecutionEventsManager().FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
+                    fLastCommandSentToController = null;
+                    fWaitForCommandToBeExecuted.Set();
+                }
+                else
+                {
+                    this.getSerialConnectionEventManager().FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
                 }
@@ -154,6 +169,11 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
             //System.out.println("Data Sent: " + optimizedCommand);
             fLastCommandSentToController = command;
+
+            if (!fLastCommandSentToController.getComment().equals(""))
+            {
+                this.getSerialConnectionEventManager().FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent("Last Comment: " + fLastCommandSentToController.getComment()));
+            }
 
             // Fire GCodeCommandSentToController
             this.getGCodeExecutionEventsManager().FireGCodeCommandSentToController(new GCodeExecutionEvent(command));

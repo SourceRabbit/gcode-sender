@@ -128,6 +128,13 @@ public class frmMain extends javax.swing.JFrame
         {
 
         }
+
+        @Override
+        public void DataReceivedFromSerialConnection(SerialConnectionEvent evt)
+        {
+
+        }
+
     };
 
     @SuppressWarnings("unchecked")

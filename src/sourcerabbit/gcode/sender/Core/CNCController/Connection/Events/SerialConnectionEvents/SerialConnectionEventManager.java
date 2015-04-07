@@ -48,4 +48,13 @@ public class SerialConnectionEventManager extends EventManager
         }
     }
 
+    public void FireDataReceivedFromSerialConnectionEvent(SerialConnectionEvent evt)
+    {
+        for (Object obj : fEventListeners)
+        {
+            ISerialConnectionEventListener listener = (ISerialConnectionEventListener) obj;
+            listener.DataReceivedFromSerialConnection(evt);
+        }
+    }
+
 }

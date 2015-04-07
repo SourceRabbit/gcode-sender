@@ -26,4 +26,6 @@ public interface ISerialConnectionEventListener
     public void ConnectionEstablished(SerialConnectionEvent evt);
 
     public void ConnectionClosed(SerialConnectionEvent evt);
+    
+    public void DataReceivedFromSerialConnection(SerialConnectionEvent evt);
 }

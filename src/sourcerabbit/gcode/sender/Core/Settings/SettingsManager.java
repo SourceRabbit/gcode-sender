@@ -19,6 +19,8 @@ package sourcerabbit.gcode.sender.Core.Settings;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -32,7 +34,6 @@ public class SettingsManager
 
     private static final Properties fAppSettings = new Properties();
     private static String fSettingsFilePath = "";
-    private static boolean fIsGCodeLogEnabled = false;
 
     static
     {
@@ -76,6 +77,38 @@ public class SettingsManager
         {
             // file does not exist
         }
+    }
+
+    public static ArrayList<String> getMacros()
+    {
+        ArrayList<String> macros = new ArrayList<>();
+
+        String macrosStr = fAppSettings.getProperty("Macros");
+        if (macrosStr != null && !macrosStr.equals(""))
+        {
+            String tmp[] = macrosStr.split("!-----!");
+            macros.addAll(Arrays.asList(tmp));
+        }
+
+        while (macros.size() < 10)
+        {
+            macros.add("");
+        }
+
+        return macros;
+    }
+
+    public static void setMacros(ArrayList<String> values)
+    {
+        String macrosStr = "";
+
+        for (String s : values)
+        {
+            macrosStr += s + "!-----!";
+        }
+        fAppSettings.setProperty("Macros", macrosStr);
+
+        SaveSettings();
     }
 
     /**

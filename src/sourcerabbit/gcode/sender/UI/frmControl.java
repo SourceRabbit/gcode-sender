@@ -23,15 +23,21 @@ import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.util.Range;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Queue;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEvent;
@@ -67,6 +73,10 @@ public class frmControl extends javax.swing.JFrame
     private final Calendar fCalendar = Calendar.getInstance();
     private final DateFormat fDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
+    // Macros
+    private ArrayList<JTextField> fMacroTexts = new ArrayList<JTextField>();
+    private ArrayList<JButton> fMacroButtons = new ArrayList<JButton>();
+
     public frmControl()
     {
         fInstance = this;
@@ -82,6 +92,77 @@ public class frmControl extends javax.swing.JFrame
         this.setTitle("SourceRabbit GCode Sender (Version " + SettingsManager.getAppVersion() + ") - http://www.sourcerabbit.com");
 
         this.jCheckBoxEnableGCodeLog.setSelected(SettingsManager.getIsGCodeLogEnabled());
+
+        InitMacroButtons();
+    }
+
+    private void InitMacroButtons()
+    {
+        ArrayList<String> savedMacros = SettingsManager.getMacros();
+        if (savedMacros.get(0).equals(""))
+        {
+            savedMacros.set(0, "G91 X0 Y0;");
+        }
+
+        int topOffset = 50;
+        for (int i = 0; i < 7; i++)
+        {
+            final JButton button = new JButton();
+            int id = i + 1;
+            button.setText("C" + String.valueOf(id));
+            button.setSize(50, 30);
+            button.setLocation(10, topOffset + (i * 35));
+            fMacroButtons.add(button);
+
+            final JTextField textField = new JTextField();
+            textField.setText(savedMacros.get(i));
+            textField.setSize(300, 30);
+            textField.setLocation(80, topOffset + (i * 35));
+            fMacroTexts.add(textField);
+
+            textField.addKeyListener(new KeyAdapter()
+            {
+                @Override
+                public void keyReleased(KeyEvent e)
+                {
+                    try
+                    {
+                        ArrayList<String> macroCommands = new ArrayList<>();
+                        for (JTextField text : fMacroTexts)
+                        {
+                            macroCommands.add(text.getText());
+                        }
+                        SettingsManager.setMacros(macroCommands);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+            });
+
+            button.addActionListener(new java.awt.event.ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    final String commandStr = textField.getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
+
+                    // Get commands
+                    String commands[] = commandStr.split(";");
+                    for (String commandString : commands)
+                    {
+                        GCodeCommand command = new GCodeCommand(commandString);
+                        String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+                        WriteToConsole(commandString + "\nResponse:" + response + "\n");
+                    }
+                }
+            });
+
+            // Add button and textfield
+            jPanelMacros.add(button);
+            jPanelMacros.add(textField);
+        }
     }
 
     private void WriteToConsole(String output)
@@ -446,6 +527,9 @@ public class frmControl extends javax.swing.JFrame
         jTableGCodeLog = new javax.swing.JTable();
         jButtonClearLog = new javax.swing.JButton();
         jCheckBoxEnableGCodeLog = new javax.swing.JCheckBox();
+        jPanelMacros = new javax.swing.JPanel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SourceRabbit GCODE Sender");
@@ -786,6 +870,14 @@ public class frmControl extends javax.swing.JFrame
 
         jLabel5.setText("File:");
 
+        jTextFieldGCodeFile.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jTextFieldGCodeFileActionPerformed(evt);
+            }
+        });
+
         jButtonGCodeBrowse.setText("Browse");
         jButtonGCodeBrowse.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1076,6 +1168,33 @@ public class frmControl extends javax.swing.JFrame
         );
 
         jTabbedPane1.addTab("GCode Log", jPanel4);
+
+        jLabel9.setText("Each box can contain a series of GCode commands separated by ';'.");
+
+        jLabel10.setText("To execute just click the 'C' button.");
+
+        javax.swing.GroupLayout jPanelMacrosLayout = new javax.swing.GroupLayout(jPanelMacros);
+        jPanelMacros.setLayout(jPanelMacrosLayout);
+        jPanelMacrosLayout.setHorizontalGroup(
+            jPanelMacrosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelMacrosLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelMacrosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel10))
+                .addContainerGap(157, Short.MAX_VALUE))
+        );
+        jPanelMacrosLayout.setVerticalGroup(
+            jPanelMacrosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelMacrosLayout.createSequentialGroup()
+                .addGap(7, 7, 7)
+                .addComponent(jLabel9)
+                .addGap(3, 3, 3)
+                .addComponent(jLabel10)
+                .addContainerGap(275, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Macros", jPanelMacros);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -1445,6 +1564,11 @@ public class frmControl extends javax.swing.JFrame
         jTextAreaConsole.setText("");
     }//GEN-LAST:event_jButtonClearConsoleActionPerformed
 
+    private void jTextFieldGCodeFileActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jTextFieldGCodeFileActionPerformed
+    {//GEN-HEADEREND:event_jTextFieldGCodeFileActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldGCodeFileActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClearConsole;
     private javax.swing.JButton jButtonClearLog;
@@ -1466,6 +1590,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JButton jButtonZPlus;
     private javax.swing.JCheckBox jCheckBoxEnableGCodeLog;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1473,6 +1598,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabelActiveState;
     private javax.swing.JLabel jLabelConnectionStatus;
     private javax.swing.JLabel jLabelMachineX;
@@ -1495,6 +1621,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanelMachineControl;
+    private javax.swing.JPanel jPanelMacros;
     private javax.swing.JRadioButton jRadioButtonInches;
     private javax.swing.JRadioButton jRadioButtonMillimeters;
     private javax.swing.JScrollPane jScrollPane1;

@@ -99,10 +99,6 @@ public class frmControl extends javax.swing.JFrame
     private void InitMacroButtons()
     {
         ArrayList<String> savedMacros = SettingsManager.getMacros();
-        if (savedMacros.get(0).equals(""))
-        {
-            savedMacros.set(0, "G91 X0 Y0;");
-        }
 
         int topOffset = 50;
         for (int i = 0; i < 7; i++)
@@ -286,6 +282,8 @@ public class frmControl extends javax.swing.JFrame
             {
                 WriteToConsole("Cycle Paused");
                 jButtonGCodePause.setText("Resume");
+
+                jButtonGCodeCancel.setEnabled(false);
             }
 
             @Override
@@ -293,6 +291,8 @@ public class frmControl extends javax.swing.JFrame
             {
                 WriteToConsole("Cycle Resumed");
                 jButtonGCodePause.setText("Pause");
+
+                jButtonGCodeCancel.setEnabled(true);
             }
         });
 
@@ -380,6 +380,19 @@ public class frmControl extends javax.swing.JFrame
         for (Component c : jPanelMachineControl.getComponents())
         {
             c.setEnabled(state);
+        }
+
+        // Macros
+        try
+        {
+            for (JButton b : fMacroButtons)
+            {
+                b.setEnabled(state);
+            }
+        }
+        catch (Exception ex)
+        {
+
         }
     }
 
@@ -1479,8 +1492,8 @@ public class frmControl extends javax.swing.JFrame
 
             final Queue<String> gcodeQueue = new ArrayDeque(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeQueue());
 
-            double previousZValue = Double.MAX_VALUE;
-            double previousXValue = Double.MAX_VALUE;
+            /*double previousZValue = Double.MAX_VALUE;
+             double previousXValue = Double.MAX_VALUE;*/
             double x = 0, y = 0, z = 0, maxX = 0, maxY = 0, minZ = 0;
 
             while (gcodeQueue.size() > 0)
@@ -1493,11 +1506,7 @@ public class frmControl extends javax.swing.JFrame
                 maxX = Math.max(x, maxX);
                 maxY = Math.max(y, maxY);
 
-                if (z < 0)
-                {
-                    trace.addPoint(x, y);
-
-                }
+                trace.addPoint(x, y);
             }
 
             chart.getAxisX().setRangePolicy(new RangePolicyFixedViewport(new Range(0, Math.max(maxY, maxX))));

@@ -74,8 +74,8 @@ public class frmControl extends javax.swing.JFrame
     private final DateFormat fDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     // Macros
-    private ArrayList<JTextField> fMacroTexts = new ArrayList<JTextField>();
-    private ArrayList<JButton> fMacroButtons = new ArrayList<JButton>();
+    private ArrayList<JTextField> fMacroTexts = new ArrayList<>();
+    private ArrayList<JButton> fMacroButtons = new ArrayList<>();
 
     public frmControl()
     {

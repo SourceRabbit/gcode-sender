@@ -25,11 +25,6 @@ public class Position4D
 
     private Float fX, fY, fZ, fA;
 
-    public Position4D()
-    {
-
-    }
-
     public Position4D(Float x, Float y, Float z, Float a)
     {
         fX = x;

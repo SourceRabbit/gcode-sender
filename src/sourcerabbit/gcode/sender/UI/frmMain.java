@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import jssc.SerialPortList;
 import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.CNCControlFramework;
 import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.CNCControlFrameworkManager;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
@@ -27,7 +28,6 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
-import sourcerabbit.gcode.sender.Core.SerialPortUtilities;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
 import sourcerabbit.gcode.sender.UI.Tools.UITools;
@@ -58,7 +58,7 @@ public class frmMain extends javax.swing.JFrame
 
     private void InitUI()
     {
-        String[] serialPorts = SerialPortUtilities.getSerialPortList();
+        String[] serialPorts = SerialPortList.getPortNames();
         ArrayList<CNCControlFramework> cncframeworks = CNCControlFrameworkManager.getCNCControlFrameworks();
 
         if (serialPorts.length < 1)

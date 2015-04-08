@@ -135,6 +135,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     fConnectionEstablished = true;
                     fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
                     fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE));
                 }
                 else if (receivedStr.equals("ok"))
                 {
@@ -267,7 +268,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 {
                                     CloseConnection();
                                 }
-
                             }
                             catch (Exception ex)
                             {

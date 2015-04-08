@@ -247,6 +247,9 @@ public class frmControl extends javax.swing.JFrame
                 jButtonSoftReset.setEnabled(false);
                 jButtonResetZero.setEnabled(false);
 
+                jLabelActiveState.setForeground(Color.red);
+                jLabelActiveState.setText("----");
+
                 // Disable Machine Control Components
                 SetMachineControlsEnabled(false);
             }
@@ -1476,6 +1479,7 @@ public class frmControl extends javax.swing.JFrame
         try
         {
             WriteToConsole("Restarting...");
+            jLabelActiveState.setForeground(Color.MAGENTA);
             jLabelActiveState.setText("Restarting...");
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_SOFT_RESET);
         }

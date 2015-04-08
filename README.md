@@ -42,6 +42,10 @@ Downloads
 
 Changelog
 ------
+1.0.6 -> 1.0.7
+* GRBL settings form editor implemented
+* Events for machine status implemented (UI)
+
 1.0.5 -> 1.0.6
 * Console is now showing more info (comments, GRBL Controller messages etc...)
 

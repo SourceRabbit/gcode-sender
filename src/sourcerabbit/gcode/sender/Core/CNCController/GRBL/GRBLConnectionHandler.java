@@ -22,6 +22,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConn
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
 
 /**
@@ -105,7 +106,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 receivedStr = receivedStr.replace("mpos", "").replace("wpos", "").replace(":", "").replace("<", "").replace(">", "");
                 String[] parts = receivedStr.split(",");
 
-                fActiveState = GRBLActiveStates.getGRBLActiveStateFromString(parts[0]);
+                final int newActiveState = GRBLActiveStates.getGRBLActiveStateFromString(parts[0]);
+                if (newActiveState != fActiveState)
+                {
+                    fActiveState = newActiveState;
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(fActiveState));
+                }
 
                 fMachinePosition.setX(Float.parseFloat(parts[1]));
                 fMachinePosition.setY(Float.parseFloat(parts[2]));

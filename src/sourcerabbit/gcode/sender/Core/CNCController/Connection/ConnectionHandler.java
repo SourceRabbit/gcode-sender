@@ -21,6 +21,7 @@ import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEventsManager;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEventsManager;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEventManager;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLGCodeSender;
@@ -56,6 +57,7 @@ public class ConnectionHandler implements SerialPortEventListener
     // Event Managers
     protected SerialConnectionEventManager fSerialConnectionEventManager = new SerialConnectionEventManager();
     protected GCodeExecutionEventsManager fGCodeExecutionEventsManager = new GCodeExecutionEventsManager();
+    protected MachineStatusEventsManager fMachineStatusEventsManager = new MachineStatusEventsManager();
 
     // GCode
     protected final GRBLGCodeSender fMyGCodeSender;
@@ -281,6 +283,16 @@ public class ConnectionHandler implements SerialPortEventListener
     public GCodeExecutionEventsManager getGCodeExecutionEventsManager()
     {
         return fGCodeExecutionEventsManager;
+    }
+
+    /**
+     * Returns the MachineStatusEventsManager
+     *
+     * @return fMachineStatusEventsManager
+     */
+    public MachineStatusEventsManager getMachineStatusEventsManager()
+    {
+        return fMachineStatusEventsManager;
     }
 
     /**

@@ -232,6 +232,8 @@ public class frmControl extends javax.swing.JFrame
                 jButtonGCodeCancel.setEnabled(false);
                 jButtonGCodePause.setText("Pause");
                 SetMachineControlsEnabled(true);
+
+                jMenuItemGRBLSettings.setEnabled(true);
             }
 
             @Override
@@ -252,6 +254,8 @@ public class frmControl extends javax.swing.JFrame
 
                 // Disable Machine Control Components
                 SetMachineControlsEnabled(false);
+
+                jMenuItemGRBLSettings.setEnabled(false);
             }
 
             @Override
@@ -282,6 +286,8 @@ public class frmControl extends javax.swing.JFrame
 
                 jTextFieldCommand.setEnabled(false);
                 jTextAreaConsole.setEnabled(false);
+
+                jMenuItemGRBLSettings.setEnabled(false);
             }
 
             @Override
@@ -303,6 +309,8 @@ public class frmControl extends javax.swing.JFrame
                 jTextFieldCommand.setEnabled(true);
                 jTextAreaConsole.setEnabled(true);
 
+                jMenuItemGRBLSettings.setEnabled(true);
+
                 JOptionPane.showMessageDialog(fInstance, evt.getSource().toString(), "Finished", JOptionPane.INFORMATION_MESSAGE);
             }
 
@@ -323,6 +331,8 @@ public class frmControl extends javax.swing.JFrame
 
                 jTextFieldCommand.setEnabled(true);
                 jTextAreaConsole.setEnabled(true);
+
+                jMenuItemGRBLSettings.setEnabled(true);
             }
 
             @Override
@@ -558,6 +568,10 @@ public class frmControl extends javax.swing.JFrame
         jPanelMacros = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItemGRBLSettings = new javax.swing.JMenuItem();
+        jMenuItemExit = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SourceRabbit GCODE Sender");
@@ -1222,6 +1236,32 @@ public class frmControl extends javax.swing.JFrame
 
         jTabbedPane1.addTab("Macros", jPanelMacros);
 
+        jMenu1.setText("System");
+
+        jMenuItemGRBLSettings.setText("GRBL Settings");
+        jMenuItemGRBLSettings.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jMenuItemGRBLSettingsActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItemGRBLSettings);
+
+        jMenuItemExit.setText("Exit");
+        jMenuItemExit.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jMenuItemExitActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItemExit);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -1253,7 +1293,7 @@ public class frmControl extends javax.swing.JFrame
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(5, 5, 5)
                         .addComponent(jTabbedPane1)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(12, Short.MAX_VALUE))
         );
 
         getAccessibleContext().setAccessibleName("frmControl");
@@ -1600,6 +1640,18 @@ public class frmControl extends javax.swing.JFrame
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextFieldGCodeFileActionPerformed
 
+    private void jMenuItemGRBLSettingsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItemGRBLSettingsActionPerformed
+    {//GEN-HEADEREND:event_jMenuItemGRBLSettingsActionPerformed
+        frmGRBLSettings frm = new frmGRBLSettings();
+        frm.setModal(true);
+        frm.setVisible(true);
+    }//GEN-LAST:event_jMenuItemGRBLSettingsActionPerformed
+
+    private void jMenuItemExitActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItemExitActionPerformed
+    {//GEN-HEADEREND:event_jMenuItemExitActionPerformed
+        System.exit(EXIT_ON_CLOSE);
+    }//GEN-LAST:event_jMenuItemExitActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClearConsole;
     private javax.swing.JButton jButtonClearLog;
@@ -1646,6 +1698,10 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JLabel jLabelWorkX;
     private javax.swing.JLabel jLabelWorkY;
     private javax.swing.JLabel jLabelWorkZ;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItemExit;
+    private javax.swing.JMenuItem jMenuItemGRBLSettings;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

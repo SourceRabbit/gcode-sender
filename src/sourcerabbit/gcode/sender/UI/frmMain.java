@@ -278,6 +278,7 @@ public class frmMain extends javax.swing.JFrame
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER = handler;
 
         // Add connection established listener
+        handler.getSerialConnectionEventManager().RemoveAllListeners();
         handler.getSerialConnectionEventManager().AddListener(fConnectionEstablishedEventListener);
 
         try

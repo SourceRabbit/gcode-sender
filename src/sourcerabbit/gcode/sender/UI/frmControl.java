@@ -23,6 +23,7 @@ import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.util.Range;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -92,6 +93,7 @@ public class frmControl extends javax.swing.JFrame
         InitUIThreads();
 
         this.setTitle("SourceRabbit GCode Sender (Version " + SettingsManager.getAppVersion() + ") - http://www.sourcerabbit.com");
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("Images/SourceRabbitIcon.png")));
 
         this.jCheckBoxEnableGCodeLog.setSelected(SettingsManager.getIsGCodeLogEnabled());
 

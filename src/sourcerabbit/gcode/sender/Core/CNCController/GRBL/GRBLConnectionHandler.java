@@ -92,7 +92,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
         try
         {
             String receivedStr = new String(data).replace("\r", "").trim();
-            //receivedStr = receivedStr.replace("\r", "").trim();
+
             if (receivedStr.equals(""))
             {
                 return;

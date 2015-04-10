@@ -16,6 +16,7 @@
  */
 package sourcerabbit.gcode.sender.UI;
 
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -54,6 +55,7 @@ public class frmMain extends javax.swing.JFrame
         this.setLocation((int) pos.getX(), (int) pos.getY());
 
         this.setTitle("SourceRabbit GCode Sender (Version " + SettingsManager.getAppVersion() + ")");
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("Images/SourceRabbitIcon.png")));
     }
 
     private void InitUI()

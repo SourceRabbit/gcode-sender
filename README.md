@@ -41,6 +41,9 @@ Downloads
 
 Changelog
 ------
+1.0.7 -> 1.0.8
+* UI bugs fixed 
+
 1.0.6 -> 1.0.7
 * GRBL settings form editor implemented
 * Events for machine status implemented (UI)

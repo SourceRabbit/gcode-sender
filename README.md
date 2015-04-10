@@ -29,7 +29,7 @@ Goals:
 
 Downloads
 ------
-[1.0.8] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.8/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or highter.<br>
+[1.0.8] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.8/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher.<br>
 [1.0.7] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.7/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher. <br>
 [1.0.6] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.6/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher. <br>
 

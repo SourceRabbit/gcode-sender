@@ -290,6 +290,9 @@ public class frmControl extends javax.swing.JFrame
                 jTextAreaConsole.setEnabled(false);
 
                 jMenuItemGRBLSettings.setEnabled(false);
+
+                jProgressBarGCodeProgress.setValue(0);
+                jProgressBarGCodeProgress.setMaximum(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsInFile());
             }
 
             @Override
@@ -335,6 +338,9 @@ public class frmControl extends javax.swing.JFrame
                 jTextAreaConsole.setEnabled(true);
 
                 jMenuItemGRBLSettings.setEnabled(true);
+
+                jProgressBarGCodeProgress.setValue(0);
+                jProgressBarGCodeProgress.setMaximum(0);
             }
 
             @Override
@@ -480,6 +486,8 @@ public class frmControl extends javax.swing.JFrame
                     // Update remaining rows & rows sent
                     jLabelSentRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsSent()));
                     jLabelRemainingRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsRemaining()));
+                    
+                    jProgressBarGCodeProgress.setValue(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsSent());
 
                     // Time elapsed
                     if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeCycleStartedTimestamp() > 0)
@@ -554,6 +562,8 @@ public class frmControl extends javax.swing.JFrame
         jButtonGCodeVisualize = new javax.swing.JButton();
         jLabelRowsInFile4 = new javax.swing.JLabel();
         jLabelTimeElapsed = new javax.swing.JLabel();
+        jLabelRowsInFile5 = new javax.swing.JLabel();
+        jProgressBarGCodeProgress = new javax.swing.JProgressBar();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel5 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
@@ -983,6 +993,8 @@ public class frmControl extends javax.swing.JFrame
 
         jLabelTimeElapsed.setText("00:00:00");
 
+        jLabelRowsInFile5.setText("Progress:");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -1002,27 +1014,30 @@ public class frmControl extends javax.swing.JFrame
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonGCodeBrowse))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel5)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addComponent(jLabelRowsInFile3)
-                                        .addGap(42, 42, 42)
-                                        .addComponent(jLabelRowsInFile, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(2, 2, 2)
-                                .addComponent(jLabelRowsInFile4)
+                                        .addGap(34, 34, 34)
+                                        .addComponent(jLabelRowsInFile, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(13, 13, 13)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabelRowsInFile4)
+                                    .addComponent(jLabelRowsInFile5))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jLabelTimeElapsed, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jProgressBarGCodeProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabelTimeElapsed, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabelRowsInFile2)
                                     .addComponent(jLabelRowsInFile1))
-                                .addGap(18, 18, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabelSentRows, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabelRemainingRows, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(169, 169, 169)))
+                                    .addComponent(jLabelSentRows, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabelRemainingRows, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -1048,8 +1063,11 @@ public class frmControl extends javax.swing.JFrame
                     .addComponent(jLabelTimeElapsed))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabelSentRows)
-                    .addComponent(jLabelRowsInFile1))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabelSentRows)
+                        .addComponent(jLabelRowsInFile5))
+                    .addComponent(jLabelRowsInFile1)
+                    .addComponent(jProgressBarGCodeProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelRowsInFile2)
@@ -1695,6 +1713,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JLabel jLabelRowsInFile2;
     private javax.swing.JLabel jLabelRowsInFile3;
     private javax.swing.JLabel jLabelRowsInFile4;
+    private javax.swing.JLabel jLabelRowsInFile5;
     private javax.swing.JLabel jLabelSentRows;
     private javax.swing.JLabel jLabelTimeElapsed;
     private javax.swing.JLabel jLabelWorkX;
@@ -1711,6 +1730,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanelMachineControl;
     private javax.swing.JPanel jPanelMacros;
+    private javax.swing.JProgressBar jProgressBarGCodeProgress;
     private javax.swing.JRadioButton jRadioButtonInches;
     private javax.swing.JRadioButton jRadioButtonMillimeters;
     private javax.swing.JScrollPane jScrollPane1;

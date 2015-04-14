@@ -30,7 +30,7 @@ import java.util.Properties;
 public class SettingsManager
 {
 
-    private static String fAppVersion = "1.0.8";
+    private static String fAppVersion = "1.0.9";
 
     private static final Properties fAppSettings = new Properties();
     private static String fSettingsFilePath = "";

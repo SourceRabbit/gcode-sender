@@ -43,6 +43,9 @@ Downloads
 
 Changelog
 ------
+1.0.8 -> 1.0.9
+* Tool to set Machine Position implemented 
+
 1.0.7 -> 1.0.8
 * UI bugs fixed 
 

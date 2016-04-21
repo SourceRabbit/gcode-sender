@@ -31,7 +31,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConn
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
-import sourcerabbit.gcode.sender.UI.Tools.UITools;
+import sourcerabbit.gcode.sender.UI.UITools.UITools;
 
 /**
  *

@@ -38,6 +38,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
@@ -57,7 +58,8 @@ import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position4D;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
-import sourcerabbit.gcode.sender.UI.Tools.UITools;
+import sourcerabbit.gcode.sender.UI.Tools.frmSetWorkPosition;
+import sourcerabbit.gcode.sender.UI.UITools.UITools;
 
 /**
  *
@@ -98,6 +100,8 @@ public class frmControl extends javax.swing.JFrame
         this.jCheckBoxEnableGCodeLog.setSelected(SettingsManager.getIsGCodeLogEnabled());
 
         InitMacroButtons();
+        
+        jSpinnerStep.setEditor(new JSpinner.NumberEditor(jSpinnerStep,"##.##"));
     }
 
     private void InitMacroButtons()
@@ -486,7 +490,7 @@ public class frmControl extends javax.swing.JFrame
                     // Update remaining rows & rows sent
                     jLabelSentRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsSent()));
                     jLabelRemainingRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsRemaining()));
-                    
+
                     jProgressBarGCodeProgress.setValue(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsSent());
 
                     // Time elapsed
@@ -584,6 +588,8 @@ public class frmControl extends javax.swing.JFrame
         jMenu1 = new javax.swing.JMenu();
         jMenuItemGRBLSettings = new javax.swing.JMenuItem();
         jMenuItemExit = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SourceRabbit GCODE Sender");
@@ -784,7 +790,22 @@ public class frmControl extends javax.swing.JFrame
 
         jLabel4.setText("Step Size:");
 
-        jSpinnerStep.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(1.0d), Double.valueOf(0.01d), null, Double.valueOf(0.01d)));
+        jSpinnerStep.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(1.0d), Double.valueOf(0.009999999776482582d), null, Double.valueOf(0.009999999776482582d)));
+        jSpinnerStep.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jSpinnerStep.addChangeListener(new javax.swing.event.ChangeListener()
+        {
+            public void stateChanged(javax.swing.event.ChangeEvent evt)
+            {
+                jSpinnerStepStateChanged(evt);
+            }
+        });
+        jSpinnerStep.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
+                jSpinnerStepKeyReleased(evt);
+            }
+        });
 
         jButtonXPlus.setText("X+");
         jButtonXPlus.addActionListener(new java.awt.event.ActionListener()
@@ -1280,6 +1301,20 @@ public class frmControl extends javax.swing.JFrame
 
         jMenuBar1.add(jMenu1);
 
+        jMenu2.setText("Tools");
+
+        jMenuItem1.setText("Set Work Position");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem1);
+
+        jMenuBar1.add(jMenu2);
+
         setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -1672,6 +1707,22 @@ public class frmControl extends javax.swing.JFrame
         System.exit(EXIT_ON_CLOSE);
     }//GEN-LAST:event_jMenuItemExitActionPerformed
 
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItem1ActionPerformed
+    {//GEN-HEADEREND:event_jMenuItem1ActionPerformed
+        frmSetWorkPosition frm = new frmSetWorkPosition(this);
+        frm.setVisible(true);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jSpinnerStepKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_jSpinnerStepKeyReleased
+    {//GEN-HEADEREND:event_jSpinnerStepKeyReleased
+
+    }//GEN-LAST:event_jSpinnerStepKeyReleased
+
+    private void jSpinnerStepStateChanged(javax.swing.event.ChangeEvent evt)//GEN-FIRST:event_jSpinnerStepStateChanged
+    {//GEN-HEADEREND:event_jSpinnerStepStateChanged
+
+    }//GEN-LAST:event_jSpinnerStepStateChanged
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClearConsole;
     private javax.swing.JButton jButtonClearLog;
@@ -1720,7 +1771,9 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JLabel jLabelWorkY;
     private javax.swing.JLabel jLabelWorkZ;
     private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItemExit;
     private javax.swing.JMenuItem jMenuItemGRBLSettings;
     private javax.swing.JPanel jPanel1;

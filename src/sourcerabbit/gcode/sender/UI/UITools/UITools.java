@@ -14,11 +14,13 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sourcerabbit.gcode.sender.UI.Tools;
+package sourcerabbit.gcode.sender.UI.UITools;
 
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 /**
  *
@@ -40,5 +42,18 @@ public class UITools
 
         // Move the window
         return new Position2D(x, y);
+    }
+
+    /**
+     * Returns the system decimal separator (',' or '.')
+     *
+     * @return
+     */
+    public static String getSystemDecimalSeparator()
+    {
+        // Get system Decimal separator
+        DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
+        DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
+        return String.valueOf(symbols.getDecimalSeparator());
     }
 }

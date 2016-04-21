@@ -25,17 +25,29 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.EventManag
 public class MachineStatusEventsManager extends EventManager
 {
 
+    private MachineStatusEvent fCurrentEvent;
+    private final Object fLock;
+
     public MachineStatusEventsManager()
     {
-
+        fLock = new Object();
     }
 
     public void FireMachineStatusChangedEvent(MachineStatusEvent evt)
     {
-        for (Object obj : fEventListeners)
+        synchronized (fLock)
         {
-            IMachineStatusEventListener listener = (IMachineStatusEventListener) obj;
-            listener.MachineStatusChanged(evt);
+            fCurrentEvent = evt;
+            for (Object obj : fEventListeners)
+            {
+                IMachineStatusEventListener listener = (IMachineStatusEventListener) obj;
+                listener.MachineStatusChanged(evt);
+            }
         }
+    }
+
+    public MachineStatusEvent getCurrentStatus()
+    {
+        return fCurrentEvent;
     }
 }

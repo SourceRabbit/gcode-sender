@@ -240,6 +240,11 @@ public class ConnectionHandler implements SerialPortEventListener
         return fBaudRate;
     }
 
+    /**
+     * Returns true if the connectin is established
+     *
+     * @return
+     */
     public boolean isConnectionEstablished()
     {
         return fConnectionEstablished;

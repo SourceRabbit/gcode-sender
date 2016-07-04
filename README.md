@@ -34,14 +34,13 @@ Downloads
 [1.0.9] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.9/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher.<br>
 [1.0.8] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.8/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher.<br>
 [1.0.7] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.7/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher. <br>
-[1.0.6] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.6/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher. <br>
 
 
 ![Connect to your CNC!](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ConnectForm.png "Connect to your CNC!")
 
 ![GCode Sender Control Form](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ControlForm.png "CNC Control Form")
 
-![GCode Sender Control Form](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/Probe.png "Touch Probe")
+![Touch Probe](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/Probe.png "Touch Probe")
 
 
 Changelog

@@ -39,11 +39,16 @@ Downloads
 
 ![Connect to your CNC!](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ConnectForm.png "Connect to your CNC!")
 
-![GCode Sender Control Form](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ControllForm.png "CNC Control Form")
+![GCode Sender Control Form](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ControlForm.png "CNC Control Form")
+
+![GCode Sender Control Form](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/Probe.png "Touch Probe")
 
 
 Changelog
 ------
+1.0.9 -> 1.1.0
+* Added appropriate UI to use touch probe and touch plates
+
 1.0.8 -> 1.0.9
 * Tool to set Machine Position implemented 
 

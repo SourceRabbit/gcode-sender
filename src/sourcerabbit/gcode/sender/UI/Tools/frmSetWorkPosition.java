@@ -1,4 +1,4 @@
- /*
+/*
  Copyright (C) 2015  Nikos Siatras
 
  This program is free software: you can redistribute it and/or modify
@@ -23,35 +23,34 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConn
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
-import sourcerabbit.gcode.sender.UI.UITools.UITools;
 import sourcerabbit.gcode.sender.UI.frmControl;
 
 /**
  *
  * @author Nikos Siatras
  */
-public class frmSetWorkPosition extends javax.swing.JFrame
+public class frmSetWorkPosition extends javax.swing.JDialog
 {
 
-    private frmControl fMyMain;
-    private final frmSetWorkPosition fThisForm;
+    private final frmControl fMyMain;
+    private final frmSetWorkPosition fThisForm = this;
 
     /**
      * Creates new form frmSetWorkPosition
      */
-    public frmSetWorkPosition(frmControl frm)
+    public frmSetWorkPosition(frmControl parent, boolean modal)
     {
-        fMyMain = frm;
+        super(parent, modal);
+        fMyMain = parent;
         initComponents();
-        fThisForm = this;
 
         // Set form in middle of frmControl
-        final int frmControlWidth = frm.getSize().width;
-        final int frmControlHeight = frm.getSize().height;
+        final int frmControlWidth = parent.getSize().width;
+        final int frmControlHeight = parent.getSize().height;
         final int w = this.getSize().width;
         final int h = this.getSize().height;
-        final int x = ((frmControlWidth - w) / 2) + frm.getX();
-        final int y = (frmControlHeight - h) / 2 + frm.getY();
+        final int x = ((frmControlWidth - w) / 2) + parent.getX();
+        final int y = (frmControlHeight - h) / 2 + parent.getY();
         this.setLocation(x, y);
 
         InitEvents();
@@ -114,15 +113,15 @@ public class frmSetWorkPosition extends javax.swing.JFrame
                 break;
 
             case GRBLActiveStates.RUN:
-                jLabelNotice.setText("You machine is running!");
+                jLabelNotice.setText("Your machine is running!");
                 jButtonSet.setEnabled(false);
                 break;
             case GRBLActiveStates.HOLD:
-                jLabelNotice.setText("You machine is on hold!");
+                jLabelNotice.setText("Your machine is on hold!");
                 jButtonSet.setEnabled(false);
                 break;
             case GRBLActiveStates.ALARM:
-                jLabelNotice.setText("You machine has an alarm on!");
+                jLabelNotice.setText("Your machine has an alarm on!");
                 jButtonSet.setEnabled(false);
                 break;
         }
@@ -134,7 +133,6 @@ public class frmSetWorkPosition extends javax.swing.JFrame
         jTextFieldY.setEnabled(state);
         jTextFieldZ.setEnabled(state);
         jButtonSet.setEnabled(state);
-
     }
 
     @SuppressWarnings("unchecked")
@@ -248,8 +246,6 @@ public class frmSetWorkPosition extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButtonSetActionPerformed
         try
         {
-            
-           
 
             double x = Double.parseDouble(jTextFieldX.getText());
             double y = Double.parseDouble(jTextFieldY.getText());

@@ -30,9 +30,8 @@ import java.util.Properties;
 public class SettingsManager
 {
 
-    private static String fAppVersion = "1.0.9";
-
-    private static final Properties fAppSettings = new Properties();
+    private static final String fAppVersion = "1.1.0";
+    public static final Properties fAppSettings = new Properties();
     private static String fSettingsFilePath = "";
 
     static
@@ -63,7 +62,7 @@ public class SettingsManager
     /**
      * Save the App settings
      */
-    private static void SaveSettings()
+    public static void SaveSettings()
     {
         try
         {
@@ -168,7 +167,7 @@ public class SettingsManager
      */
     public static String getAppSettingsFilePath()
     {
-        return System.getProperty("user.home") + File.separator + "SourceRabbitGCodeSender.cfg";
+        return System.getProperty("user.home") + File.separator + "SourceRabbitGCodeSender1_1.cfg";
     }
 
     /**
@@ -200,6 +199,7 @@ public class SettingsManager
         SaveSettings();
     }
 
+    /////////////////////////////////////////////////////////////////////////
     public static String getAppVersion()
     {
         return fAppVersion;

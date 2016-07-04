@@ -59,6 +59,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position4D;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
 import sourcerabbit.gcode.sender.UI.Tools.frmSetWorkPosition;
+import sourcerabbit.gcode.sender.UI.Tools.frmTouchProbe;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
 
 /**
@@ -100,8 +101,10 @@ public class frmControl extends javax.swing.JFrame
         this.jCheckBoxEnableGCodeLog.setSelected(SettingsManager.getIsGCodeLogEnabled());
 
         InitMacroButtons();
-        
-        jSpinnerStep.setEditor(new JSpinner.NumberEditor(jSpinnerStep,"##.##"));
+
+        // Fix jSpinnerStep to work with system decimal point
+        jSpinnerStep.setEditor(new JSpinner.NumberEditor(jSpinnerStep, "##.##"));
+        UITools.FixSpinnerToWorkWithSystemDecimalPoint(jSpinnerStep);
     }
 
     private void InitMacroButtons()
@@ -205,6 +208,11 @@ public class frmControl extends javax.swing.JFrame
                     case GRBLActiveStates.ALARM:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Alarm!");
+                        break;
+
+                    case GRBLActiveStates.RESET_TO_CONTINUE:
+                        jLabelActiveState.setForeground(Color.red);
+                        jLabelActiveState.setText("Reset to continue!");
                         break;
                 }
 
@@ -590,6 +598,7 @@ public class frmControl extends javax.swing.JFrame
         jMenuItemExit = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SourceRabbit GCODE Sender");
@@ -790,22 +799,8 @@ public class frmControl extends javax.swing.JFrame
 
         jLabel4.setText("Step Size:");
 
-        jSpinnerStep.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(1.0d), Double.valueOf(0.009999999776482582d), null, Double.valueOf(0.009999999776482582d)));
+        jSpinnerStep.setModel(new javax.swing.SpinnerNumberModel(1.0d, 0.009999999776482582d, null, 0.009999999776482582d));
         jSpinnerStep.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jSpinnerStep.addChangeListener(new javax.swing.event.ChangeListener()
-        {
-            public void stateChanged(javax.swing.event.ChangeEvent evt)
-            {
-                jSpinnerStepStateChanged(evt);
-            }
-        });
-        jSpinnerStep.addKeyListener(new java.awt.event.KeyAdapter()
-        {
-            public void keyReleased(java.awt.event.KeyEvent evt)
-            {
-                jSpinnerStepKeyReleased(evt);
-            }
-        });
 
         jButtonXPlus.setText("X+");
         jButtonXPlus.addActionListener(new java.awt.event.ActionListener()
@@ -1313,6 +1308,16 @@ public class frmControl extends javax.swing.JFrame
         });
         jMenu2.add(jMenuItem1);
 
+        jMenuItem2.setText("Touch Probe");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem2);
+
         jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
@@ -1709,19 +1714,15 @@ public class frmControl extends javax.swing.JFrame
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItem1ActionPerformed
     {//GEN-HEADEREND:event_jMenuItem1ActionPerformed
-        frmSetWorkPosition frm = new frmSetWorkPosition(this);
+        frmSetWorkPosition frm = new frmSetWorkPosition(this, true);
         frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
-    private void jSpinnerStepKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_jSpinnerStepKeyReleased
-    {//GEN-HEADEREND:event_jSpinnerStepKeyReleased
-
-    }//GEN-LAST:event_jSpinnerStepKeyReleased
-
-    private void jSpinnerStepStateChanged(javax.swing.event.ChangeEvent evt)//GEN-FIRST:event_jSpinnerStepStateChanged
-    {//GEN-HEADEREND:event_jSpinnerStepStateChanged
-
-    }//GEN-LAST:event_jSpinnerStepStateChanged
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItem2ActionPerformed
+    {//GEN-HEADEREND:event_jMenuItem2ActionPerformed
+        frmTouchProbe frm = new frmTouchProbe(this, true);
+        frm.setVisible(true);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClearConsole;
@@ -1774,6 +1775,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItemExit;
     private javax.swing.JMenuItem jMenuItemGRBLSettings;
     private javax.swing.JPanel jPanel1;

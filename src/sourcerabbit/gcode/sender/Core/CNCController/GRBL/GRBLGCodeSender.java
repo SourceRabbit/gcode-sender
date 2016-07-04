@@ -46,7 +46,7 @@ public class GRBLGCodeSender
     private long fGCodeCycleStartedTimestamp = -1;
 
     // Event Managers
-    private GCodeCycleEventManager fGCodeCycleEventManager = new GCodeCycleEventManager();
+    private final GCodeCycleEventManager fGCodeCycleEventManager = new GCodeCycleEventManager();
 
     public GRBLGCodeSender(ConnectionHandler myHandler)
     {

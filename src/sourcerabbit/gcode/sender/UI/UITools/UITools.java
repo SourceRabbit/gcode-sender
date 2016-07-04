@@ -19,8 +19,12 @@ package sourcerabbit.gcode.sender.UI.UITools;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import javax.swing.JFormattedTextField;
+import javax.swing.JSpinner;
 
 /**
  *
@@ -55,5 +59,38 @@ public class UITools
         DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
         DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
         return String.valueOf(symbols.getDecimalSeparator());
+    }
+
+    public static void FixSpinnerToWorkWithSystemDecimalPoint(JSpinner spinner)
+    {
+        // Get system decimal separator
+        DecimalFormat decFormat = new DecimalFormat();
+        DecimalFormatSymbols decSymbols = decFormat.getDecimalFormatSymbols();
+        final String decimalSeparator = String.valueOf(decSymbols.getDecimalSeparator());
+
+        // Get the char to replace with the decimal separator
+        final String replaceWithDecimalSeparator = decimalSeparator.equals(",") ? "." : ",";
+
+        JFormattedTextField jSpinnerTF = ((JSpinner.DefaultEditor) spinner.getEditor()).getTextField();
+        ((JSpinner.DefaultEditor) spinner.getEditor()).getTextField().addKeyListener(new KeyListener()
+        {
+
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                final String spinnerText = jSpinnerTF.getText().replace(replaceWithDecimalSeparator, decimalSeparator);
+                jSpinnerTF.setText(spinnerText);
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e)
+            {
+            }
+        });
     }
 }

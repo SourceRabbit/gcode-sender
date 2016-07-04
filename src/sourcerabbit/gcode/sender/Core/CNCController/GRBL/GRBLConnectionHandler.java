@@ -34,7 +34,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
     // Commands
     private final Object fSendDataLock = new Object();
-    private ManualResetEvent fWaitForCommandToBeExecuted;
+    private final ManualResetEvent fWaitForCommandToBeExecuted;
     private ManualResetEvent fWaitForGetStatusCommandReply;
 
     // Status thread
@@ -128,6 +128,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
             }
             else
             {
+                System.out.println("Data received:" + receivedStr);
+
                 fGCodeCommandResponse = receivedStr;
                 if (receivedStr.toLowerCase().startsWith("grbl"))
                 {
@@ -149,6 +151,33 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     fGCodeExecutionEventsManager.FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
+
+                    if (receivedStr.equals("error: Alarm lock"))
+                    {
+                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM));
+                    }
+                }
+                else if (receivedStr.toLowerCase().contains("[reset to continue]"))
+                {
+                    //ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_SOFT_RESET);
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.RESET_TO_CONTINUE));
+                    fMyGCodeSender.CancelSendingGCode();
+                    fWaitForCommandToBeExecuted.Set();
+                }
+                else if (receivedStr.startsWith("[PRB:"))
+                {
+                    // Example of incoming message [PRB:0.000,0.000,-0.910:1]
+                    System.out.println("Endmill has touched the Touch Probe!");
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE));
+                    /////////////////////////////////////////////////////
+                    // DONT !!!!!!!!!!!!!!!!!!! GRBL sends an "OK" back
+                    // fWaitForCommandToBeExecuted.Set();
+                    ////////////////////////////////////////////////////
+                }
+                else if (receivedStr.equals("ALARM: Probe fail") || receivedStr.equals("['$H'|'$X' to unlock]"))
+                {
+                    // MACHINE NEEDS UNLOCK !
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM));
                 }
                 else
                 {
@@ -175,7 +204,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 return true;
             }
 
-            //System.out.println("Data Sent: " + optimizedCommand);
+            System.out.println("Data Sent: " + optimizedCommand);
             fLastCommandSentToController = command;
 
             if (!fLastCommandSentToController.getComment().equals(""))

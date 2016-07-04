@@ -1,4 +1,4 @@
- /*
+/*
  Copyright (C) 2015  Nikos Siatras
 
  This program is free software: you can redistribute it and/or modify
@@ -51,6 +51,13 @@ public class GRBLActiveStates
     // It will process and respond to all G-code commands, but not motion or turn on anything. 
     // Once toggled off with another '$C' command, Grbl will reset itself.
     public static final int CHECK = 7;
+
+    // GRBL sent the "[Reset to continue]" string.
+    // This can happen if the hard_limits is on and the machine hits on of the limit switches.
+    public static final int RESET_TO_CONTINUE = 100001;
+
+    // Machine touched the probe.
+    public static final int MACHINE_TOUCHED_PROBE = 100002;
 
     public static int getGRBLActiveStateFromString(String state)
     {

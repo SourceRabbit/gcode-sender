@@ -16,12 +16,14 @@
  */
 package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
+import javax.swing.JOptionPane;
 import jssc.SerialPortException;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
 
@@ -39,7 +41,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
     // Status thread
     private long fLastMachinePositionReceivedTimestamp;
-    private final long fMillisecondsToGetMachineStatus = 250;
+    private final long fMillisecondsToGetMachineStatus = 650;
     private boolean fKeepStatusThread = false;
     private Thread fStatusThread;
 
@@ -305,7 +307,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
                         try
                         {
-                            Thread.sleep(fMillisecondsToGetMachineStatus);
+                            Thread.sleep(100);
                         }
                         catch (Exception ex)
                         {
@@ -333,6 +335,50 @@ public class GRBLConnectionHandler extends ConnectionHandler
         catch (Exception ex)
         {
         }
+    }
+
+    @Override
+    public boolean OpenConnection(String serialPort, int baudRate) throws Exception
+    {
+        if (super.OpenConnection(serialPort, baudRate))
+        {
+            // Wait 2 seconds to establish connection.
+            // If we dont get a reply from the board then we send the Soft Reset command.
+            Thread th = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        Thread.sleep(2000);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    if (!fConnectionEstablished)
+                    {
+                        // We are now connected.
+                        // Send reset signal to the board
+                        try
+                        {
+                            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_SOFT_RESET);
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+
+                }
+            });
+            th.start();
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override

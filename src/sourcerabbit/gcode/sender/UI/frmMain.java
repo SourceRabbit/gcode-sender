@@ -290,14 +290,14 @@ public class frmMain extends javax.swing.JFrame
             fWaitToEstablishConnectionResetEvent.Reset();
             if (handler.OpenConnection(port, Integer.parseInt(baud)))
             {
-                // Wait for 3 seconds to establish connection
+                // Wait for 4 seconds to establish connection
                 // Otherwise disconnect (Close Connection)
                 Thread th = new Thread(new Runnable()
                 {
                     @Override
                     public void run()
                     {
-                        fWaitToEstablishConnectionResetEvent.WaitOne(3000);
+                        fWaitToEstablishConnectionResetEvent.WaitOne(4000);
 
                         if (!handler.isConnectionEstablished())
                         {

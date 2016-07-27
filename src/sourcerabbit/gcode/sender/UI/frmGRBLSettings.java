@@ -1,4 +1,4 @@
- /*
+/*
  Copyright (C) 2015  Nikos Siatras
 
  This program is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@ import sourcerabbit.gcode.sender.UI.UITools.UITools;
  */
 public class frmGRBLSettings extends JDialog
 {
-
+    
     private final frmGRBLSettings fInstance;
 
     /**
@@ -41,56 +41,56 @@ public class frmGRBLSettings extends JDialog
     public frmGRBLSettings()
     {
         initComponents();
-
+        
         fInstance = this;
 
         // Set form in middle of screen
         Position2D pos = UITools.getPositionForFormToOpenInMiddleOfScreen(this.getSize().width, this.getSize().height);
         this.setLocation((int) pos.getX(), (int) pos.getY());
-
+        
         jTableSettings.setDefaultRenderer(Object.class, new JTableRenderer());
 
         // Add event for incoming data
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getSerialConnectionEventManager().AddListener(fSerialConnectionEvents);
-
+        
         Init();
     }
-
+    
     ISerialConnectionEventListener fSerialConnectionEvents = new ISerialConnectionEventListener()
     {
-
+        
         @Override
         public void ConnectionEstablished(SerialConnectionEvent evt)
         {
-
+            
         }
-
+        
         @Override
         public void ConnectionClosed(SerialConnectionEvent evt)
         {
-
+            
         }
-
+        
         @Override
         public void DataReceivedFromSerialConnection(SerialConnectionEvent evt)
         {
             String data = evt.getSource().toString();
-
+            
             String[] parts = data.split(" ");
             String[] idAndValueParts = parts[0].split("=");
             String description = data.replace(parts[0], "").trim();
-
+            
             String item[] = new String[3];
             item[0] = idAndValueParts[0];
             item[1] = idAndValueParts[1];
-            item[2] = description;
-
+            item[2] = description.substring(1).substring(0, description.length() - 2);
+            
             DefaultTableModel model = (DefaultTableModel) jTableSettings.getModel();
             model.addRow(item);
-
+            
         }
     };
-
+    
     private void Init()
     {
         // Send "$$" command to GRBL Controller
@@ -101,10 +101,10 @@ public class frmGRBLSettings extends JDialog
         }
         catch (Exception ex)
         {
-
+            
         }
     }
-
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents()
@@ -207,7 +207,7 @@ public class frmGRBLSettings extends JDialog
     {//GEN-HEADEREND:event_jButtonSaveActionPerformed
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getSerialConnectionEventManager().RemoveListener(fSerialConnectionEvents);
         jButtonSave.requestFocus();
-
+        
         int tableRows = jTableSettings.getRowCount();
         for (int i = 0; i < tableRows; i++)
         {
@@ -222,10 +222,10 @@ public class frmGRBLSettings extends JDialog
             {
             }
         }
-
+        
         this.dispose();
     }//GEN-LAST:event_jButtonSaveActionPerformed
-
+    
     @Override
     public void dispose()
     {

@@ -1546,7 +1546,8 @@ public class frmControl extends javax.swing.JFrame
                     ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command1);
                 }
 
-                final GCodeCommand command2 = new GCodeCommand("G21 G90 G28 X0 Y0");
+                //final GCodeCommand command2 = new GCodeCommand("G21 G90 G28 X0 Y0");
+                final GCodeCommand command2 = new GCodeCommand("G21 G90 X0 Y0");
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command2);
 
                 final GCodeCommand command3 = new GCodeCommand("G21 G90 G0 Z0");

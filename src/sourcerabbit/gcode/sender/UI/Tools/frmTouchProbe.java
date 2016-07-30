@@ -247,6 +247,9 @@ public class frmTouchProbe extends javax.swing.JDialog
 
     private void InitEvents()
     {
+        // Call UpdateUIOnMachineStatusChange with the current machine status
+        UpdateUIOnMachineStatusChange(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState());
+
         // Machine status events
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachineStatusEventsManager().AddListener(fIMachineStatusEventListener = new IMachineStatusEventListener()
         {
@@ -270,8 +273,8 @@ public class frmTouchProbe extends javax.swing.JDialog
                 break;
 
             case GRBLActiveStates.RUN:
-                jButtonTouch.setEnabled(true);
-                jLabelWarning.setVisible(false);
+                jButtonTouch.setEnabled(false);
+                jLabelWarning.setVisible(true);
                 break;
             case GRBLActiveStates.HOLD:
             case GRBLActiveStates.ALARM:

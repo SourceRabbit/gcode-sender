@@ -178,7 +178,7 @@ public class GRBLGCodeSender
     {
         try
         {
-            fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector("!");
+            fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector("! ?");
         }
         catch (Exception ex)
         {

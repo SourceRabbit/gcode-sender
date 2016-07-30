@@ -612,27 +612,13 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jButtonGCodeBrowse" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="102" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Group type="102" attributes="0">
-                                          <Component id="jLabelRowsInFile3" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
-                                          <Component id="jLabelRowsInFile" min="-2" pref="76" max="-2" attributes="0"/>
-                                      </Group>
-                                  </Group>
-                                  <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="jLabelRowsInFile4" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="jLabelRowsInFile5" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="jProgressBarGCodeProgress" min="-2" max="-2" attributes="0"/>
-                                      <Component id="jLabelTimeElapsed" min="-2" pref="88" max="-2" attributes="0"/>
-                                  </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Group type="102" attributes="0">
+                                  <Component id="jLabelRowsInFile3" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
+                                  <Component id="jLabelRowsInFile" pref="83" max="32767" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
@@ -640,9 +626,28 @@
                                       <Component id="jLabelRowsInFile1" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                      <Component id="jLabelSentRows" pref="83" max="32767" attributes="0"/>
+                                      <Component id="jLabelRemainingRows" max="32767" attributes="0"/>
+                                  </Group>
+                              </Group>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Component id="jLabelRowsInFile6" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="jLabelBytesPerSecond" max="32767" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="0" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="jLabelSentRows" min="-2" pref="83" max="-2" attributes="0"/>
-                                      <Component id="jLabelRemainingRows" min="-2" pref="51" max="-2" attributes="0"/>
+                                      <Component id="jLabelRowsInFile4" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabelRowsInFile5" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                      <Component id="jProgressBarGCodeProgress" max="32767" attributes="0"/>
+                                      <Component id="jLabelTimeElapsed" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                           </Group>
@@ -688,6 +693,8 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabelRowsInFile2" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabelRemainingRows" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabelRowsInFile6" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabelBytesPerSecond" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="22" max="32767" attributes="0"/>
               </Group>
@@ -793,6 +800,16 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JProgressBar" name="jProgressBarGCodeProgress">
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabelRowsInFile6">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Bytes In/Out (sec):"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabelBytesPerSecond">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="0/0"/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>

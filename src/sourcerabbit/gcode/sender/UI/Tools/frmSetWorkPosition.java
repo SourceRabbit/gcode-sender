@@ -98,7 +98,6 @@ public class frmSetWorkPosition extends javax.swing.JDialog
             {
 
             }
-
         });
     }
 
@@ -113,7 +112,7 @@ public class frmSetWorkPosition extends javax.swing.JDialog
                 break;
 
             case GRBLActiveStates.RUN:
-                jLabelNotice.setText("Your machine is running!");
+                jLabelNotice.setText("The machine's status must be Idle!");
                 jButtonSet.setEnabled(false);
                 break;
             case GRBLActiveStates.HOLD:
@@ -125,14 +124,6 @@ public class frmSetWorkPosition extends javax.swing.JDialog
                 jButtonSet.setEnabled(false);
                 break;
         }
-    }
-
-    private void SetOptionsState(boolean state)
-    {
-        jTextFieldX.setEnabled(state);
-        jTextFieldY.setEnabled(state);
-        jTextFieldZ.setEnabled(state);
-        jButtonSet.setEnabled(state);
     }
 
     @SuppressWarnings("unchecked")
@@ -156,7 +147,7 @@ public class frmSetWorkPosition extends javax.swing.JDialog
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("This is going to set/ovverride the Work position");
+        jLabel1.setText("This is going to set/override the Work position");
 
         jLabel2.setText("X:");
 
@@ -180,7 +171,7 @@ public class frmSetWorkPosition extends javax.swing.JDialog
         });
 
         jLabelNotice.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabelNotice.setForeground(new java.awt.Color(255, 0, 51));
+        jLabelNotice.setForeground(new java.awt.Color(204, 0, 0));
         jLabelNotice.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabelNotice.setText("NOTICE");
 
@@ -246,7 +237,6 @@ public class frmSetWorkPosition extends javax.swing.JDialog
     {//GEN-HEADEREND:event_jButtonSetActionPerformed
         try
         {
-
             double x = Double.parseDouble(jTextFieldX.getText());
             double y = Double.parseDouble(jTextFieldY.getText());
             double z = Double.parseDouble(jTextFieldZ.getText());
@@ -254,7 +244,6 @@ public class frmSetWorkPosition extends javax.swing.JDialog
 
             GCodeCommand command = new GCodeCommand(commandStr);
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
-
         }
         catch (Exception ex)
         {

@@ -40,7 +40,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
     // Status thread
     private long fLastMachinePositionReceivedTimestamp;
-    private final long fMillisecondsToGetMachineStatus = 500;
+    private int fMillisecondsToGetMachineStatus = 300;
     private boolean fKeepStatusThread = false;
     private Thread fStatusThread;
 
@@ -103,6 +103,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
             if (receivedStr.startsWith("<"))
             {
                 // Machine status received !
+                // System.out.println(receivedStr);
                 receivedStr = receivedStr.toLowerCase();
                 receivedStr = receivedStr.replace("mpos", "").replace("wpos", "").replace(":", "").replace("<", "").replace(">", "");
                 String[] parts = receivedStr.split(",");
@@ -111,6 +112,11 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 if (newActiveState != fActiveState)
                 {
                     fActiveState = newActiveState;
+
+                    // 1000ms when machine is in RUN status otherwise 300ms
+                    fMillisecondsToGetMachineStatus = (fActiveState == GRBLActiveStates.RUN) ? 1000 : 300;
+
+                    // Fire the MachineStatusChangedEvent
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(fActiveState));
                 }
 
@@ -121,6 +127,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 fWorkPosition.setX(Float.parseFloat(parts[4]));
                 fWorkPosition.setY(Float.parseFloat(parts[5]));
                 fWorkPosition.setZ(Float.parseFloat(parts[6]));
+
+                ///////////////////////////////////////////////////////////////
+                // Debug
+                ///////////////////////////////////////////////////////////////
+                //System.out.println("Last status received " + (System.currentTimeMillis() - fLastMachinePositionReceivedTimestamp) + "ms ago");
+                ///////////////////////////////////////////////////////////////
 
                 fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
 
@@ -337,14 +349,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
         {
             try
             {
-                /*if (fActiveState == GRBLActiveStates.RUN)
-                {
-                    System.err.println("Asking for machine status");
-                }
-                else
-                {
-                    System.out.println("Asking for machine status");
-                }*/
                 return SendData(GRBLCommands.COMMAND_GET_STATUS);
             }
             catch (Exception ex)

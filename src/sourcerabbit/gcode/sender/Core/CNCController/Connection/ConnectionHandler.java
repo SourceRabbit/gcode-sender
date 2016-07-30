@@ -61,6 +61,12 @@ public class ConnectionHandler implements SerialPortEventListener
     protected GCodeExecutionEventsManager fGCodeExecutionEventsManager = new GCodeExecutionEventsManager();
     protected MachineStatusEventsManager fMachineStatusEventsManager = new MachineStatusEventsManager();
 
+    // Byte count Thread
+    private Thread fKeepCountingBytesThread;
+    private boolean fKeepCountingBytes = false;
+    private long fBytesIn = 0, fBytesOut = 0;
+    private long fBytesInPerSec = 0, fBytesOutPerSec = 0;
+
     // GCode
     protected final GRBLGCodeSender fMyGCodeSender;
 
@@ -96,6 +102,8 @@ public class ConnectionHandler implements SerialPortEventListener
         fMachinePosition = new Position4D((float) 0, (float) 0, (float) 0, null);
         fWorkPosition = new Position4D((float) 0, (float) 0, (float) 0, null);
 
+        StartByteCountThread();
+
         return true;
     }
 
@@ -128,6 +136,42 @@ public class ConnectionHandler implements SerialPortEventListener
 
         // Fire connection closed event
         fSerialConnectionEventManager.FireConnectionClosedEvent(new SerialConnectionEvent("Connection Closed"));
+
+        StopByteCountThread();
+    }
+
+    private void StartByteCountThread()
+    {
+        fKeepCountingBytes = true;
+        fKeepCountingBytesThread = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                while (fKeepCountingBytes)
+                {
+                    fBytesInPerSec = fBytesIn;
+                    fBytesOutPerSec = fBytesOut;
+                    fBytesIn = fBytesOut = 0;
+
+                    try
+                    {
+                        Thread.sleep(1000);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+            }
+        });
+        fKeepCountingBytesThread.start();
+    }
+
+    private void StopByteCountThread()
+    {
+        fKeepCountingBytes = false;
+        fKeepCountingBytesThread.interrupt();
     }
 
     @Override
@@ -154,6 +198,7 @@ public class ConnectionHandler implements SerialPortEventListener
     {
         try
         {
+            fBytesIn += bytes.length;
             fIncomingDataBuffer.Append(bytes);
             fIndexOfMessageSplitter = fIncomingDataBuffer.IndexOf(fMessageSplitterBytes);
             while (fIndexOfMessageSplitter > -1)
@@ -178,6 +223,7 @@ public class ConnectionHandler implements SerialPortEventListener
     {
         try
         {
+            fBytesOut += data.getBytes().length + 1;
             return fSerialPort.writeString(data + fMessageSplitter);
         }
         catch (Exception ex)
@@ -243,7 +289,27 @@ public class ConnectionHandler implements SerialPortEventListener
     }
 
     /**
-     * Returns true if the connectin is established
+     * Return the number of bytes received during the last second.
+     *
+     * @return
+     */
+    public long getBytesInPerSec()
+    {
+        return fBytesInPerSec;
+    }
+
+    /**
+     * Return the number of bytes sent during the last second.
+     *
+     * @return
+     */
+    public long getBytesOutPerSec()
+    {
+        return fBytesOutPerSec;
+    }
+
+    /**
+     * Returns true if the connection is established
      *
      * @return
      */

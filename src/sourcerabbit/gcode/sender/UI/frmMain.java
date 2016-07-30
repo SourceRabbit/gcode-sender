@@ -116,7 +116,7 @@ public class frmMain extends javax.swing.JFrame
         this.dispose();
     }
 
-    private ISerialConnectionEventListener fConnectionEstablishedEventListener = new ISerialConnectionEventListener()
+    private final ISerialConnectionEventListener fConnectionEstablishedEventListener = new ISerialConnectionEventListener()
     {
         @Override
         public void ConnectionEstablished(SerialConnectionEvent evt)
@@ -136,7 +136,6 @@ public class frmMain extends javax.swing.JFrame
         {
 
         }
-
     };
 
     @SuppressWarnings("unchecked")
@@ -290,14 +289,14 @@ public class frmMain extends javax.swing.JFrame
             fWaitToEstablishConnectionResetEvent.Reset();
             if (handler.OpenConnection(port, Integer.parseInt(baud)))
             {
-                // Wait for 4 seconds to establish connection
+                // Wait for 3 seconds to establish connection
                 // Otherwise disconnect (Close Connection)
                 Thread th = new Thread(new Runnable()
                 {
                     @Override
                     public void run()
                     {
-                        fWaitToEstablishConnectionResetEvent.WaitOne(4000);
+                        fWaitToEstablishConnectionResetEvent.WaitOne(3000);
 
                         if (!handler.isConnectionEstablished())
                         {
@@ -329,7 +328,6 @@ public class frmMain extends javax.swing.JFrame
             jButtonConnect.setText("Connect");
             jButtonConnect.setEnabled(true);
         }
-
     }//GEN-LAST:event_jButtonConnectActionPerformed
 
     public static void main(String args[])

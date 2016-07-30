@@ -27,6 +27,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConn
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLGCodeSender;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.ByteArrayBuilder;
+import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position4D;
 
 /**
@@ -42,6 +43,7 @@ public class ConnectionHandler implements SerialPortEventListener
     protected int fBaudRate;
     protected ByteArrayBuilder fIncomingDataBuffer = null;
     protected boolean fConnectionEstablished = false;
+    protected ManualResetEvent fConnectionEstablishedManualResetEvent = new ManualResetEvent(false);
 
     // Incoming Data
     protected String fMessageSplitter;
@@ -163,7 +165,7 @@ public class ConnectionHandler implements SerialPortEventListener
         }
         catch (Exception ex)
         {
-            System.err.println("<Handler_GRBL.AppendDataToIncomingBuffer> Error:" + ex.getMessage());
+            System.err.println("<ConnectionHandler.AppendDataToIncomingBuffer> Error:" + ex.getMessage());
         }
     }
 

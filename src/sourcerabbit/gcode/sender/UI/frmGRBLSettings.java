@@ -16,6 +16,7 @@
  */
 package sourcerabbit.gcode.sender.UI;
 
+import java.util.HashMap;
 import javax.swing.JDialog;
 import javax.swing.table.DefaultTableModel;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
@@ -32,8 +33,8 @@ import sourcerabbit.gcode.sender.UI.UITools.UITools;
  */
 public class frmGRBLSettings extends JDialog
 {
-    
-    private final frmGRBLSettings fInstance;
+
+    private HashMap<String, String> fOldValues = new HashMap<String, String>();
 
     /**
      * Creates new form frmGRBLSettings
@@ -41,56 +42,56 @@ public class frmGRBLSettings extends JDialog
     public frmGRBLSettings()
     {
         initComponents();
-        
-        fInstance = this;
 
         // Set form in middle of screen
         Position2D pos = UITools.getPositionForFormToOpenInMiddleOfScreen(this.getSize().width, this.getSize().height);
         this.setLocation((int) pos.getX(), (int) pos.getY());
-        
+
         jTableSettings.setDefaultRenderer(Object.class, new JTableRenderer());
 
         // Add event for incoming data
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getSerialConnectionEventManager().AddListener(fSerialConnectionEvents);
-        
+
         Init();
     }
-    
+
     ISerialConnectionEventListener fSerialConnectionEvents = new ISerialConnectionEventListener()
     {
-        
+
         @Override
         public void ConnectionEstablished(SerialConnectionEvent evt)
         {
-            
+
         }
-        
+
         @Override
         public void ConnectionClosed(SerialConnectionEvent evt)
         {
-            
+
         }
-        
+
         @Override
         public void DataReceivedFromSerialConnection(SerialConnectionEvent evt)
         {
             String data = evt.getSource().toString();
-            
+
             String[] parts = data.split(" ");
             String[] idAndValueParts = parts[0].split("=");
             String description = data.replace(parts[0], "").trim();
-            
+
             String item[] = new String[3];
             item[0] = idAndValueParts[0];
             item[1] = idAndValueParts[1];
             item[2] = description.substring(1).substring(0, description.length() - 2);
-            
+
+            fOldValues.put(item[0], item[1]);
+
             DefaultTableModel model = (DefaultTableModel) jTableSettings.getModel();
             model.addRow(item);
-            
+
         }
     };
-    
+
     private void Init()
     {
         // Send "$$" command to GRBL Controller
@@ -101,10 +102,10 @@ public class frmGRBLSettings extends JDialog
         }
         catch (Exception ex)
         {
-            
+
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents()
@@ -207,25 +208,30 @@ public class frmGRBLSettings extends JDialog
     {//GEN-HEADEREND:event_jButtonSaveActionPerformed
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getSerialConnectionEventManager().RemoveListener(fSerialConnectionEvents);
         jButtonSave.requestFocus();
-        
+
         int tableRows = jTableSettings.getRowCount();
         for (int i = 0; i < tableRows; i++)
         {
             try
             {
-                String commandStr = jTableSettings.getValueAt(i, 0).toString() + "=" + jTableSettings.getValueAt(i, 1).toString().trim();
-                GCodeCommand command = new GCodeCommand(commandStr);
-                String result = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
-                System.out.println(result);
+                String id = jTableSettings.getValueAt(i, 0).toString();
+                String value = jTableSettings.getValueAt(i, 1).toString().trim();
+
+                if (!fOldValues.get(id).equals(value))
+                {
+                    String commandStr = id + "=" + value;
+                    GCodeCommand command = new GCodeCommand(commandStr);
+                    String result = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+                    System.out.println(result);
+                }
             }
             catch (Exception ex)
             {
             }
         }
-        
         this.dispose();
     }//GEN-LAST:event_jButtonSaveActionPerformed
-    
+
     @Override
     public void dispose()
     {

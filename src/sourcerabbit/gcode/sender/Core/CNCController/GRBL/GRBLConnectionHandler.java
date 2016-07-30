@@ -16,7 +16,6 @@
  */
 package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
-import javax.swing.JOptionPane;
 import jssc.SerialPortException;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
@@ -41,7 +40,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
     // Status thread
     private long fLastMachinePositionReceivedTimestamp;
-    private final long fMillisecondsToGetMachineStatus = 650;
+    private final long fMillisecondsToGetMachineStatus = 500;
     private boolean fKeepStatusThread = false;
     private Thread fStatusThread;
 
@@ -66,7 +65,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
     private void InitEvents()
     {
         // Connection Closed Event
-        fSerialConnectionEventManager.AddListener(new ISerialConnectionEventListener()
+        super.fSerialConnectionEventManager.AddListener(new ISerialConnectionEventListener()
         {
             @Override
             public void ConnectionEstablished(SerialConnectionEvent evt)
@@ -99,8 +98,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
             {
                 return;
             }
-            //System.out.println("Data received:" + receivedStr);
 
+            //System.out.println("Data received:" + receivedStr);
             if (receivedStr.startsWith("<"))
             {
                 // Machine status received !
@@ -125,27 +124,34 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
                 fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
 
+                //////////////////////////////////////////////////////////////////
                 // Set the WaitForGetStatusCommandReply manual reset event
+                //////////////////////////////////////////////////////////////////
                 fWaitForGetStatusCommandReply.Set();
+                //System.out.println("Machine status received");
+                //////////////////////////////////////////////////////////////////
             }
             else
             {
-                System.out.println("Data received:" + receivedStr);
-
+                //System.out.println("Data received:" + receivedStr);
                 fGCodeCommandResponse = receivedStr;
                 if (receivedStr.toLowerCase().startsWith("grbl"))
                 {
                     // Fire the ConnectionEstablishedEvent
                     fConnectionEstablished = true;
+                    fConnectionEstablishedManualResetEvent.Set();
                     fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
                     fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE));
                 }
                 else if (receivedStr.equals("ok"))
                 {
-                    fGCodeExecutionEventsManager.FireGCodeExecutedSuccessfully(new GCodeExecutionEvent(fLastCommandSentToController));
-                    fLastCommandSentToController = null;
-                    fWaitForCommandToBeExecuted.Set();
+                    if (fLastCommandSentToController != null)
+                    {
+                        fGCodeExecutionEventsManager.FireGCodeExecutedSuccessfully(new GCodeExecutionEvent(fLastCommandSentToController));
+                        fLastCommandSentToController = null;
+                        fWaitForCommandToBeExecuted.Set();
+                    }
                 }
                 else if (receivedStr.startsWith("error"))
                 {
@@ -161,7 +167,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 }
                 else if (receivedStr.toLowerCase().contains("[reset to continue]"))
                 {
-                    //ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_SOFT_RESET);
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.RESET_TO_CONTINUE));
                     fMyGCodeSender.CancelSendingGCode();
                     fWaitForCommandToBeExecuted.Set();
@@ -206,7 +211,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 return true;
             }
 
-            System.out.println("Data Sent: " + optimizedCommand);
+            //System.out.println("Data Sent: " + optimizedCommand);
             fLastCommandSentToController = command;
 
             if (!fLastCommandSentToController.getComment().equals(""))
@@ -290,7 +295,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 // Ask for status report           
                                 fWaitForGetStatusCommandReply = new ManualResetEvent(false);
                                 fWaitForGetStatusCommandReply.Reset();
-                                if (SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_GET_STATUS))
+                                if (AskForMachineStatus())
                                 {
                                     // Wait for Get Status Command Reply
                                     fWaitForGetStatusCommandReply.WaitOne();
@@ -322,6 +327,34 @@ public class GRBLConnectionHandler extends ConnectionHandler
     }
 
     /**
+     * Send the '?' command to GRBL and ask for the machine status
+     *
+     * @return true if the '?' can be sent
+     */
+    public boolean AskForMachineStatus()
+    {
+        synchronized (fSendDataLock)
+        {
+            try
+            {
+                /*if (fActiveState == GRBLActiveStates.RUN)
+                {
+                    System.err.println("Asking for machine status");
+                }
+                else
+                {
+                    System.out.println("Asking for machine status");
+                }*/
+                return SendData(GRBLCommands.COMMAND_GET_STATUS);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+    }
+
+    /**
      * Stop the Status Report Thread
      */
     private void StopStatusReportThread()
@@ -340,6 +373,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
     @Override
     public boolean OpenConnection(String serialPort, int baudRate) throws Exception
     {
+        ////////////////////////////////////////////////////////////////////////        
+        // Re-initialize the fConnectionEstablishedManualResetEvent
+        ////////////////////////////////////////////////////////////////////////
+        fConnectionEstablishedManualResetEvent = new ManualResetEvent(false);
+        ////////////////////////////////////////////////////////////////////////
+
         if (super.OpenConnection(serialPort, baudRate))
         {
             // Wait 2 seconds to establish connection.
@@ -349,18 +388,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 @Override
                 public void run()
                 {
-                    try
-                    {
-                        Thread.sleep(2000);
-                    }
-                    catch (Exception ex)
-                    {
+                    // Wait for 2 seconds max.
+                    fConnectionEstablishedManualResetEvent.WaitOne(2000);
 
-                    }
                     if (!fConnectionEstablished)
                     {
-                        // We are now connected.
-                        // Send reset signal to the board
+                        // We are not connected to the board. Try to send a reset signal to wake it up.
                         try
                         {
                             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_SOFT_RESET);

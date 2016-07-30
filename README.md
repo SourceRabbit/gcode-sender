@@ -7,10 +7,10 @@ Website: <a href="http://www.sourcerabbit.com">SourceRabbit.com</a>
 
 Downloads
 ------
+[1.1.1](https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.1.1/SourceRabbit-GCode-Sender.zip) - Requires Java 8 or higher.<br>
 [1.1.0] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.1.0/SourceRabbit-GCode-Sender.zip) - Requires Java 8 or higher.<br>
 [1.0.9] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.9/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher.<br>
 [1.0.8] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.8/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher.<br>
-[1.0.7] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.7/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher. <br>
 
 About SourceRabbit GCode Sender
 ------
@@ -46,6 +46,10 @@ Goals:
 
 Changelog
 ------
+1.1.0 -> 1.1.1
+* Serial communication procedure optimized
+* Small UI changes
+
 1.0.9 -> 1.1.0
 * Added appropriate UI to use touch probe and touch plates
 

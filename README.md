@@ -5,6 +5,15 @@ SourceRabbit GCode Sender
 </p>
 Website: <a href="http://www.sourcerabbit.com">SourceRabbit.com</a>
 
+Downloads
+------
+[1.1.0] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.1.0/SourceRabbit-GCode-Sender.zip) - Requires Java 8 or higher.<br>
+[1.0.9] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.9/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher.<br>
+[1.0.8] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.8/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher.<br>
+[1.0.7] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.7/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher. <br>
+
+About SourceRabbit GCode Sender
+------
 SourceRabbit GCode Sender is a <b>GRBL</b> compatible, cross platform G-Code sender written in Java. It features a highly optimized and asynchronous (event-driven) UI and USB-to-Serial communication and can be also used on computers with small amount of RAM and CPU.
 
 To run simply <b>download</b>, <b>unzip</b> the .zip file and <b>double click</b> the SourceRabbit-GCODE-Sender.jar file and connect to your Arduino GRBL Controller! 
@@ -26,14 +35,6 @@ Goals:
 * Provide a fast, accurate and easy to use software
 * Support all GRBL CNC router and milling machines
 * Can be used on computers with small amount of RAM and CPU.
-
-
-Downloads
-------
-[1.1.0] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.1.0/SourceRabbit-GCode-Sender.zip) - Requires Java 8 or higher.<br>
-[1.0.9] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.9/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher.<br>
-[1.0.8] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.8/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher.<br>
-[1.0.7] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.7/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher. <br>
 
 
 ![Connect to your CNC!](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ConnectForm.png "Connect to your CNC!")

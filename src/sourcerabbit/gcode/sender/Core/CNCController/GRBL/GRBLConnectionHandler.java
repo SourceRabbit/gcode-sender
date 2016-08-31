@@ -104,26 +104,32 @@ public class GRBLConnectionHandler extends ConnectionHandler
             {
                 // Machine status received !
                 // System.out.println(receivedStr);
-                receivedStr = receivedStr.toLowerCase();
-                receivedStr = receivedStr.replace("mpos", "").replace("wpos", "").replace(":", "").replace("<", "").replace(">", "");
+                receivedStr = receivedStr.toLowerCase().replace("mpos", "").replace("wpos", "").replace(":", "").replace("<", "").replace(">", "");
                 String[] parts = receivedStr.split(",");
 
+                //////////////////////////////////////////////////////////////////////////////////////////////////////
+                // Check if the machine status changed
+                //////////////////////////////////////////////////////////////////////////////////////////////////////
                 final int newActiveState = GRBLActiveStates.getGRBLActiveStateFromString(parts[0]);
                 if (newActiveState != fActiveState)
                 {
                     fActiveState = newActiveState;
 
                     // 1000ms when machine is in RUN status otherwise 300ms
-                    fMillisecondsToGetMachineStatus = (fActiveState == GRBLActiveStates.RUN) ? 1000 : 300;
+                    fMillisecondsToGetMachineStatus = (fActiveState == GRBLActiveStates.RUN) ? 1500 : 300;
 
                     // Fire the MachineStatusChangedEvent
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(fActiveState));
                 }
+                //////////////////////////////////////////////////////////////////////////////////////////////////////
+                //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+                // Get Machine Position
                 fMachinePosition.setX(Float.parseFloat(parts[1]));
                 fMachinePosition.setY(Float.parseFloat(parts[2]));
                 fMachinePosition.setZ(Float.parseFloat(parts[3]));
 
+                // Get Work Position
                 fWorkPosition.setX(Float.parseFloat(parts[4]));
                 fWorkPosition.setY(Float.parseFloat(parts[5]));
                 fWorkPosition.setZ(Float.parseFloat(parts[6]));
@@ -131,9 +137,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 ///////////////////////////////////////////////////////////////
                 // Debug
                 ///////////////////////////////////////////////////////////////
-                //System.out.println("Last status received " + (System.currentTimeMillis() - fLastMachinePositionReceivedTimestamp) + "ms ago");
+                System.out.println("Last status received " + (System.currentTimeMillis() - fLastMachinePositionReceivedTimestamp) + "ms ago");
                 ///////////////////////////////////////////////////////////////
-
                 fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
 
                 //////////////////////////////////////////////////////////////////
@@ -147,16 +152,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
             {
                 //System.out.println("Data received:" + receivedStr);
                 fGCodeCommandResponse = receivedStr;
-                if (receivedStr.toLowerCase().startsWith("grbl"))
-                {
-                    // Fire the ConnectionEstablishedEvent
-                    fConnectionEstablished = true;
-                    fConnectionEstablishedManualResetEvent.Set();
-                    fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
-                    fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE));
-                }
-                else if (receivedStr.equals("ok"))
+                if (receivedStr.equals("ok"))
                 {
                     if (fLastCommandSentToController != null)
                     {
@@ -164,6 +160,15 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         fLastCommandSentToController = null;
                         fWaitForCommandToBeExecuted.Set();
                     }
+                }
+                else if (receivedStr.toLowerCase().startsWith("grbl"))
+                {
+                    // Fire the ConnectionEstablishedEvent
+                    fConnectionEstablished = true;
+                    fConnectionEstablishedManualResetEvent.Set();
+                    fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
+                    fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE));
                 }
                 else if (receivedStr.startsWith("error"))
                 {
@@ -186,7 +191,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 else if (receivedStr.startsWith("[PRB:"))
                 {
                     // Example of incoming message [PRB:0.000,0.000,-0.910:1]
-                    System.out.println("Endmill has touched the Touch Probe!");
+                    //System.out.println("Endmill touched the Touch Probe!");
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE));
                     /////////////////////////////////////////////////////
                     // DONT !!!!!!!!!!!!!!!!!!! GRBL sends an "OK" back

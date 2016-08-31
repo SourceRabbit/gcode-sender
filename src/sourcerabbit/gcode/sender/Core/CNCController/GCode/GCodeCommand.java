@@ -63,7 +63,7 @@ public class GCodeCommand
      */
     public String getOptimizedCommand()
     {
-        return fCommand.replace(" ", "").trim();
+        return fCommand.replace(" ", "").replace(getComment(), "").trim();
     }
 
     /**

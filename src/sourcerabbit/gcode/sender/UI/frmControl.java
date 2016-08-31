@@ -1105,11 +1105,12 @@ public class frmControl extends javax.swing.JFrame
                     .addComponent(jLabelRowsInFile1)
                     .addComponent(jProgressBarGCodeProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabelRowsInFile2)
-                    .addComponent(jLabelRemainingRows)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabelRowsInFile6)
-                    .addComponent(jLabelBytesPerSecond))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabelRowsInFile2)
+                        .addComponent(jLabelRemainingRows)
+                        .addComponent(jLabelBytesPerSecond)))
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
@@ -1626,16 +1627,17 @@ public class frmControl extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButtonGCodeVisualizeActionPerformed
         try
         {
-            final Chart2D chart = new Chart2D();
+            frmGCodeViewer frm = new frmGCodeViewer();
+            frm.setVisible(true);
+            
+            
+            /*final Chart2D chart = new Chart2D();
             // Create an ITrace: 
             ITrace2D trace = new Trace2DSimple();
             // Add the trace to the chart. This has to be done before adding points (deadlock prevention): 
             chart.addTrace(trace);
 
             final Queue<String> gcodeQueue = new ArrayDeque(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeQueue());
-
-            /*double previousZValue = Double.MAX_VALUE;
-             double previousXValue = Double.MAX_VALUE;*/
             double x = 0, y = 0, z = 0, maxX = 0, maxY = 0;
 
             while (gcodeQueue.size() > 0)
@@ -1663,7 +1665,7 @@ public class frmControl extends javax.swing.JFrame
             // add the chart to the frame: 
             frame.getContentPane().add(chart);
             frame.setSize(600, 600);
-            frame.setVisible(true);
+            frame.setVisible(true);*/
         }
         catch (Exception ex)
         {

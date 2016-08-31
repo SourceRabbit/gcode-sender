@@ -68,7 +68,7 @@ public class ConnectionHandler implements SerialPortEventListener
     private long fBytesInPerSec = 0, fBytesOutPerSec = 0;
 
     // GCode
-    protected final GRBLGCodeSender fMyGCodeSender;
+    protected final GCodeSender fMyGCodeSender;
 
     public ConnectionHandler()
     {
@@ -89,10 +89,17 @@ public class ConnectionHandler implements SerialPortEventListener
         fPortName = serialPort;
         fBaudRate = baudRate;
 
-        fSerialPort = new SerialPort(serialPort);
-        fSerialPort.openPort();
-        fSerialPort.setParams(baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE, true, true);
-        fSerialPort.addEventListener(this);
+        if (fMyGCodeSender instanceof GRBLGCodeSender)
+        {
+            fSerialPort = new SerialPort(serialPort);
+            fSerialPort.openPort();
+            fSerialPort.setParams(baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE, true, true);
+            fSerialPort.addEventListener(this);
+        }
+        else
+        {
+            throw new Exception("Unknown framework!");
+        }
 
         if (fSerialPort == null)
         {
@@ -221,6 +228,7 @@ public class ConnectionHandler implements SerialPortEventListener
 
     public boolean SendData(String data) throws SerialPortException
     {
+
         try
         {
             fBytesOut += data.getBytes().length + 1;
@@ -237,6 +245,7 @@ public class ConnectionHandler implements SerialPortEventListener
             }
             throw ex;
         }
+
     }
 
     public boolean SendGCodeCommand(GCodeCommand command) throws Exception
@@ -373,7 +382,7 @@ public class ConnectionHandler implements SerialPortEventListener
      *
      * @return
      */
-    public GRBLGCodeSender getMyGCodeSender()
+    public GCodeSender getMyGCodeSender()
     {
         return fMyGCodeSender;
     }

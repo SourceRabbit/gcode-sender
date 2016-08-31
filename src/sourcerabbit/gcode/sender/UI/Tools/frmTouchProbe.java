@@ -24,6 +24,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineSta
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLCommands;
+import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.Settings.TouchProbeSettings;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
 import sourcerabbit.gcode.sender.UI.frmControl;
@@ -36,7 +37,9 @@ public class frmTouchProbe extends javax.swing.JDialog
 {
 
     private final frmControl fMyMain;
+    private boolean fShowWarningIfNecessary = true;
     private boolean fMachineTouchedTheProbe = false;
+    private final ManualResetEvent fWaitToTouchTheProbe = new ManualResetEvent(false);
 
     private IMachineStatusEventListener fIMachineStatusEventListener;
 
@@ -62,7 +65,6 @@ public class frmTouchProbe extends javax.swing.JDialog
         InitEvents();
 
         jSpinnerDistance.setValue(TouchProbeSettings.getDistanceFromProbe());
-        jSpinnerFeedRate.setValue(TouchProbeSettings.getFeedRateToProbe());
         jSpinnerHeighOfProbe.setValue(TouchProbeSettings.getHeightOfProbe());
 
         UpdateUIOnMachineStatusChange(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState());
@@ -77,14 +79,10 @@ public class frmTouchProbe extends javax.swing.JDialog
         jLabel1 = new javax.swing.JLabel();
         jSpinnerDistance = new javax.swing.JSpinner();
         jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jSpinnerFeedRate = new javax.swing.JSpinner();
         jLabel4 = new javax.swing.JLabel();
         jSpinnerHeighOfProbe = new javax.swing.JSpinner();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jButtonTouch = new javax.swing.JButton();
         jLabelWarning = new javax.swing.JLabel();
@@ -109,12 +107,6 @@ public class frmTouchProbe extends javax.swing.JDialog
 
         jLabel2.setText("This is the distance between the endmill and the touch probe/plate.");
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel3.setText("Feedrate to probe:");
-
-        jSpinnerFeedRate.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jSpinnerFeedRate.setValue(50);
-
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel4.setText("Height of probe:");
 
@@ -125,13 +117,8 @@ public class frmTouchProbe extends javax.swing.JDialog
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel5.setText("mm");
 
-        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel6.setText("mm/min");
-
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel7.setText("mm");
-
-        jLabel8.setText("The speed at which the endmill is advanced along the touch probe/plate.");
 
         jLabel9.setText("The total height of the touch probe/plate.");
 
@@ -164,47 +151,33 @@ public class frmTouchProbe extends javax.swing.JDialog
                     .addComponent(jLabel10))
                 .addGap(22, 22, 22))
             .addGroup(layout.createSequentialGroup()
+                .addGap(38, 38, 38)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelWarning)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(39, 39, 39)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(8, 8, 8)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel2)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(jSpinnerFeedRate, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addGap(49, 49, 49)
-                                                .addComponent(jSpinnerDistance, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addComponent(jLabel9)
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addGap(18, 18, 18)
-                                                    .addComponent(jSpinnerHeighOfProbe, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addGap(10, 10, 10)
-                                                .addComponent(jLabel5))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addGap(10, 10, 10)
-                                                .addComponent(jLabel6))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(jLabel7))))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(3, 3, 3)
-                                        .addComponent(jLabel8))))
-                            .addComponent(jLabelWarning)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(174, 174, 174)
-                        .addComponent(jButtonTouch, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(135, 135, 135)
+                        .addComponent(jButtonTouch, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addGap(9, 9, 9)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel2)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(41, 41, 41)
+                                    .addComponent(jSpinnerDistance)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(jLabel5))))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addGap(8, 8, 8)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel9)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(jSpinnerHeighOfProbe, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(jLabel7))))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -221,14 +194,7 @@ public class frmTouchProbe extends javax.swing.JDialog
                     .addComponent(jLabel5))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jSpinnerFeedRate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel8)
-                .addGap(15, 15, 15)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(jSpinnerHeighOfProbe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -274,23 +240,35 @@ public class frmTouchProbe extends javax.swing.JDialog
 
             case GRBLActiveStates.RUN:
                 jButtonTouch.setEnabled(false);
-                jLabelWarning.setVisible(true);
+                if (fShowWarningIfNecessary)
+                {
+                    jLabelWarning.setVisible(true);
+                }
                 break;
             case GRBLActiveStates.HOLD:
             case GRBLActiveStates.ALARM:
             case GRBLActiveStates.RESET_TO_CONTINUE:
                 jButtonTouch.setEnabled(false);
                 jLabelWarning.setVisible(true);
+                fWaitToTouchTheProbe.Set();
                 break;
 
             case GRBLActiveStates.MACHINE_TOUCHED_PROBE:
                 fMachineTouchedTheProbe = true;
+                fWaitToTouchTheProbe.Set();
                 break;
         }
     }
 
     private void jButtonTouchActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonTouchActionPerformed
     {//GEN-HEADEREND:event_jButtonTouchActionPerformed
+
+        // Check if Z is negative
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ() < 0)
+        {
+            JOptionPane.showMessageDialog(this, "Your machine's Z axis level is bellow 0.\nSet your Z axis above 0 and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         if (jButtonTouch.getText().equals("Click to Stop!"))
         {
@@ -314,65 +292,77 @@ public class frmTouchProbe extends javax.swing.JDialog
             @Override
             public void run()
             {
-                String distance = String.valueOf(jSpinnerDistance.getValue());
-                String feedRate = String.valueOf(jSpinnerFeedRate.getValue());
-
-                String gCodeStr = "G38.2Z-" + distance + "F" + feedRate;
-                final GCodeCommand command = new GCodeCommand(gCodeStr);
+                final int distance = Integer.parseInt(jSpinnerDistance.getValue().toString());
+                final int feedRate = 80;
 
                 // Set last settings to TOUCH_PROBE_SETTINGS
                 TouchProbeSettings.setDistanceFromProbe((int) jSpinnerDistance.getValue());
-                TouchProbeSettings.setFeedRateToProbe((int) jSpinnerFeedRate.getValue());
                 TouchProbeSettings.setHeightOfProbe((double) jSpinnerHeighOfProbe.getValue());
 
                 try
                 {
-                    String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+                    fShowWarningIfNecessary = false;
 
-                    if (response.equals("ok"))
+                    // Step 1
+                    // Move the endmill towards the probe until they touch each other.
+                    fWaitToTouchTheProbe.Reset();
+                    fMachineTouchedTheProbe = false;
+                    String response = MoveEndmillToProbe(distance, feedRate);
+                    fWaitToTouchTheProbe.WaitOne();
+                    if (!response.equals("ok") || !fMachineTouchedTheProbe)
                     {
-                        // If the machine touched the probe then set the Z position as the probe height
-                        if (fMachineTouchedTheProbe)
-                        {
-                            ////////////////////////////////////////////////////////////
-                            // Set the fMachineTouchedTheProbe to false
-                            fMachineTouchedTheProbe = false;
-                            ////////////////////////////////////////////////////////////
-                            try
-                            {
-                                double probeHeight = (double) jSpinnerHeighOfProbe.getValue();
-                                double z = probeHeight;
-                                String commandStr = "G92 X0 Y0 Z" + String.valueOf(z);
-                                GCodeCommand commandSetZ = new GCodeCommand(commandStr);
-                                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(commandSetZ);
+                        MachineFailedToTouchTheProbe();
+                        return;
+                    }
 
-                                // All good!
-                                // Move the Z 0.5mm higher
-                                String moveZStr = "G21G91G0Z0.5";
-                                GCodeCommand moveZCommand = new GCodeCommand(moveZStr);
-                                if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand).equals("ok"))
-                                {
-                                    MachineTouchedTheProbeSucessfully();
-                                }
-                                else
-                                {
-                                    MachineFailedToTouchTheProbe();
-                                }
+                    // Step 2
+                    // Move the probe 0.5 mm back
+                    String moveZStr = "G21G91G0Z0.5";
+                    GCodeCommand moveZCommand = new GCodeCommand(moveZStr);
+                    response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand);
+                    if (!response.equals("ok"))
+                    {
+                        MachineFailedToTouchTheProbe();
+                        return;
+                    }
+
+                    // Step 3
+                    // Touch the probe with slow feedrate
+                    fWaitToTouchTheProbe.Reset();
+                    fMachineTouchedTheProbe = false;
+                    response = MoveEndmillToProbe(1, 30);
+                    fWaitToTouchTheProbe.WaitOne();
+                    if (!response.equals("ok") || !fMachineTouchedTheProbe)
+                    {
+                        MachineFailedToTouchTheProbe();
+                        return;
+                    }
+                    else
+                    {
+                        // The endmill touched the touch probe twice !
+                        // Set the Z position equal to the probe height
+                        fMachineTouchedTheProbe = false;
+
+                        try
+                        {
+                            double probeHeight = (double) jSpinnerHeighOfProbe.getValue();
+
+                            String response2 = SetZAxisPosition(probeHeight);
+                            if (response2.equals("ok"))
+                            {
+                                MachineTouchedTheProbeSucessfully();
                             }
-                            catch (Exception ex)
+                            else
                             {
                                 MachineFailedToTouchTheProbe();
                             }
                         }
-                        else
+                        catch (Exception ex)
                         {
                             MachineFailedToTouchTheProbe();
                         }
                     }
-                    else
-                    {
-                        MachineFailedToTouchTheProbe();
-                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -381,18 +371,52 @@ public class frmTouchProbe extends javax.swing.JDialog
             }
         });
         th.start();
-
-
     }//GEN-LAST:event_jButtonTouchActionPerformed
+
+    /**
+     * Move the endmill to touch the probe
+     *
+     * @param distance
+     * @param feedRate
+     * @return
+     */
+    private String MoveEndmillToProbe(int distance, int feedRate)
+    {
+        fMachineTouchedTheProbe = false;
+        String gCodeStr = "G38.2Z-" + distance + "F" + feedRate;
+        final GCodeCommand command = new GCodeCommand(gCodeStr);
+
+        return ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+    }
+
+    private String SetZAxisPosition(double value)
+    {
+        String commandStr = "G92 X0 Y0 Z" + String.valueOf(value);
+        GCodeCommand commandSetZ = new GCodeCommand(commandStr);
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(commandSetZ).equals("ok"))
+        {
+            // All good!
+            // Move the Z 0.5mm higher
+            String moveZStr = "G21G91G0Z0.5";
+            GCodeCommand moveZCommand = new GCodeCommand(moveZStr);
+            return ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand);
+        }
+        else
+        {
+            return "ERROR";
+        }
+    }
 
     private void MachineFailedToTouchTheProbe()
     {
+        fShowWarningIfNecessary = true;
         JOptionPane.showMessageDialog(this, "Machine failed to touch the probe!", "Error", JOptionPane.ERROR_MESSAGE);
         jButtonTouch.setText("Touch the Probe");
     }
 
     private void MachineTouchedTheProbeSucessfully()
     {
+        fShowWarningIfNecessary = true;
         JOptionPane.showMessageDialog(this, "Machine touched the probe sucessfully!");
         jButtonTouch.setText("Touch the Probe");
     }
@@ -410,16 +434,12 @@ public class frmTouchProbe extends javax.swing.JDialog
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabelWarning;
     private javax.swing.JSpinner jSpinnerDistance;
-    private javax.swing.JSpinner jSpinnerFeedRate;
     private javax.swing.JSpinner jSpinnerHeighOfProbe;
     // End of variables declaration//GEN-END:variables
 }

@@ -16,75 +16,33 @@
  */
 package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.GCodeCycleEvent;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.GCodeCycleEventManager;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCodeSender;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 
 /**
  *
  * @author Nikos Siatras
  */
-public class GRBLGCodeSender
+public class GRBLGCodeSender extends GCodeSender
 {
 
-    // Serial Connection
-    private final ConnectionHandler fMyConnectionHandler;
-
-    // GCode 
-    private Queue<String> fGCodeQueue = new ArrayDeque<>();
-
-    // GCode Cycle
-    private int fRowsSent = 0, fRowsInFile = 0;
+    // GRBL GCode Cycle
     private boolean fKeepGCodeCycle = false;
     private Thread fGCodeCycleThread;
-    private long fGCodeCycleStartedTimestamp = -1;
-
-    // Event Managers
-    private final GCodeCycleEventManager fGCodeCycleEventManager = new GCodeCycleEventManager();
 
     public GRBLGCodeSender(ConnectionHandler myHandler)
     {
-        fMyConnectionHandler = myHandler;
-    }
-
-    /**
-     * Try to load the GCode file
-     *
-     * @param gcodeFile
-     * @return
-     */
-    public boolean LoadGCodeFile(File gcodeFile)
-    {
-        fGCodeQueue = new ArrayDeque<>();
-
-        try (BufferedReader br = new BufferedReader(new FileReader(gcodeFile)))
-        {
-            String line;
-            while ((line = br.readLine()) != null)
-            {
-                fGCodeQueue.add(line);
-            }
-
-            fRowsInFile = fGCodeQueue.size();
-            fRowsSent = 0;
-            return true;
-        }
-        catch (Exception ex)
-        {
-        }
-
-        return false;
+        super(myHandler);
     }
 
     /**
      * Start the GCode cycle
      */
+    @Override
     public void StartSendingGCode()
     {
         if (fGCodeQueue.isEmpty())
@@ -92,11 +50,12 @@ public class GRBLGCodeSender
             return;
         }
 
-        // Fire GCodeCycleStartedEvent
-        fGCodeCycleEventManager.FireGCodeCycleStartedEvent(new GCodeCycleEvent("Started"));
+        ////////////////////////////////////////////////////////////
+        // Call the parent StartSendingGCode method!!!!!!
+        super.StartSendingGCode();
+        ////////////////////////////////////////////////////////////
 
         // Start sending gcodes
-        fRowsSent = 0;
         fGCodeCycleThread = new Thread(new Runnable()
         {
             @Override
@@ -147,6 +106,7 @@ public class GRBLGCodeSender
      * Cancel Sending GCode to GRBL Controller! This method stops immediately
      * the GCode cycle and the CNC machine stops.
      */
+    @Override
     public void CancelSendingGCode()
     {
         if (fKeepGCodeCycle)
@@ -174,6 +134,7 @@ public class GRBLGCodeSender
     /**
      * Immediately pause GCode cycle.
      */
+    @Override
     public void PauseSendingGCode()
     {
         try
@@ -189,6 +150,7 @@ public class GRBLGCodeSender
     /**
      * Resume the GCode cycle.
      */
+    @Override
     public void ResumeSendingGCode()
     {
         try
@@ -201,64 +163,4 @@ public class GRBLGCodeSender
         fGCodeCycleEventManager.FireGCodeCycleResumedEvent(new GCodeCycleEvent("Resumed"));
     }
 
-    /**
-     * Return a FIFO queue with all the GCode commands
-     *
-     * @return FIFO queue with all the GCode commands
-     */
-    public Queue<String> getGCodeQueue()
-    {
-        return fGCodeQueue;
-    }
-
-    /**
-     * Returns the number of GCode lines in the GCode Queue (GCode Commands
-     * Queue).
-     *
-     * @return the number of GCode lines in the GCode Queue
-     */
-    public int getRowsInFile()
-    {
-        return fRowsInFile;
-    }
-
-    /**
-     * Returns the number of GCode commands sent to the GRBL Controller
-     *
-     * @return the number of GCode commands sent to the GRBL Controller
-     */
-    public int getRowsSent()
-    {
-        return fRowsSent;
-    }
-
-    /**
-     * Returns the number of GCode commands left in fGCodeQueue
-     *
-     * @return the number of GCode commands left in fGCodeQueue
-     */
-    public int getRowsRemaining()
-    {
-        return fRowsInFile - fRowsSent;
-    }
-
-    /**
-     * Returns the GCode Cycle events manager
-     *
-     * @return
-     */
-    public GCodeCycleEventManager getCycleEventManager()
-    {
-        return fGCodeCycleEventManager;
-    }
-
-    /**
-     * Returns the timestamp when the GCode Cycle started
-     *
-     * @return the timestamp when the GCode Cycle started.
-     */
-    public long getGCodeCycleStartedTimestamp()
-    {
-        return fGCodeCycleStartedTimestamp;
-    }
 }

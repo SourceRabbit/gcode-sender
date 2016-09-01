@@ -1514,7 +1514,7 @@ public class frmControl extends javax.swing.JFrame
         try
         {
             fc = new JFileChooser(new File(path));
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("GCode Files", "nc", "gcode", "txt");
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("GCode Files (.nc, .gcode, .tap)", "nc", "gcode", "tap");
             fc.setFileFilter(filter);
         }
         catch (Exception ex)
@@ -1634,8 +1634,7 @@ public class frmControl extends javax.swing.JFrame
         {
             frmGCodeViewer frm = new frmGCodeViewer();
             frm.setVisible(true);
-            
-            
+
             /*final Chart2D chart = new Chart2D();
             // Create an ITrace: 
             ITrace2D trace = new Trace2DSimple();

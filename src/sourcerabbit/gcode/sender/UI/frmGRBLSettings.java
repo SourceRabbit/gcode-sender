@@ -16,6 +16,7 @@
  */
 package sourcerabbit.gcode.sender.UI;
 
+import java.awt.Toolkit;
 import java.util.HashMap;
 import javax.swing.JDialog;
 import javax.swing.table.DefaultTableModel;
@@ -46,6 +47,9 @@ public class frmGRBLSettings extends JDialog
         // Set form in middle of screen
         Position2D pos = UITools.getPositionForFormToOpenInMiddleOfScreen(this.getSize().width, this.getSize().height);
         this.setLocation((int) pos.getX(), (int) pos.getY());
+
+        // Set Form Icon
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("Images/SourceRabbitIcon.png")));
 
         jTableSettings.setDefaultRenderer(Object.class, new JTableRenderer());
 

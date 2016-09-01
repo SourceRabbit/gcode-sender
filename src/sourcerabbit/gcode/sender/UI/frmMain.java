@@ -159,14 +159,26 @@ public class frmMain extends javax.swing.JFrame
         setResizable(false);
 
         jLabel1.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(0, 75, 127));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Connect to your CNC");
 
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sourcerabbit/gcode/sender/UI/Images/SourceRabbit.png"))); // NOI18N
 
+        jLabel2.setForeground(new java.awt.Color(0, 75, 127));
         jLabel2.setText("Port:");
 
+        jLabel3.setForeground(new java.awt.Color(0, 75, 127));
         jLabel3.setText("Framework:");
+
+        jComboBoxFramework.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jComboBoxFramework.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jComboBoxFrameworkActionPerformed(evt);
+            }
+        });
 
         jButtonConnect.setText("Connect");
         jButtonConnect.addActionListener(new java.awt.event.ActionListener()
@@ -177,6 +189,7 @@ public class frmMain extends javax.swing.JFrame
             }
         });
 
+        jLabel4.setForeground(new java.awt.Color(0, 75, 127));
         jLabel4.setText("Baud:");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -329,6 +342,11 @@ public class frmMain extends javax.swing.JFrame
             jButtonConnect.setEnabled(true);
         }
     }//GEN-LAST:event_jButtonConnectActionPerformed
+
+    private void jComboBoxFrameworkActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jComboBoxFrameworkActionPerformed
+    {//GEN-HEADEREND:event_jComboBoxFrameworkActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBoxFrameworkActionPerformed
 
     public static void main(String args[])
     {

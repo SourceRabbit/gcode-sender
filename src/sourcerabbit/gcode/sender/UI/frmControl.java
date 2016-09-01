@@ -59,7 +59,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position4D;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
 import sourcerabbit.gcode.sender.UI.Tools.frmSetWorkPosition;
-import sourcerabbit.gcode.sender.UI.Tools.frmTouchProbe;
+import sourcerabbit.gcode.sender.UI.Tools.frmZAxisTouchProbe;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
 
 /**
@@ -95,7 +95,7 @@ public class frmControl extends javax.swing.JFrame
         InitEvents();
         InitUIThreads();
 
-        this.setTitle("SourceRabbit GCode Sender (Version " + SettingsManager.getAppVersion() + ") - http://www.sourcerabbit.com");
+        this.setTitle("SourceRabbit GCode Sender (Version " + SettingsManager.getAppVersion() + ")");
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("Images/SourceRabbitIcon.png")));
 
         this.jCheckBoxEnableGCodeLog.setSelected(SettingsManager.getIsGCodeLogEnabled());
@@ -616,15 +616,18 @@ public class frmControl extends javax.swing.JFrame
         setTitle("SourceRabbit GCODE Sender");
         setResizable(false);
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Machine Status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Machine Status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
 
         jLabelWorkX.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabelWorkX.setForeground(new java.awt.Color(0, 75, 127));
         jLabelWorkX.setText("X: 0");
 
         jLabelWorkY.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabelWorkY.setForeground(new java.awt.Color(0, 75, 127));
         jLabelWorkY.setText("Y: 0");
 
         jLabelWorkZ.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabelWorkZ.setForeground(new java.awt.Color(0, 75, 127));
         jLabelWorkZ.setText("Z: 0");
 
         jLabel3.setText("Machine Position:");
@@ -646,6 +649,7 @@ public class frmControl extends javax.swing.JFrame
         });
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(0, 75, 127));
         jLabel2.setText("Work Position:");
 
         jLabel6.setText("Active State:");
@@ -731,7 +735,7 @@ public class frmControl extends javax.swing.JFrame
                 .addGap(158, 158, 158))
         );
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
 
         jLabel1.setText("Status:");
 
@@ -788,7 +792,7 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap())
         );
 
-        jPanelMachineControl.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Machine Control", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        jPanelMachineControl.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Machine Control", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
 
         jRadioButtonInches.setText("inches");
         jRadioButtonInches.addActionListener(new java.awt.event.ActionListener()
@@ -946,7 +950,7 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "GCode File", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "GCode File", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
 
         jLabel5.setText("File:");
 
@@ -1114,6 +1118,7 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
+        jTabbedPane1.setForeground(new java.awt.Color(0, 75, 127));
         jTabbedPane1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
 
         jLabel7.setText("Command:");
@@ -1331,7 +1336,7 @@ public class frmControl extends javax.swing.JFrame
         });
         jMenu2.add(jMenuItem1);
 
-        jMenuItem2.setText("Touch Probe");
+        jMenuItem2.setText("Z Axis Touch Probe");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1745,7 +1750,7 @@ public class frmControl extends javax.swing.JFrame
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItem2ActionPerformed
     {//GEN-HEADEREND:event_jMenuItem2ActionPerformed
-        frmTouchProbe frm = new frmTouchProbe(this, true);
+        frmZAxisTouchProbe frm = new frmZAxisTouchProbe(this, true);
         frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 

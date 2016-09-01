@@ -115,7 +115,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 {
                     fActiveState = newActiveState;
 
-                    // 1000ms when machine is in RUN status otherwise 300ms
+                    // 1500ms when machine is in RUN status otherwise 300ms
                     fMillisecondsToGetMachineStatus = (fActiveState == GRBLActiveStates.RUN) ? 1500 : 300;
 
                     // Fire the MachineStatusChangedEvent
@@ -137,7 +137,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 ///////////////////////////////////////////////////////////////
                 // Debug
                 ///////////////////////////////////////////////////////////////
-                System.out.println("Last status received " + (System.currentTimeMillis() - fLastMachinePositionReceivedTimestamp) + "ms ago");
+                //System.out.println("Last status received " + (System.currentTimeMillis() - fLastMachinePositionReceivedTimestamp) + "ms ago");
                 ///////////////////////////////////////////////////////////////
                 fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
 
@@ -161,15 +161,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         fWaitForCommandToBeExecuted.Set();
                     }
                 }
-                else if (receivedStr.toLowerCase().startsWith("grbl"))
-                {
-                    // Fire the ConnectionEstablishedEvent
-                    fConnectionEstablished = true;
-                    fConnectionEstablishedManualResetEvent.Set();
-                    fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
-                    fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE));
-                }
                 else if (receivedStr.startsWith("error"))
                 {
                     fLastCommandSentToController.setError(receivedStr);
@@ -181,6 +172,15 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     {
                         fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM));
                     }
+                }
+                else if (receivedStr.toLowerCase().startsWith("grbl"))
+                {
+                    // Fire the ConnectionEstablishedEvent
+                    fConnectionEstablished = true;
+                    fConnectionEstablishedManualResetEvent.Set();
+                    fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
+                    fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE));
                 }
                 else if (receivedStr.toLowerCase().contains("[reset to continue]"))
                 {

@@ -1,16 +1,14 @@
 SourceRabbit GCode Sender
 ------
 <p align="center">
-<img src="https://raw.githubusercontent.com/nsiatras/sourcerabbit-gcode-sender/master/Images/SourceRabbit.png" alt="SourceRabbit.com"> 
+<img src="https://raw.githubusercontent.com/nsiatras/sourcerabbit-gcode-sender/master/Images/SourceRabbit.png" alt="SourceRabbit.com">
 </p>
-Website: <a href="http://www.sourcerabbit.com">SourceRabbit.com</a>
 
 Downloads
 ------
 
-To download the latest installer for Windows and Mac please visit:<br>
+To download the latest installer for <b>Windows</b> and <b>Mac</b> please visit:<br>
 [https://www.sourcerabbit.com/GCode-Sender/](https://www.sourcerabbit.com/GCode-Sender/#DownloadsSection)<br>
-<br>
 
 For other operating systems:<br>
 [https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/latest](https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/latest)<br>

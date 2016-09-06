@@ -1632,10 +1632,10 @@ public class frmControl extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButtonGCodeVisualizeActionPerformed
         try
         {
-            frmGCodeViewer frm = new frmGCodeViewer();
-            frm.setVisible(true);
+            /*frmGCodeViewer frm = new frmGCodeViewer();
+            frm.setVisible(true);*/
 
-            /*final Chart2D chart = new Chart2D();
+            final Chart2D chart = new Chart2D();
             // Create an ITrace: 
             ITrace2D trace = new Trace2DSimple();
             // Add the trace to the chart. This has to be done before adding points (deadlock prevention): 
@@ -1655,7 +1655,6 @@ public class frmControl extends javax.swing.JFrame
                 {
                     maxX = Math.max(x, maxX);
                     maxY = Math.max(y, maxY);
-
                     trace.addPoint(x, y);
                 }
             }
@@ -1665,11 +1664,11 @@ public class frmControl extends javax.swing.JFrame
 
             // Make it visible:
             // Create a frame.
-            final JFrame frame = new JFrame("GCode Visualizer");
+            final JFrame frame = new JFrame(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeFile().getName());
             // add the chart to the frame: 
             frame.getContentPane().add(chart);
             frame.setSize(600, 600);
-            frame.setVisible(true);*/
+            frame.setVisible(true);
         }
         catch (Exception ex)
         {

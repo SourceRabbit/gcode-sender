@@ -46,6 +46,10 @@ Goals:
 
 Changelog
 ------
+1.1.1 -> 1.1.2
+* Small UI changes
+* Better Touch Probe algorithm/sequence
+
 1.1.0 -> 1.1.1
 * Serial communication procedure optimized
 * Small UI changes

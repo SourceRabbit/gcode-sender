@@ -23,7 +23,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
 import javax.swing.JSpinner;
 
 /**
@@ -45,6 +47,19 @@ public class UITools
         final int y = (dim.height - h) / 2;
 
         // Move the window
+        return new Position2D(x, y);
+    }
+
+    public static Position2D getPositionForDialogToOpenInMiddleOfParentForm(JFrame parent, JDialog form)
+    {
+        // Set form in middle of frmControl
+        final int frmControlWidth = parent.getSize().width;
+        final int frmControlHeight = parent.getSize().height;
+        final int w = form.getSize().width;
+        final int h = form.getSize().height;
+        final int x = ((frmControlWidth - w) / 2) + parent.getX();
+        final int y = (frmControlHeight - h) / 2 + parent.getY();
+
         return new Position2D(x, y);
     }
 

@@ -25,6 +25,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLCommands;
 import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
+import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
 import sourcerabbit.gcode.sender.Core.Settings.TouchProbeSettings;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
 import sourcerabbit.gcode.sender.UI.frmControl;
@@ -50,13 +51,8 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
         initComponents();
 
         // Set form in middle of frmControl
-        final int frmControlWidth = parent.getSize().width;
-        final int frmControlHeight = parent.getSize().height;
-        final int w = this.getSize().width;
-        final int h = this.getSize().height;
-        final int x = ((frmControlWidth - w) / 2) + parent.getX();
-        final int y = (frmControlHeight - h) / 2 + parent.getY();
-        this.setLocation(x, y);
+        Position2D pos = UITools.getPositionForDialogToOpenInMiddleOfParentForm(parent, this);
+        this.setLocation((int) pos.getX(), (int) pos.getY());
 
         // Fix jSpinnerHeighOfProbe to work with system decimal point
         jSpinnerHeighOfProbe.setEditor(new JSpinner.NumberEditor(jSpinnerHeighOfProbe, "##.##"));

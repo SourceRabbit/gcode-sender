@@ -7,7 +7,7 @@ Website: <a href="http://www.sourcerabbit.com">SourceRabbit.com</a>
 
 Downloads
 ------
-[1.2.2] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.1.2/SourceRabbit-GCode-Sender-v1-1-2.zip) - Requires Java 8 or higher.<br>
+[1.1.2] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.1.2/SourceRabbit-GCode-Sender-v1-1-2.zip) - Requires Java 8 or higher.<br>
 [1.1.1](https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.1.1/SourceRabbit-GCode-Sender.zip) - Requires Java 8 or higher.<br>
 [1.1.0] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.1.0/SourceRabbit-GCode-Sender.zip) - Requires Java 8 or higher.<br>
 [1.0.9] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.9/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher.<br>

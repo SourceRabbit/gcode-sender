@@ -30,9 +30,6 @@ import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 public class HTTPRequestData
 {
 
-    private static final Object fLockObject = new Object();
-    private static String fResult = "";
-
     public static String GetHTML(String url)
     {
         String result = "";

@@ -54,9 +54,9 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineSta
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLCommands;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position4D;
+import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
+import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
+import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
 import sourcerabbit.gcode.sender.UI.Tools.frmSetWorkPosition;
 import sourcerabbit.gcode.sender.UI.Tools.frmZAxisTouchProbe;

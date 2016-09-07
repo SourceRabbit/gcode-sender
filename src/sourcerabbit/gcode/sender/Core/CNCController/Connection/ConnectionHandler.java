@@ -26,9 +26,9 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConn
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEventManager;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLGCodeSender;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.ByteArrayBuilder;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position4D;
+import sourcerabbit.gcode.sender.Core.Arrays.ByteArrayBuilder;
+import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
+import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 
 /**
  *

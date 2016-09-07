@@ -24,7 +24,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEvent;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.ManualResetEvent;
+import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 
 /**
  *

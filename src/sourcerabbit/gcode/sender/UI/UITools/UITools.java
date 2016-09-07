@@ -16,7 +16,7 @@
  */
 package sourcerabbit.gcode.sender.UI.UITools;
 
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
+import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;

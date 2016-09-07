@@ -20,7 +20,7 @@ import java.awt.Toolkit;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
+import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
 
 /**

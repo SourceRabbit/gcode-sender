@@ -19,7 +19,7 @@ package sourcerabbit.gcode.sender.Core.CNCController.GCode;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position4D;
+import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 
 /**
  *

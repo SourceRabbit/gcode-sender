@@ -23,7 +23,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConn
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
+import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
 import sourcerabbit.gcode.sender.UI.frmControl;
 

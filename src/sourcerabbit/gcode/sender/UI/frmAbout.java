@@ -16,7 +16,7 @@ Copyright (C) 2015  Nikos Siatras
  */
 package sourcerabbit.gcode.sender.UI;
 
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
+import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
 

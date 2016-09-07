@@ -24,7 +24,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
-import sourcerabbit.gcode.sender.Core.CNCController.Tools.Position2D;
+import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.UI.Renderers.JTableRenderer;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
 

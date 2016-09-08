@@ -1,16 +1,19 @@
 SourceRabbit GCode Sender
 ------
 <p align="center">
-<img src="https://raw.githubusercontent.com/nsiatras/sourcerabbit-gcode-sender/master/Images/SourceRabbit.png" alt="SourceRabbit.com"> 
+<img src="https://raw.githubusercontent.com/nsiatras/sourcerabbit-gcode-sender/master/Images/SourceRabbit.png" alt="SourceRabbit.com">
 </p>
-Website: <a href="http://www.sourcerabbit.com">SourceRabbit.com</a>
 
 Downloads
 ------
-[1.1.1](https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.1.1/SourceRabbit-GCode-Sender.zip) - Requires Java 8 or higher.<br>
-[1.1.0] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.1.0/SourceRabbit-GCode-Sender.zip) - Requires Java 8 or higher.<br>
-[1.0.9] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.9/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher.<br>
-[1.0.8] (https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/download/1.0.8/SourceRabbit-GCode-Sender.zip) - Requires Java 7 or higher.<br>
+
+To download the latest installer for <b>Windows</b> and <b>Mac</b> please visit:<br>
+[https://www.sourcerabbit.com/GCode-Sender/](https://www.sourcerabbit.com/GCode-Sender/#DownloadsSection)<br>
+
+For other operating systems:<br>
+[https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/latest](https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/latest)<br>
+
+If you don't have Java installed please visit [https://java.com/en/download/manual.jsp](https://java.com/en/download/manual.jsp).
 
 About SourceRabbit GCode Sender
 ------
@@ -25,7 +28,7 @@ sudo mkdir /var/lock <br>
 sudo chmod 777 /var/lock 
 
 Technical details:
-* Compatible only with <b>GRBL 0.9</b> and later versions
+* Compatible with <b>GRBL 0.9</b> and later versions
 * Uses JSSC for serial communication
 * Event-Driven UI and USB-to-Serial communication
 * Developed with <b>NetBeans 8.0.2</b>
@@ -46,6 +49,10 @@ Goals:
 
 Changelog
 ------
+1.1.1 -> 1.1.2
+* Small UI changes
+* Better Touch Probe algorithm/sequence
+
 1.1.0 -> 1.1.1
 * Serial communication procedure optimized
 * Small UI changes

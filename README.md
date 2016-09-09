@@ -49,6 +49,11 @@ Goals:
 
 Changelog
 ------
+1.1.2 -> 1.1.3
+* Small UI changes
+* About form implemented
+* Check for updates procedure implemented
+
 1.1.1 -> 1.1.2
 * Small UI changes
 * Better Touch Probe algorithm/sequence

@@ -40,14 +40,21 @@ public class TouchProbeSettings
 
     public static int getDistanceFromProbe()
     {
-        String value = SettingsManager.fAppSettings.getProperty(TOUCH_PROBE_DISTANCE_FROM_PROBE);
-        if (value == null || value.equals(""))
+        try
+        {
+            String value = SettingsManager.fAppSettings.getProperty(TOUCH_PROBE_DISTANCE_FROM_PROBE);
+            if (value == null || value.equals(""))
+            {
+                return 10;
+            }
+            else
+            {
+                return Integer.parseInt(value);
+            }
+        }
+        catch (Exception ex)
         {
             return 10;
-        }
-        else
-        {
-            return Integer.parseInt(value);
         }
     }
 
@@ -59,14 +66,21 @@ public class TouchProbeSettings
 
     public static int getFeedRateToProbe()
     {
-        String value = SettingsManager.fAppSettings.getProperty(TOUCH_PROBE_FEEDRATE_TO_PROBE);
-        if (value == null || value.equals(""))
+        try
+        {
+            String value = SettingsManager.fAppSettings.getProperty(TOUCH_PROBE_FEEDRATE_TO_PROBE);
+            if (value == null || value.equals(""))
+            {
+                return 40;
+            }
+            else
+            {
+                return Integer.parseInt(value);
+            }
+        }
+        catch (Exception ex)
         {
             return 40;
-        }
-        else
-        {
-            return Integer.parseInt(value);
         }
     }
 
@@ -78,14 +92,21 @@ public class TouchProbeSettings
 
     public static double getHeightOfProbe()
     {
-        String value = SettingsManager.fAppSettings.getProperty(TOUCH_PROBE_HEIGH_OF_PROBE);
-        if (value == null || value.equals(""))
+        try
+        {
+            String value = SettingsManager.fAppSettings.getProperty(TOUCH_PROBE_HEIGH_OF_PROBE);
+            if (value == null || value.equals(""))
+            {
+                return 1;
+            }
+            else
+            {
+                return Double.parseDouble(value);
+            }
+        }
+        catch (Exception ex)
         {
             return 1;
-        }
-        else
-        {
-            return Double.parseDouble(value);
         }
     }
 

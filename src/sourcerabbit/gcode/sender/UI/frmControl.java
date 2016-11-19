@@ -1331,6 +1331,7 @@ public class frmControl extends javax.swing.JFrame
 
         jMenu2.setText("Tools");
 
+        jMenuItem1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sourcerabbit/gcode/sender/UI/Images/WorkArea-16x16.png"))); // NOI18N
         jMenuItem1.setText("Set Work Position");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1352,6 +1353,7 @@ public class frmControl extends javax.swing.JFrame
         });
         jMenu2.add(jMenuItem2);
 
+        jMenuItemHoleCenterFinder.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sourcerabbit/gcode/sender/UI/Images/HoleCenterFinder/HoleCenterFinder-16x16.png"))); // NOI18N
         jMenuItemHoleCenterFinder.setText("Hole Center Finder");
         jMenuItemHoleCenterFinder.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1410,7 +1412,7 @@ public class frmControl extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -1421,7 +1423,7 @@ public class frmControl extends javax.swing.JFrame
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(5, 5, 5)
                         .addComponent(jTabbedPane1)))
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         getAccessibleContext().setAccessibleName("frmControl");

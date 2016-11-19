@@ -43,7 +43,7 @@ public class CenterHoleFinderSettings
             String value = SettingsManager.fAppSettings.getProperty(TOUCH_PROBE_FEEDRATE);
             if (value == null || value.equals(""))
             {
-                return 40;
+                return 100;
             }
             else
             {
@@ -52,8 +52,7 @@ public class CenterHoleFinderSettings
         }
         catch (Exception ex)
         {
-            return 40;
+            return 100;
         }
     }
-
 }

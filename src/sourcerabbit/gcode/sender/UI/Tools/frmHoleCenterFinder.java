@@ -44,6 +44,10 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
     private Thread fProcedureThread;
     private boolean fProcedureThreadIsRunning = false;
 
+    // Variables...
+    private final int fMaxDistance = 50000;
+    private final int fSlowFeedRate = 40;
+
     private boolean fShowWarningIfNecessary = true;
     private boolean fTouchProbeTouchedTheEdge = false;
     private final ManualResetEvent fWaitForTouchProbeToTouchTheEdge = new ManualResetEvent(false);
@@ -86,9 +90,13 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         jLabel15 = new javax.swing.JLabel();
         jSpinnerFeedRate = new javax.swing.JSpinner();
         jPanel2 = new javax.swing.JPanel();
+        jLabel16 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        jLabel18 = new javax.swing.JLabel();
+        jLabel19 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Z Axis Touch Probe");
+        setTitle("Hole Center Finder");
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter()
         {
@@ -113,7 +121,7 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         jLabelWarning.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabelWarning.setText("The machine's status must be Idle to use the \"Hole Center Finder\" operation.");
 
-        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sourcerabbit/gcode/sender/UI/Images/ZTouchProbe/ZAxisTouchProbe.png"))); // NOI18N
+        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sourcerabbit/gcode/sender/UI/Images/HoleCenterFinder/HoleCenterFinder.png"))); // NOI18N
         jLabel10.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 1, 20)); // NOI18N
@@ -158,15 +166,43 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
                 .addContainerGap())
         );
 
+        jLabel16.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel16.setText("Place touch probe in the center of the hole and then ");
+
+        jLabel17.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel17.setText("click the \"Find Center\" button.");
+
+        jLabel18.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel18.setText("Make sure your touch probe is not in contact with the");
+
+        jLabel19.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel19.setText("hole edges before you click the \"Find Center\" button.");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 353, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel17, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 110, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel16)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel17)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel19)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -200,9 +236,9 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
+                .addGap(25, 25, 25)
                 .addComponent(jLabelWarning)
                 .addGap(18, 18, 18)
                 .addComponent(jButtonTouch, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -324,22 +360,40 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
     private void FindAxisCenter(final String axis, final int distance, final int feedRate) throws Exception
     {
         String response = "";
-        double workPosition1 = 0, workPosition2 = 0;
+        double startWorkPosition = 0, workPosition1 = 0, workPosition2 = 0;
+
+        // Before everything get the start Work position (The current work position).
+        AskForMachineStatus();
+        switch (axis)
+        {
+            case "X":
+                startWorkPosition = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX();
+                break;
+
+            case "Y":
+                startWorkPosition = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY();
+                break;
+        }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Step 1
         // Move the touchprobe towards the "axis -"  until it touches the edge of the hole.
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
-        fWaitForTouchProbeToTouchTheEdge.Reset();
-        fTouchProbeTouchedTheEdge = false;
-        response = MoveTouchProbeUntilItTouchesTheEdgeOfTheHole(axis + "-", distance, feedRate);
-        fWaitForTouchProbeToTouchTheEdge.WaitOne();
+        response = SendTouchProbeToTouchTheEdge(axis + "-", feedRate);
         if (!response.equals("ok") || !fTouchProbeTouchedTheEdge)
         {
             throw new Exception("Make sure the touch probe does not touch the edges of the hole!");
         }
 
-        // Ask for machine status to get the Work Position
+        // Move touchprobe 0.5mm back and repeat the process with the slower feed rate
+        MoveMachine(axis, 0.5, fSlowFeedRate);
+        response = SendTouchProbeToTouchTheEdge(axis + "-", fSlowFeedRate);
+        if (!response.equals("ok") || !fTouchProbeTouchedTheEdge)
+        {
+            throw new Exception("Make sure the touch probe does not touch the edges of the hole!");
+        }
+
+        // Ask for machine status to get the current Work Position
         AskForMachineStatus();
         switch (axis)
         {
@@ -355,15 +409,21 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Step 2
         // At the moment the touch probe touches the edge of the hole on "axis -" .
-        // Move the touchprobe towards the "axis +" until it touches the edge of the hole.
+        // Return the touchprobe to the startWorkPosition and then towards the "axis +" until it touches the edge of the hole.
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
-        fWaitForTouchProbeToTouchTheEdge.Reset();
-        fTouchProbeTouchedTheEdge = false;
-        response = MoveTouchProbeUntilItTouchesTheEdgeOfTheHole(axis, distance, feedRate);
-        fWaitForTouchProbeToTouchTheEdge.WaitOne();
+        MoveMachineTo(axis, startWorkPosition, feedRate);
+        response = SendTouchProbeToTouchTheEdge(axis, feedRate);
         if (!response.equals("ok") || !fTouchProbeTouchedTheEdge)
         {
-            throw new Exception("");
+            throw new Exception("Make sure the touch probe does not touch the edges of the hole!");
+        }
+
+        // Move touchprobe 0.5mm back and repeat the process with the slower feed rate
+        MoveMachine(axis + "-", 0.5, fSlowFeedRate);
+        response = SendTouchProbeToTouchTheEdge(axis, fSlowFeedRate);
+        if (!response.equals("ok") || !fTouchProbeTouchedTheEdge)
+        {
+            throw new Exception("Make sure the touch probe does not touch the edges of the hole!");
         }
 
         // Ask for machine status to get the new Work Position
@@ -383,9 +443,8 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         // Move touch probe in the middle of xDiff
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
         SetWorkPosition(axis, 0);
-        double xDiff = Math.max(workPosition1, workPosition2) - Math.min(workPosition1, workPosition2);
-        String moveXToMiddleStr = "G1 " + axis + "-" + String.valueOf(xDiff / 2) + "F" + feedRate;
-
+        final double xDiff = Math.max(workPosition1, workPosition2) - Math.min(workPosition1, workPosition2);
+        String moveXToMiddleStr = "G21 G1" + axis + "-" + String.valueOf(xDiff / 2) + "F" + feedRate;
         GCodeCommand moveXToMiddleCommand = new GCodeCommand(moveXToMiddleStr);
         response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveXToMiddleCommand);
         if (!response.equals("ok"))
@@ -397,37 +456,47 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
     }
 
     /**
-     * Move the touch probe
+     * Send the touch probe to touch the edge of an axis.
      *
-     * @param axis is the axis to move (X, X-, Y, Y-)
-     * @param distance is how much to move in mm
-     * @param feedRate is the feedrate to use during the movement
+     * @param axis the axis to touch the edge (X,X-,Y,Y-)
+     * @param feedRate the feed rate to use
      * @return
      */
-    private String MoveTouchProbeUntilItTouchesTheEdgeOfTheHole(String axis, int distance, int feedRate)
+    private String SendTouchProbeToTouchTheEdge(String axis, int feedRate)
     {
-        if (!axis.contains("-"))
-        {
-            // Move the machine 0.1mm in order to make the touch probe 
-            // loose contact with the hole end
-            MoveMachine(axis, 0.1, feedRate);
-        }
-
-        final GCodeCommand command = new GCodeCommand("G38.2 " + axis + distance + "F" + feedRate);
-        return ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+        fWaitForTouchProbeToTouchTheEdge.Reset();
+        fTouchProbeTouchedTheEdge = false;
+        final GCodeCommand command = new GCodeCommand("G38.2 " + axis + fMaxDistance + "F" + feedRate);
+        String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+        fWaitForTouchProbeToTouchTheEdge.WaitOne();
+        return response;
     }
 
     /**
-     * Move the machine
+     * Move machine to specified position.
      *
-     * @param axis is the axis to move (X, X-, Y, Y-)
-     * @param distance is how much to move in mm
-     * @param feedRate is the feedrate to use during the movement
+     * @param axis the axis to move
+     * @param position the position to go
+     * @param feedRate is the feed rate to use
      */
-    private void MoveMachine(String axis, double distance, int feedRate)
+    private void MoveMachineTo(String axis, double position, int feedRate)
     {
-        String moveZStr = "G21G91G0" + axis + "" + distance;
-        GCodeCommand moveZCommand = new GCodeCommand(moveZStr);
+        String str = "G21 G90 G1" + axis + position + "F" + feedRate;
+        GCodeCommand moveZCommand = new GCodeCommand(str);
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand);
+    }
+
+    /**
+     * Move the machine.
+     *
+     * @param axis the axis to move
+     * @param value how much to move
+     * @param feedRate is the feed rate to use
+     */
+    private void MoveMachine(String axis, double value, int feedRate)
+    {
+        String str = "G21 G91 G1" + axis + value + "F" + feedRate;
+        GCodeCommand moveZCommand = new GCodeCommand(str);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand);
     }
 
@@ -441,7 +510,7 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
     {
         try
         {
-            String commandStr = "G92 " + axis + value;
+            String commandStr = "G21 G92 " + axis + value;
             GCodeCommand command = new GCodeCommand(commandStr);
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
         }
@@ -466,13 +535,13 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
             fShowWarningIfNecessary = true;
             if (message.equals(""))
             {
-                JOptionPane.showMessageDialog(this, "Machine failed to touch the probe!", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Probe failed to touch the edge!", "Error", JOptionPane.ERROR_MESSAGE);
             }
             else
             {
                 JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
             }
-            jButtonTouch.setText("Touch the Probe");
+            jButtonTouch.setText("Find Center");
         }
     }
 
@@ -482,7 +551,7 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         fShowWarningIfNecessary = false;
         fWaitForMachineToBeIdle.WaitOne();
         JOptionPane.showMessageDialog(this, "Machine position is now in the center of the hole!", "Center Found", JOptionPane.INFORMATION_MESSAGE);
-        jButtonTouch.setText("Touch the Probe");
+        jButtonTouch.setText("Find Center");
 
         SetWorkPosition("X", 0);
         SetWorkPosition("Y", 0);
@@ -502,6 +571,10 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabelWarning;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;

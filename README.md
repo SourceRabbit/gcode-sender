@@ -49,6 +49,10 @@ Goals:
 
 Changelog
 ------
+1.1.3 -> 1.1.4
+* Small UI changes
+* Hole Center Finder implemented
+
 1.1.2 -> 1.1.3
 * Small UI changes
 * About form implemented

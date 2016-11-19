@@ -386,4 +386,13 @@ public class ConnectionHandler implements SerialPortEventListener
     {
         return fMyGCodeSender;
     }
+    
+    /**
+     * Ask for the machine status
+     * @return 
+     */
+    public boolean AskForMachineStatus()
+    {
+        return false;
+    }
 }

@@ -1,4 +1,4 @@
- /*
+/*
  Copyright (C) 2015  Nikos Siatras
 
  This program is free software: you can redistribute it and/or modify
@@ -26,16 +26,23 @@ public class MachineStatusEvent extends EventObject
 {
 
     private final int fMachineStatus;
+    private final String fMessage;
 
-    public MachineStatusEvent(int machineStatus)
+    public MachineStatusEvent(int machineStatus, String message)
     {
         super(machineStatus);
         fMachineStatus = machineStatus;
+        fMessage = message;
     }
 
     public int getMachineStatus()
     {
         return fMachineStatus;
+    }
+
+    public String getMessage()
+    {
+        return fMessage;
     }
 
 }

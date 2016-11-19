@@ -119,7 +119,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     fMillisecondsToGetMachineStatus = (fActiveState == GRBLActiveStates.RUN) ? 1500 : 300;
 
                     // Fire the MachineStatusChangedEvent
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(fActiveState));
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(fActiveState, ""));
                 }
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,7 +170,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
                     if (receivedStr.equals("error: Alarm lock"))
                     {
-                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM));
+                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
                     }
                 }
                 else if (receivedStr.toLowerCase().startsWith("grbl"))
@@ -180,11 +180,11 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     fConnectionEstablishedManualResetEvent.Set();
                     fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
                     fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE));
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE, ""));
                 }
                 else if (receivedStr.toLowerCase().contains("[reset to continue]"))
                 {
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.RESET_TO_CONTINUE));
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.RESET_TO_CONTINUE, ""));
                     fMyGCodeSender.CancelSendingGCode();
                     fWaitForCommandToBeExecuted.Set();
                 }
@@ -192,7 +192,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 {
                     // Example of incoming message [PRB:0.000,0.000,-0.910:1]
                     //System.out.println("Endmill touched the Touch Probe!");
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE));
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE, receivedStr));
                     /////////////////////////////////////////////////////
                     // DONT !!!!!!!!!!!!!!!!!!! GRBL sends an "OK" back
                     // fWaitForCommandToBeExecuted.Set();
@@ -201,7 +201,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 else if (receivedStr.equals("ALARM: Probe fail") || receivedStr.equals("['$H'|'$X' to unlock]"))
                 {
                     // MACHINE NEEDS UNLOCK !
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM));
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
                 }
                 else
                 {
@@ -348,6 +348,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
      *
      * @return true if the '?' can be sent
      */
+    @Override
     public boolean AskForMachineStatus()
     {
         synchronized (fSendDataLock)

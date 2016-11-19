@@ -42,10 +42,21 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
               <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/sourcerabbit/gcode/sender/UI/Images/ZTouchProbe/ZAxisTouchProbe-16x16.png"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Z Axis Touch Probe"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem2ActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItemHoleCenterFinder">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Hole Center Finder"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItemHoleCenterFinderActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>

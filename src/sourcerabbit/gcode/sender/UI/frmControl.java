@@ -58,6 +58,7 @@ import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
+import sourcerabbit.gcode.sender.UI.Tools.frmHoleCenterFinder;
 import sourcerabbit.gcode.sender.UI.Tools.frmSetWorkPosition;
 import sourcerabbit.gcode.sender.UI.Tools.frmZAxisTouchProbe;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
@@ -611,6 +612,7 @@ public class frmControl extends javax.swing.JFrame
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItemHoleCenterFinder = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
@@ -1339,6 +1341,7 @@ public class frmControl extends javax.swing.JFrame
         });
         jMenu2.add(jMenuItem1);
 
+        jMenuItem2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sourcerabbit/gcode/sender/UI/Images/ZTouchProbe/ZAxisTouchProbe-16x16.png"))); // NOI18N
         jMenuItem2.setText("Z Axis Touch Probe");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1348,6 +1351,16 @@ public class frmControl extends javax.swing.JFrame
             }
         });
         jMenu2.add(jMenuItem2);
+
+        jMenuItemHoleCenterFinder.setText("Hole Center Finder");
+        jMenuItemHoleCenterFinder.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jMenuItemHoleCenterFinderActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItemHoleCenterFinder);
 
         jMenuBar1.add(jMenu2);
 
@@ -1791,6 +1804,12 @@ public class frmControl extends javax.swing.JFrame
         frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
+    private void jMenuItemHoleCenterFinderActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItemHoleCenterFinderActionPerformed
+    {//GEN-HEADEREND:event_jMenuItemHoleCenterFinderActionPerformed
+        frmHoleCenterFinder frm = new frmHoleCenterFinder(this, true);
+        frm.setVisible(true);
+    }//GEN-LAST:event_jMenuItemHoleCenterFinderActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClearConsole;
     private javax.swing.JButton jButtonClearLog;
@@ -1850,6 +1869,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItemExit;
     private javax.swing.JMenuItem jMenuItemGRBLSettings;
+    private javax.swing.JMenuItem jMenuItemHoleCenterFinder;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

@@ -16,6 +16,7 @@
  */
 package sourcerabbit.gcode.sender.UI.Tools;
 
+import javax.swing.JOptionPane;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.IMachineStatusEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEvent;
@@ -39,6 +40,9 @@ public class frmSetWorkPosition extends javax.swing.JDialog
 
     /**
      * Creates new form frmSetWorkPosition
+     *
+     * @param parent
+     * @param modal
      */
     public frmSetWorkPosition(frmControl parent, boolean modal)
     {
@@ -202,12 +206,8 @@ public class frmSetWorkPosition extends javax.swing.JDialog
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabelNotice, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(33, 33, 33))
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(12, 12, 12)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -226,12 +226,13 @@ public class frmSetWorkPosition extends javax.swing.JDialog
                                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                             .addComponent(jTextFieldZ, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                     .addComponent(jLabel7))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                        .addComponent(jLabel5)))
                 .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addGap(225, 225, 225)
-                .addComponent(jButtonSet)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButtonSet, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(199, 199, 199))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -257,9 +258,9 @@ public class frmSetWorkPosition extends javax.swing.JDialog
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel7))
                     .addComponent(jLabel5))
-                .addGap(18, 18, 18)
-                .addComponent(jLabelNotice)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabelNotice, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonSet, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -277,7 +278,15 @@ public class frmSetWorkPosition extends javax.swing.JDialog
             String commandStr = "G92 X" + x + " Y" + y + " Z" + z;
 
             GCodeCommand command = new GCodeCommand(commandStr);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
+            String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+            if (response.toLowerCase().equals("ok"))
+            {
+                JOptionPane.showMessageDialog(this, "Work position changed!");
+            }
+            else
+            {
+                  JOptionPane.showMessageDialog(this, "Something went wrong.Reset the GRBL controller and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
         catch (Exception ex)
         {

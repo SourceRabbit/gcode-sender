@@ -58,6 +58,7 @@ import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
+import sourcerabbit.gcode.sender.UI.Tools.frmEdgeFinder;
 import sourcerabbit.gcode.sender.UI.Tools.frmHoleCenterFinder;
 import sourcerabbit.gcode.sender.UI.Tools.frmSetWorkPosition;
 import sourcerabbit.gcode.sender.UI.Tools.frmZAxisTouchProbe;
@@ -613,6 +614,7 @@ public class frmControl extends javax.swing.JFrame
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItemHoleCenterFinder = new javax.swing.JMenuItem();
+        jMenuItemEdgeFinder = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
@@ -1364,6 +1366,17 @@ public class frmControl extends javax.swing.JFrame
         });
         jMenu2.add(jMenuItemHoleCenterFinder);
 
+        jMenuItemEdgeFinder.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sourcerabbit/gcode/sender/UI/Images/EdgeFinder/Edge Finder-16x16.png"))); // NOI18N
+        jMenuItemEdgeFinder.setText("Edge Finder");
+        jMenuItemEdgeFinder.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jMenuItemEdgeFinderActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItemEdgeFinder);
+
         jMenuBar1.add(jMenu2);
 
         jMenu3.setText("Help");
@@ -1812,6 +1825,12 @@ public class frmControl extends javax.swing.JFrame
         frm.setVisible(true);
     }//GEN-LAST:event_jMenuItemHoleCenterFinderActionPerformed
 
+    private void jMenuItemEdgeFinderActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItemEdgeFinderActionPerformed
+    {//GEN-HEADEREND:event_jMenuItemEdgeFinderActionPerformed
+        frmEdgeFinder frm = new frmEdgeFinder(this, true);
+        frm.setVisible(true);
+    }//GEN-LAST:event_jMenuItemEdgeFinderActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClearConsole;
     private javax.swing.JButton jButtonClearLog;
@@ -1869,6 +1888,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JMenuItem jMenuItemEdgeFinder;
     private javax.swing.JMenuItem jMenuItemExit;
     private javax.swing.JMenuItem jMenuItemGRBLSettings;
     private javax.swing.JMenuItem jMenuItemHoleCenterFinder;

@@ -5,16 +5,12 @@
             <url>src/sourcerabbit/gcode/sender/UI/Tools/frmHoleCenterFinder.java</url>
             <bookmark id="1">
                 <name/>
-                <line>478</line>
+                <line>547</line>
                 <key/>
             </bookmark>
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/UI/Tools/frmZAxisTouchProbe.java</file>
-            <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/Settings/CenterHoleFinderSettings.java</file>
-            <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/UI/Tools/frmHoleCenterFinder.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

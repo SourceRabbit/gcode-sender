@@ -34,7 +34,7 @@ import sourcerabbit.gcode.sender.UI.frmControl;
  *
  * @author Nikos Siatras
  */
-public class frmHoleCenterFinder extends javax.swing.JDialog
+public class frmEdgeFinder extends javax.swing.JDialog
 {
 
     private final frmControl fMyMain;
@@ -55,7 +55,7 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
 
     private IMachineStatusEventListener fIMachineStatusEventListener;
 
-    public frmHoleCenterFinder(frmControl parent, boolean modal)
+    public frmEdgeFinder(frmControl parent, boolean modal)
     {
         super(parent, modal);
         fMyMain = parent;

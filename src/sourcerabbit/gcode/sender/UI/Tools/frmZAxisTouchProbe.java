@@ -241,6 +241,7 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
         {
             case GRBLActiveStates.IDLE:
                 jButtonTouch.setEnabled(true);
+                jButtonTouch.setText("Touch the Probe");
                 jLabelWarning.setText("");
                 break;
 

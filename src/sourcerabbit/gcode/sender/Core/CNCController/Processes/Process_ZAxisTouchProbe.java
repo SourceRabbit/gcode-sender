@@ -124,6 +124,9 @@ public class Process_ZAxisTouchProbe extends Process
         // Success !!!
         // The endmill touched the touch probe twice !
         ///////////////////////////////////////////////////////////////////////////////
+        // Stop Using Touch Probe
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
+        ///////////////////////////////////////////////////////////////////////////////
         String response2 = SetZAxisPosition(TouchProbeSettings.getHeightOfProbe());
         if (response2.equals("ok"))
         {
@@ -133,8 +136,6 @@ public class Process_ZAxisTouchProbe extends Process
         {
             MachineFailedToTouchTheProbe();
         }
-
-        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
     }
 
     private String MoveEndmillToProbe(int distance, int feedRate)

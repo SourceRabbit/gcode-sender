@@ -316,6 +316,16 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 // Ask for status report           
                                 fWaitForGetStatusCommandReply = new ManualResetEvent(false);
                                 fWaitForGetStatusCommandReply.Reset();
+
+                                // If a Touch Probe operation is currently active then
+                                // do not ask for the machine status.
+                                if (fAnOperationIsUsingTouchProbe)
+                                {
+                                    System.out.println("Not asking for machine status");
+                                    Thread.sleep(100);
+                                    continue;
+                                }
+
                                 if (AskForMachineStatus())
                                 {
                                     System.out.println("Asked for machine status!");
@@ -326,6 +336,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 {
                                     CloseConnection();
                                 }
+
                             }
                             catch (Exception ex)
                             {
@@ -353,8 +364,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
      *
      * @return true if the '?' can be sent
      */
-    @Override
-    public boolean AskForMachineStatus()
+
+    private boolean AskForMachineStatus()
     {
         synchronized (fSendDataLock)
         {

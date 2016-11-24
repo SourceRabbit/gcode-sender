@@ -80,9 +80,12 @@ public class Process_HoleCenterFinder extends Process
 
         try
         {
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
+
             FindAxisCenter("X", feedRate);
             FindAxisCenter("Y", feedRate);
 
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
             OperationCompletedSuccessfully();
 
             SetWorkPosition("X", 0);
@@ -92,6 +95,11 @@ public class Process_HoleCenterFinder extends Process
         {
             ProbeFailedToTouchTheEdgeOfTheHole(ex.getMessage());
         }
+        finally
+        {
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
+        }
+
     }
 
     private void FindAxisCenter(final String axis, final int feedRate) throws Exception
@@ -100,7 +108,7 @@ public class Process_HoleCenterFinder extends Process
         double startWorkPosition = 0, workPosition1 = 0, workPosition2 = 0;
 
         // Before everything get the start Work position (The current work position).
-        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.AskForMachineStatus();
+        AskForMachineStatus();
         startWorkPosition = axis.equals("X") ? ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX() : ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY();
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,7 +173,8 @@ public class Process_HoleCenterFinder extends Process
 
         /////////////////////////////////////////////////////////////////////////////////
         // Finished !!!
-        // Ask for machine status and set the axis position to 0
+        // Ask for machine status and set the X & Y axes position to 0
+        /////////////////////////////////////////////////////////////////////////////////
         AskForMachineStatus();
         SetWorkPosition(axis, 0);
     }
@@ -251,7 +260,7 @@ public class Process_HoleCenterFinder extends Process
     {
         fWaitForMachineToBeIdle.Reset();
         fWaitForMachineToBeIdle.WaitOne();
-        JOptionPane.showMessageDialog(fMyParentForm, "Machine position is now in the center of the hole!", "Center Found", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(fMyParentForm, "Work position is now in the center of the hole!", "Center Found", JOptionPane.INFORMATION_MESSAGE);
 
         SetWorkPosition("X", 0);
         SetWorkPosition("Y", 0);

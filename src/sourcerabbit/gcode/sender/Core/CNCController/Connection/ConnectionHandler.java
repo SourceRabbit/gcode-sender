@@ -27,7 +27,6 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConn
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLGCodeSender;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.Arrays.ByteArrayBuilder;
-import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.CNCControlFramework;
 import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkID;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
@@ -71,6 +70,9 @@ public class ConnectionHandler implements SerialPortEventListener
 
     // GCode
     protected final GCodeSender fMyGCodeSender;
+
+    // Touch Probe
+    protected boolean fAnOperationIsUsingTouchProbe = false;
 
     protected ECNCControlFrameworkID fMyControlFrameworkID;
 
@@ -282,6 +284,25 @@ public class ConnectionHandler implements SerialPortEventListener
     }
 
     /**
+     * Call the "StartUsingTouchProbe" at the start of each operation that
+     * requires the use of touch probe. After the operation finishes then call
+     * the "StopUsingTouchProbe" method.
+     */
+    public void StartUsingTouchProbe()
+    {
+        fAnOperationIsUsingTouchProbe = true;
+    }
+
+    /**
+     * Call the "StopUsingTouchProbe" when an operation that requires touch
+     * probe finishes.
+     */
+    public void StopUsingTouchProbe()
+    {
+        fAnOperationIsUsingTouchProbe = false;
+    }
+
+    /**
      * Returns the connection's port name
      *
      * @return
@@ -389,16 +410,6 @@ public class ConnectionHandler implements SerialPortEventListener
     public GCodeSender getMyGCodeSender()
     {
         return fMyGCodeSender;
-    }
-
-    /**
-     * Ask for the machine status
-     *
-     * @return
-     */
-    public boolean AskForMachineStatus()
-    {
-        return false;
     }
 
     /**

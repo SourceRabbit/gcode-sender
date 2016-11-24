@@ -33,9 +33,9 @@ public class Process_ZAxisTouchProbe extends Process
 {
 
     // Variables
-    private int fMaxDistance = 200;
-    private int fFeedRate = 80;
-    private int fSlowFeedRate = 30;
+    private final int fMaxDistance = 200;
+    private final int fFeedRate = 80;
+    private final int fSlowFeedRate = 30;
 
     private boolean fMachineTouchedTheProbe = false;
     private final ManualResetEvent fWaitToTouchTheProbe = new ManualResetEvent(false);
@@ -52,7 +52,6 @@ public class Process_ZAxisTouchProbe extends Process
         {
             case GRBLActiveStates.IDLE:
                 break;
-
             case GRBLActiveStates.RUN:
                 break;
             case GRBLActiveStates.HOLD:
@@ -60,7 +59,6 @@ public class Process_ZAxisTouchProbe extends Process
             case GRBLActiveStates.RESET_TO_CONTINUE:
                 fWaitToTouchTheProbe.Set();
                 break;
-
             case GRBLActiveStates.MACHINE_TOUCHED_PROBE:
                 fMachineTouchedTheProbe = true;
                 fWaitToTouchTheProbe.Set();
@@ -85,6 +83,8 @@ public class Process_ZAxisTouchProbe extends Process
 
     public void ExecuteForGRBL()
     {
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
+
         // Step 1
         // Move the endmill towards the probe until they touch each other.
         fWaitToTouchTheProbe.Reset();
@@ -133,6 +133,8 @@ public class Process_ZAxisTouchProbe extends Process
         {
             MachineFailedToTouchTheProbe();
         }
+
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
     }
 
     private String MoveEndmillToProbe(int distance, int feedRate)

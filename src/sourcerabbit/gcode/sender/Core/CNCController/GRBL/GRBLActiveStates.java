@@ -53,7 +53,7 @@ public class GRBLActiveStates
     public static final int CHECK = 7;
 
     // GRBL sent the "[Reset to continue]" string.
-    // This can happen if the hard_limits is on and the machine hits on of the limit switches.
+    // This can happen if the hard_limits is on and the machine hits on the limit switches.
     public static final int RESET_TO_CONTINUE = 100001;
 
     // Machine touched the probe.

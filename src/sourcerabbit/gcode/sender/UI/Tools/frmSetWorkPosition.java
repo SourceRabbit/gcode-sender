@@ -16,15 +16,12 @@
  */
 package sourcerabbit.gcode.sender.UI.Tools;
 
-import javax.swing.JOptionPane;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.IMachineStatusEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEvent;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
-import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
+import sourcerabbit.gcode.sender.Core.CNCController.Processes.Process_SetWorkPosition;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
 import sourcerabbit.gcode.sender.UI.frmControl;
 
@@ -36,6 +33,7 @@ public class frmSetWorkPosition extends javax.swing.JDialog
 {
 
     private final frmControl fMyMain;
+    private IMachineStatusEventListener fIMachineStatusEventListener;
     private final frmSetWorkPosition fThisForm = this;
 
     /**
@@ -69,7 +67,7 @@ public class frmSetWorkPosition extends javax.swing.JDialog
         MachineStatusHasChange(lastEvent);
 
         // Machine status events
-        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachineStatusEventsManager().AddListener(new IMachineStatusEventListener()
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachineStatusEventsManager().AddListener(fIMachineStatusEventListener = new IMachineStatusEventListener()
         {
             @Override
             public void MachineStatusChanged(MachineStatusEvent evt)
@@ -78,28 +76,6 @@ public class frmSetWorkPosition extends javax.swing.JDialog
             }
         });
 
-        // Serial Connection Events
-        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getSerialConnectionEventManager().AddListener(new ISerialConnectionEventListener()
-        {
-
-            @Override
-            public void ConnectionEstablished(SerialConnectionEvent evt)
-            {
-
-            }
-
-            @Override
-            public void ConnectionClosed(SerialConnectionEvent evt)
-            {
-                fThisForm.dispose();
-            }
-
-            @Override
-            public void DataReceivedFromSerialConnection(SerialConnectionEvent evt)
-            {
-
-            }
-        });
     }
 
     private void MachineStatusHasChange(MachineStatusEvent evt)
@@ -148,6 +124,13 @@ public class frmSetWorkPosition extends javax.swing.JDialog
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Set Work Position");
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter()
+        {
+            public void windowClosed(java.awt.event.WindowEvent evt)
+            {
+                formWindowClosed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 75, 127));
@@ -275,24 +258,21 @@ public class frmSetWorkPosition extends javax.swing.JDialog
             double x = Double.parseDouble(jTextFieldX.getText());
             double y = Double.parseDouble(jTextFieldY.getText());
             double z = Double.parseDouble(jTextFieldZ.getText());
-            String commandStr = "G92 X" + x + " Y" + y + " Z" + z;
 
-            GCodeCommand command = new GCodeCommand(commandStr);
-            String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
-            if (response.toLowerCase().equals("ok"))
-            {
-                JOptionPane.showMessageDialog(this, "Work position changed!");
-            }
-            else
-            {
-                  JOptionPane.showMessageDialog(this, "Something went wrong.Reset the GRBL controller and try again.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            Process_SetWorkPosition process = new Process_SetWorkPosition(this, x, y, z);
+            process.Execute();
+            process.Dispose();
         }
         catch (Exception ex)
         {
 
         }
     }//GEN-LAST:event_jButtonSetActionPerformed
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt)//GEN-FIRST:event_formWindowClosed
+    {//GEN-HEADEREND:event_formWindowClosed
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachineStatusEventsManager().RemoveListener(fIMachineStatusEventListener);
+    }//GEN-LAST:event_formWindowClosed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

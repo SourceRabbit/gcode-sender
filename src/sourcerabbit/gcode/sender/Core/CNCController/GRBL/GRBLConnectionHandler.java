@@ -17,6 +17,7 @@
 package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
 import jssc.SerialPortException;
+import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkID;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
@@ -53,6 +54,9 @@ public class GRBLConnectionHandler extends ConnectionHandler
         super.fMessageSplitter = "\n";
         super.fMessageSplitterLength = fMessageSplitter.length();
         super.fMessageSplitterBytes = String.valueOf(fMessageSplitter).getBytes();
+
+        // Set my control framework ID
+        super.fMyControlFrameworkID = ECNCControlFrameworkID.GRBL;
 
         fWaitForCommandToBeExecuted = new ManualResetEvent(false);
 
@@ -314,6 +318,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 fWaitForGetStatusCommandReply.Reset();
                                 if (AskForMachineStatus())
                                 {
+                                    System.out.println("Asked for machine status!");
                                     // Wait for Get Status Command Reply
                                     fWaitForGetStatusCommandReply.WaitOne();
                                 }

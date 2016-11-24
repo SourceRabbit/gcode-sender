@@ -39,7 +39,7 @@ public class CNCControlFrameworkManager
         {
             // Create CNC Control Frameworks list
             fCNCControllFrameworks = new ArrayList<>();
-            fCNCControllFrameworks.add(new CNCControlFramework(1, "GRBL 0.9 and later", new GRBLConnectionHandler()));
+            fCNCControllFrameworks.add(new CNCControlFramework(ECNCControlFrameworkID.GRBL, "GRBL 0.9 and later", new GRBLConnectionHandler()));
         }
 
         return fCNCControllFrameworks;

@@ -27,6 +27,8 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConn
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLGCodeSender;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.Arrays.ByteArrayBuilder;
+import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.CNCControlFramework;
+import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkID;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 
@@ -69,6 +71,8 @@ public class ConnectionHandler implements SerialPortEventListener
 
     // GCode
     protected final GCodeSender fMyGCodeSender;
+
+    protected ECNCControlFrameworkID fMyControlFrameworkID;
 
     public ConnectionHandler()
     {
@@ -386,13 +390,24 @@ public class ConnectionHandler implements SerialPortEventListener
     {
         return fMyGCodeSender;
     }
-    
+
     /**
      * Ask for the machine status
-     * @return 
+     *
+     * @return
      */
     public boolean AskForMachineStatus()
     {
         return false;
+    }
+
+    /**
+     * Get the CNCControlFrameworkID of this handler
+     *
+     * @return
+     */
+    public ECNCControlFrameworkID getCNCControlFramework()
+    {
+        return fMyControlFrameworkID;
     }
 }

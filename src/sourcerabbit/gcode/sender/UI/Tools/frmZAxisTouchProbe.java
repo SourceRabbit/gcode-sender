@@ -21,32 +21,29 @@ import javax.swing.JSpinner;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.IMachineStatusEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEvent;
-import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
-import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLCommands;
-import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
+import sourcerabbit.gcode.sender.Core.CNCController.Processes.Process_ZAxisTouchProbe;
 import sourcerabbit.gcode.sender.Core.Settings.TouchProbeSettings;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
 import sourcerabbit.gcode.sender.UI.frmControl;
 
 /**
  *
- * @author nsiatras
+ * @author Nikos Siatras
  */
 public class frmZAxisTouchProbe extends javax.swing.JDialog
 {
 
     private final frmControl fMyMain;
-    private boolean fShowWarningIfNecessary = true;
-    private boolean fMachineTouchedTheProbe = false;
-    private final ManualResetEvent fWaitToTouchTheProbe = new ManualResetEvent(false);
-
     private IMachineStatusEventListener fIMachineStatusEventListener;
+    private Process_ZAxisTouchProbe fMyProcess;
 
     public frmZAxisTouchProbe(frmControl parent, boolean modal)
     {
         super(parent, modal);
+
+        fMyProcess = new Process_ZAxisTouchProbe(this);
         fMyMain = parent;
         initComponents();
 
@@ -63,7 +60,6 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
         jSpinnerHeighOfProbe.setValue(TouchProbeSettings.getHeightOfProbe());
 
         UpdateUIOnMachineStatusChange(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState());
-
     }
 
     @SuppressWarnings("unchecked")
@@ -249,30 +245,20 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
                 break;
 
             case GRBLActiveStates.RUN:
-                jButtonTouch.setEnabled(false);
-                if (fShowWarningIfNecessary)
-                {
-                    jLabelWarning.setVisible(true);
-                }
-                break;
             case GRBLActiveStates.HOLD:
             case GRBLActiveStates.ALARM:
             case GRBLActiveStates.RESET_TO_CONTINUE:
                 jButtonTouch.setEnabled(false);
-                 jLabelWarning.setText("The machine's status must be Idle to use the \"Touch Probe\" operation.");
-                fWaitToTouchTheProbe.Set();
+                jLabelWarning.setText("The machine's status must be Idle to use the \"Touch Probe\" operation.");
                 break;
 
             case GRBLActiveStates.MACHINE_TOUCHED_PROBE:
-                fMachineTouchedTheProbe = true;
-                fWaitToTouchTheProbe.Set();
                 break;
         }
     }
 
     private void jButtonTouchActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonTouchActionPerformed
     {//GEN-HEADEREND:event_jButtonTouchActionPerformed
-
         // Check if Z is negative
         if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ() < 0)
         {
@@ -282,13 +268,7 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
 
         if (jButtonTouch.getText().equals("Click to Stop!"))
         {
-            try
-            {
-                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_SOFT_RESET);
-            }
-            catch (Exception ex)
-            {
-            }
+            fMyProcess.KillImmediately();
             jButtonTouch.setText("Touch the Probe");
             return;
         }
@@ -297,143 +277,18 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
             jButtonTouch.setText("Click to Stop!");
         }
 
-        Thread th = new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                final int distance = 200; // Travel 200mm MAX!
-                final int feedRate = 80; // 80mm/min
+        // Set last settings to TOUCH_PROBE_SETTINGS
+        TouchProbeSettings.setDistanceFromProbe(200);
+        TouchProbeSettings.setHeightOfProbe((double) jSpinnerHeighOfProbe.getValue());
 
-                // Set last settings to TOUCH_PROBE_SETTINGS
-                TouchProbeSettings.setDistanceFromProbe(distance);
-                TouchProbeSettings.setHeightOfProbe((double) jSpinnerHeighOfProbe.getValue());
-
-                try
-                {
-                    fShowWarningIfNecessary = false;
-
-                    // Step 1
-                    // Move the endmill towards the probe until they touch each other.
-                    fWaitToTouchTheProbe.Reset();
-                    fMachineTouchedTheProbe = false;
-                    String response = MoveEndmillToProbe(distance, feedRate);
-                    fWaitToTouchTheProbe.WaitOne();
-                    if (!response.equals("ok") || !fMachineTouchedTheProbe)
-                    {
-                        MachineFailedToTouchTheProbe();
-                        return;
-                    }
-
-                    // Step 2
-                    // Move the endmill 0.5 mm back
-                    String moveZStr = "G21G91G0Z0.5";
-                    GCodeCommand moveZCommand = new GCodeCommand(moveZStr);
-                    response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand);
-                    if (!response.equals("ok"))
-                    {
-                        MachineFailedToTouchTheProbe();
-                        return;
-                    }
-
-                    // Step 3
-                    // Touch the probe with slow feedrate
-                    fWaitToTouchTheProbe.Reset();
-                    fMachineTouchedTheProbe = false;
-                    response = MoveEndmillToProbe(1, 30);
-                    fWaitToTouchTheProbe.WaitOne();
-                    if (!response.equals("ok") || !fMachineTouchedTheProbe)
-                    {
-                        MachineFailedToTouchTheProbe();
-                        return;
-                    }
-                    else
-                    {
-                        // The endmill touched the touch probe twice !
-                        // Set the Z position equal to the probe height
-                        fMachineTouchedTheProbe = false;
-
-                        try
-                        {
-                            double probeHeight = (double) jSpinnerHeighOfProbe.getValue();
-
-                            String response2 = SetZAxisPosition(probeHeight);
-                            if (response2.equals("ok"))
-                            {
-                                MachineTouchedTheProbeSucessfully();
-                            }
-                            else
-                            {
-                                MachineFailedToTouchTheProbe();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            MachineFailedToTouchTheProbe();
-                        }
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    MachineFailedToTouchTheProbe();
-                }
-            }
-        });
-        th.start();
+        // Execute the Process !
+        fMyProcess.ExecuteInNewThread();
     }//GEN-LAST:event_jButtonTouchActionPerformed
-
-    /**
-     * Move the endmill to touch the probe
-     *
-     * @param distance
-     * @param feedRate
-     * @return
-     */
-    private String MoveEndmillToProbe(int distance, int feedRate)
-    {
-        fMachineTouchedTheProbe = false;
-        String gCodeStr = "G38.2Z-" + distance + "F" + feedRate;
-        final GCodeCommand command = new GCodeCommand(gCodeStr);
-
-        return ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
-    }
-
-    private String SetZAxisPosition(double value)
-    {
-        String commandStr = "G92 X0 Y0 Z" + String.valueOf(value);
-        GCodeCommand commandSetZ = new GCodeCommand(commandStr);
-        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(commandSetZ).equals("ok"))
-        {
-            // All good!
-            // Move the Z 0.5mm higher
-            String moveZStr = "G21G91G0Z0.5";
-            GCodeCommand moveZCommand = new GCodeCommand(moveZStr);
-            return ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand);
-        }
-        else
-        {
-            return "ERROR";
-        }
-    }
-
-    private void MachineFailedToTouchTheProbe()
-    {
-        fShowWarningIfNecessary = true;
-        JOptionPane.showMessageDialog(this, "Machine failed to touch the probe!", "Error", JOptionPane.ERROR_MESSAGE);
-        jButtonTouch.setText("Touch the Probe");
-    }
-
-    private void MachineTouchedTheProbeSucessfully()
-    {
-        fShowWarningIfNecessary = false;
-        JOptionPane.showMessageDialog(this, "Machine touched the probe sucessfully!");
-        jButtonTouch.setText("Touch the Probe");
-    }
 
 
     private void formWindowClosed(java.awt.event.WindowEvent evt)//GEN-FIRST:event_formWindowClosed
     {//GEN-HEADEREND:event_formWindowClosed
+        fMyProcess.Dispose();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachineStatusEventsManager().RemoveListener(fIMachineStatusEventListener);
     }//GEN-LAST:event_formWindowClosed
 

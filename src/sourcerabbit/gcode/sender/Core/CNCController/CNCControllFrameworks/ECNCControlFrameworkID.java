@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2015  Nikos Siatras
+Copyright (C) 2015  Nikos Siatras
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -16,38 +16,11 @@
  */
 package sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks;
 
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
-
 /**
  *
  * @author Nikos Siatras
  */
-public class CNCControlFramework
+public enum ECNCControlFrameworkID
 {
-
-    private final ECNCControlFrameworkID fID;
-    private final String fName;
-    private final ConnectionHandler fHandler;
-
-    public CNCControlFramework(ECNCControlFrameworkID id, String name, ConnectionHandler handler)
-    {
-        fID = id;
-        fName = name;
-        fHandler = handler;
-    }
-
-    public ECNCControlFrameworkID getID()
-    {
-        return fID;
-    }
-
-    public String getName()
-    {
-        return fName;
-    }
-
-    public ConnectionHandler getHandler()
-    {
-        return fHandler;
-    }
+    GRBL
 }

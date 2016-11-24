@@ -290,6 +290,7 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
     private void formWindowClosed(java.awt.event.WindowEvent evt)//GEN-FIRST:event_formWindowClosed
     {//GEN-HEADEREND:event_formWindowClosed
         fMyProcess.Dispose();
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachineStatusEventsManager().RemoveListener(fIMachineStatusEventListener);
     }//GEN-LAST:event_formWindowClosed
 

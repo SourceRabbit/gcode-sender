@@ -82,6 +82,9 @@ public class Process_HoleCenterFinder extends Process
         {
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
 
+            SetWorkPosition("X", 0);
+            SetWorkPosition("Y", 0);
+
             FindAxisCenter("X", feedRate);
             FindAxisCenter("Y", feedRate);
 
@@ -95,11 +98,8 @@ public class Process_HoleCenterFinder extends Process
         {
             ProbeFailedToTouchTheEdgeOfTheHole(ex.getMessage());
         }
-        finally
-        {
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
-        }
 
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
     }
 
     private void FindAxisCenter(final String axis, final int feedRate) throws Exception
@@ -121,14 +121,6 @@ public class Process_HoleCenterFinder extends Process
             throw new Exception("Make sure the touch probe does not touch the edges of the hole!");
         }
 
-        // Move touch probe 0.5mm back and repeat the process with the slower feed rate
-        MoveMachine(axis, 0.5, fSlowFeedRate);
-        response = SendTouchProbeToTouchTheEdge(axis + "-", fSlowFeedRate);
-        if (!response.equals("ok") || !fTouchProbeTouchedTheEdge)
-        {
-            throw new Exception("Make sure the touch probe does not touch the edges of the hole!");
-        }
-
         // Ask for machine status to get the current Work Position
         AskForMachineStatus();
         workPosition1 = axis.equals("X") ? ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX() : ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY();
@@ -140,14 +132,6 @@ public class Process_HoleCenterFinder extends Process
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
         MoveMachineTo(axis, startWorkPosition, feedRate);
         response = SendTouchProbeToTouchTheEdge(axis, feedRate);
-        if (!response.equals("ok") || !fTouchProbeTouchedTheEdge)
-        {
-            throw new Exception("Make sure the touch probe does not touch the edges of the hole!");
-        }
-
-        // Move touch probe 0.5mm back and repeat the process with the slower feed rate
-        MoveMachine(axis + "-", 0.5, fSlowFeedRate);
-        response = SendTouchProbeToTouchTheEdge(axis, fSlowFeedRate);
         if (!response.equals("ok") || !fTouchProbeTouchedTheEdge)
         {
             throw new Exception("Make sure the touch probe does not touch the edges of the hole!");

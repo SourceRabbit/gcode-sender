@@ -39,6 +39,7 @@ public class Process_ZAxisTouchProbe extends Process
 
     private boolean fMachineTouchedTheProbe = false;
     private final ManualResetEvent fWaitToTouchTheProbe = new ManualResetEvent(false);
+    private final ManualResetEvent fWaitForMachineToBeIdle = new ManualResetEvent(false);
 
     public Process_ZAxisTouchProbe(JDialog parentForm)
     {
@@ -51,6 +52,7 @@ public class Process_ZAxisTouchProbe extends Process
         switch (state)
         {
             case GRBLActiveStates.IDLE:
+                fWaitForMachineToBeIdle.Set();
                 break;
             case GRBLActiveStates.RUN:
                 break;
@@ -99,7 +101,7 @@ public class Process_ZAxisTouchProbe extends Process
 
         // Step 2
         // Move the endmill 0.5 mm back
-        String moveZStr = "G21G91G0Z0.5";
+        String moveZStr = "G21G91G1Z0.5F" + fSlowFeedRate;
         GCodeCommand moveZCommand = new GCodeCommand(moveZStr);
         response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand);
         if (!response.equals("ok"))
@@ -130,6 +132,12 @@ public class Process_ZAxisTouchProbe extends Process
         String response2 = SetZAxisPosition(TouchProbeSettings.getHeightOfProbe());
         if (response2.equals("ok"))
         {
+            // All good!
+            // Move the Z 0.5mm above the probe
+            moveZStr = "G21G91G1Z0.5F" + fSlowFeedRate;
+            moveZCommand = new GCodeCommand(moveZStr);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand);
+
             MachineTouchedTheProbeSucessfully();
         }
         else
@@ -153,6 +161,8 @@ public class Process_ZAxisTouchProbe extends Process
 
     private void MachineTouchedTheProbeSucessfully()
     {
+        fWaitForMachineToBeIdle.Reset();
+        fWaitForMachineToBeIdle.WaitOne();
         JOptionPane.showMessageDialog(fMyParentForm, "Machine touched the probe sucessfully!");
     }
 
@@ -160,18 +170,7 @@ public class Process_ZAxisTouchProbe extends Process
     {
         String commandStr = "G92 X0 Y0 Z" + String.valueOf(value);
         GCodeCommand commandSetZ = new GCodeCommand(commandStr);
-        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(commandSetZ).equals("ok"))
-        {
-            // All good!
-            // Move the Z 0.5mm higher
-            String moveZStr = "G21G91G0Z0.5";
-            GCodeCommand moveZCommand = new GCodeCommand(moveZStr);
-            return ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand);
-        }
-        else
-        {
-            return "ERROR";
-        }
+        return ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(commandSetZ);
     }
 
     @Override

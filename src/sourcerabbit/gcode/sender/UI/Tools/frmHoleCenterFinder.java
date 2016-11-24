@@ -220,6 +220,7 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         {
             case GRBLActiveStates.IDLE:
                 jButtonTouch.setEnabled(true);
+                jButtonTouch.setText("Find Center");
                 jLabelWarning.setText("");
                 break;
             case GRBLActiveStates.RUN:
@@ -260,6 +261,7 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
     private void formWindowClosed(java.awt.event.WindowEvent evt)//GEN-FIRST:event_formWindowClosed
     {//GEN-HEADEREND:event_formWindowClosed
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachineStatusEventsManager().RemoveListener(fIMachineStatusEventListener);
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
         fMyProcess.Dispose();
     }//GEN-LAST:event_formWindowClosed
 

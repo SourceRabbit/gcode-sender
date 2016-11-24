@@ -321,14 +321,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 // do not ask for the machine status.
                                 if (fAnOperationIsUsingTouchProbe)
                                 {
-                                    System.out.println("Not asking for machine status");
                                     Thread.sleep(100);
                                     continue;
                                 }
 
                                 if (AskForMachineStatus())
                                 {
-                                    System.out.println("Asked for machine status!");
                                     // Wait for Get Status Command Reply
                                     fWaitForGetStatusCommandReply.WaitOne();
                                 }
@@ -364,7 +362,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
      *
      * @return true if the '?' can be sent
      */
-
     private boolean AskForMachineStatus()
     {
         synchronized (fSendDataLock)

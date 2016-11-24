@@ -83,5 +83,4 @@ public class Process
     {
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachineStatusEventsManager().RemoveListener(fIMachineStatusEventListener);
     }
-
 }

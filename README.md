@@ -45,6 +45,10 @@ Goals:
 
 Changelog
 ------
+1.1.5 -> 1.1.6
+* Changes for better Touch Probe Operations
+* Small UI changes
+
 1.1.4 -> 1.1.5
 * Small UI changes
 

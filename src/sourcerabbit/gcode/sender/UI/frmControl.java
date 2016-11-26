@@ -57,8 +57,9 @@ import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLCommands;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
+import sourcerabbit.gcode.sender.Core.CNCController.Processes.Process_Jogging;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
-import sourcerabbit.gcode.sender.UI.Tools.frmEdgeFinder;
+import sourcerabbit.gcode.sender.Core.Units.EUnits;
 import sourcerabbit.gcode.sender.UI.Tools.frmHoleCenterFinder;
 import sourcerabbit.gcode.sender.UI.Tools.frmSetWorkPosition;
 import sourcerabbit.gcode.sender.UI.Tools.frmZAxisTouchProbe;
@@ -75,7 +76,7 @@ public class frmControl extends javax.swing.JFrame
     private ManualResetEvent fMachineStatusThreadWait;
     private boolean fKeepMachineStatusThreadRunning;
     private Thread fMachineStatusThread;
-    private String fInchesOrMillimetersGCode = "G21";
+    private EUnits fJoggingUnits = EUnits.Metric;
     private static final Object fAddRemoveLogTableLines = new Object();
 
     private final Calendar fCalendar = Calendar.getInstance();
@@ -1461,93 +1462,63 @@ public class frmControl extends javax.swing.JFrame
     private void jButtonYPlusActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonYPlusActionPerformed
     {//GEN-HEADEREND:event_jButtonYPlusActionPerformed
         double stepValue = (double) jSpinnerStep.getValue();
-        try
-        {
-            GCodeCommand command = new GCodeCommand(fInchesOrMillimetersGCode + "G91G0Y" + stepValue);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
-        }
-        catch (Exception ex)
-        {
-        }
+        Process_Jogging p = new Process_Jogging(null, "Y", stepValue, fJoggingUnits);
+        p.Execute();
+        p.Dispose();
     }//GEN-LAST:event_jButtonYPlusActionPerformed
 
     private void jButtonYMinusActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonYMinusActionPerformed
     {//GEN-HEADEREND:event_jButtonYMinusActionPerformed
         double stepValue = (double) jSpinnerStep.getValue();
-        try
-        {
-            GCodeCommand command = new GCodeCommand(fInchesOrMillimetersGCode + "G91G0Y-" + stepValue);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
-        }
-        catch (Exception ex)
-        {
-        }
+        Process_Jogging p = new Process_Jogging(null, "Y-", stepValue, fJoggingUnits);
+        p.Execute();
+        p.Dispose();
     }//GEN-LAST:event_jButtonYMinusActionPerformed
 
     private void jButtonXPlusActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonXPlusActionPerformed
     {//GEN-HEADEREND:event_jButtonXPlusActionPerformed
         double stepValue = (double) jSpinnerStep.getValue();
-        try
-        {
-            GCodeCommand command = new GCodeCommand(fInchesOrMillimetersGCode + "G91G0X" + stepValue);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
-        }
-        catch (Exception ex)
-        {
-        }
+        Process_Jogging p = new Process_Jogging(null, "X", stepValue, fJoggingUnits);
+        p.Execute();
+        p.Dispose();
     }//GEN-LAST:event_jButtonXPlusActionPerformed
 
     private void jButtonXMinusActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonXMinusActionPerformed
     {//GEN-HEADEREND:event_jButtonXMinusActionPerformed
         double stepValue = (double) jSpinnerStep.getValue();
-        try
-        {
-            GCodeCommand command = new GCodeCommand(fInchesOrMillimetersGCode + "G91G0X-" + stepValue);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
-        }
-        catch (Exception ex)
-        {
-        }
+        Process_Jogging p = new Process_Jogging(null, "X-", stepValue, fJoggingUnits);
+        p.Execute();
+        p.Dispose();
     }//GEN-LAST:event_jButtonXMinusActionPerformed
 
     private void jRadioButtonInchesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jRadioButtonInchesActionPerformed
     {//GEN-HEADEREND:event_jRadioButtonInchesActionPerformed
         // Inches Selected!
         jRadioButtonMillimeters.setSelected(false);
-        fInchesOrMillimetersGCode = "G20";
+        fJoggingUnits = EUnits.Imperial;
     }//GEN-LAST:event_jRadioButtonInchesActionPerformed
 
     private void jRadioButtonMillimetersActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jRadioButtonMillimetersActionPerformed
     {//GEN-HEADEREND:event_jRadioButtonMillimetersActionPerformed
         // Millimeters Selected!
         jRadioButtonInches.setSelected(false);
-        fInchesOrMillimetersGCode = "G21";
+        fJoggingUnits = EUnits.Metric;
     }//GEN-LAST:event_jRadioButtonMillimetersActionPerformed
 
     private void jButtonZMinusActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonZMinusActionPerformed
     {//GEN-HEADEREND:event_jButtonZMinusActionPerformed
         double stepValue = (double) jSpinnerStep.getValue();
-        try
-        {
-            GCodeCommand command = new GCodeCommand(fInchesOrMillimetersGCode + "G91G0Z-" + stepValue);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
-        }
-        catch (Exception ex)
-        {
-        }
+        Process_Jogging p = new Process_Jogging(null, "Z-", stepValue, fJoggingUnits);
+        p.Execute();
+        p.Dispose();
     }//GEN-LAST:event_jButtonZMinusActionPerformed
 
     private void jButtonZPlusActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonZPlusActionPerformed
     {//GEN-HEADEREND:event_jButtonZPlusActionPerformed
         double stepValue = (double) jSpinnerStep.getValue();
-        try
-        {
-            GCodeCommand command = new GCodeCommand(fInchesOrMillimetersGCode + "G91G0Z" + stepValue);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
-        }
-        catch (Exception ex)
-        {
-        }
+        Process_Jogging p = new Process_Jogging(null, "Z", stepValue, fJoggingUnits);
+        p.Execute();
+        p.Dispose();
     }//GEN-LAST:event_jButtonZPlusActionPerformed
 
     private void jButtonGCodeBrowseActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGCodeBrowseActionPerformed

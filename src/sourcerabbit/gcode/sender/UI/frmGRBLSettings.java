@@ -86,7 +86,7 @@ public class frmGRBLSettings extends JDialog
             String item[] = new String[3];
             item[0] = idAndValueParts[0];
             item[1] = idAndValueParts[1];
-            item[2] = description.substring(1).substring(0, description.length() - 2);
+            item[2] = description.equals("") ? "" : description.substring(1).substring(0, description.length() - 2);
 
             fOldValues.put(item[0], item[1]);
 

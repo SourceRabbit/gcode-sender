@@ -28,6 +28,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLGCodeSender;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.Arrays.ByteArrayBuilder;
 import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkID;
+import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkVersion;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 
@@ -74,7 +75,9 @@ public class ConnectionHandler implements SerialPortEventListener
     // Touch Probe
     protected boolean fAnOperationIsUsingTouchProbe = false;
 
+    // CNC Control Framework
     protected ECNCControlFrameworkID fMyControlFrameworkID;
+    protected ECNCControlFrameworkVersion fMyControlFrameworkVersion;
 
     public ConnectionHandler()
     {
@@ -420,5 +423,25 @@ public class ConnectionHandler implements SerialPortEventListener
     public ECNCControlFrameworkID getCNCControlFramework()
     {
         return fMyControlFrameworkID;
+    }
+
+    /**
+     * Set the version for the connected controller.
+     *
+     * @param version is the version
+     */
+    public void setCNCControlFrameworkVersion(ECNCControlFrameworkVersion version)
+    {
+        fMyControlFrameworkVersion = version;
+    }
+
+    /**
+     * Get the version of framework that the connected controller uses.
+     *
+     * @return ECNCControlFrameworkVersion
+     */
+    public ECNCControlFrameworkVersion getCNCControlFrameworkVersion()
+    {
+        return fMyControlFrameworkVersion;
     }
 }

@@ -17,6 +17,7 @@ Copyright (C) 2015  Nikos Siatras
 package sourcerabbit.gcode.sender.Core.CNCController.Processes;
 
 import javax.swing.JDialog;
+import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkID;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.Units.EUnits;
@@ -44,6 +45,15 @@ public class Process_Jogging extends Process
     @Override
     public void Execute()
     {
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getCNCControlFramework() == ECNCControlFrameworkID.GRBL)
+        {
+            ExecuteForGRBL();
+        }
+    }
+
+    private void ExecuteForGRBL()
+    {
+        // Get appropriate GCode for Metric or Imperial Units
         String inchesOrMillimetersGCode = "";
         switch (fUnits)
         {
@@ -56,15 +66,33 @@ public class Process_Jogging extends Process
                 break;
         }
 
-        try
+        switch (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getCNCControlFrameworkVersion())
         {
-            GCodeCommand command = new GCodeCommand(inchesOrMillimetersGCode + "G91G0" + fAxis + fStepValue);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
-        }
-        catch (Exception ex)
-        {
+            case GRBL0_9:
+                try
+                {
+                    GCodeCommand command = new GCodeCommand(inchesOrMillimetersGCode + "G91G0" + fAxis + fStepValue);
+                    ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
+                }
+                catch (Exception ex)
+                {
 
+                }
+                break;
+
+            case GRBL1_1:
+                try
+                {
+                    GCodeCommand command = new GCodeCommand(inchesOrMillimetersGCode + "G91G0" + fAxis + fStepValue);
+                    ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
+                }
+                catch (Exception ex)
+                {
+
+                }
+                break;
         }
+
     }
 
 }

@@ -18,6 +18,7 @@ package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
 import jssc.SerialPortException;
 import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkID;
+import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkVersion;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
@@ -48,6 +49,10 @@ public class GRBLConnectionHandler extends ConnectionHandler
     // This holds the active command that has been send to GRBL controller for execution
     private GCodeCommand fLastCommandSentToController = null;
     private String fGCodeCommandResponse = "";
+
+    // Work Coordinate Offset (WCO):
+    private boolean fControllerSendsWorkPosition = false;
+    private Float fXOffset = 0.0f, fYOffset = 0.0f, fZOffset = 0.0f;
 
     public GRBLConnectionHandler()
     {
@@ -103,18 +108,93 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 return;
             }
 
-            //System.out.println("Data received:" + receivedStr);
+            System.out.println("Data received:" + receivedStr);
             if (receivedStr.startsWith("<"))
             {
-                // Machine status received !
-                // System.out.println(receivedStr);
-                receivedStr = receivedStr.toLowerCase().replace("mpos", "").replace("wpos", "").replace(":", "").replace("<", "").replace(">", "");
-                String[] parts = receivedStr.split(",");
+                int newActiveState = -1;
+                final String[] statusParts;
+
+                switch (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getCNCControlFrameworkVersion())
+                {
+                    case GRBL0_9:
+                        receivedStr = receivedStr.toLowerCase().replace("mpos", "").replace("wpos", "").replace("wco", "").replace(":", "").replace("<", "").replace(">", "");
+                        // Machine status received !
+                        statusParts = receivedStr.split(",");
+                        newActiveState = GRBLActiveStates.getGRBLActiveStateFromString(statusParts[0]);
+
+                        // Set Machine Position
+                        fMachinePosition.setX(Float.parseFloat(statusParts[1]));
+                        fMachinePosition.setY(Float.parseFloat(statusParts[2]));
+                        fMachinePosition.setZ(Float.parseFloat(statusParts[3]));
+
+                        // Set Work Position
+                        fWorkPosition.setX(Float.parseFloat(statusParts[4]));
+                        fWorkPosition.setY(Float.parseFloat(statusParts[5]));
+                        fWorkPosition.setZ(Float.parseFloat(statusParts[6]));
+
+                        break;
+
+                    case GRBL1_1:
+                        // Example: <Idle|MPos:0.000,0.000,0.000|FS:0,0|WCO:0.000,0.000,0.000>
+                        receivedStr = receivedStr.toLowerCase().replace("<", "").replace(">", "");
+
+                        // Get the Active State
+                        statusParts = receivedStr.split("\\|");
+                        newActiveState = GRBLActiveStates.getGRBLActiveStateFromString(statusParts[0]);
+
+                        // Parse status message parts
+                        for (String part : statusParts)
+                        {
+                            if (part.startsWith("mpos:"))
+                            {
+                                // Get Machine Position
+                                fControllerSendsWorkPosition = false;
+                                String[] machinePosition = part.replace("mpos:", "").split(",");
+
+                                // Set Machine Position
+                                fMachinePosition.setX(Float.parseFloat(machinePosition[0]));
+                                fMachinePosition.setY(Float.parseFloat(machinePosition[1]));
+                                fMachinePosition.setZ(Float.parseFloat(machinePosition[2]));
+
+                                // Call the CalculateWorkCoordinateOffset method!
+                                CalculateWorkCoordinateOffset();
+                            }
+                            else if (part.startsWith("wpos:"))
+                            {
+                                // Get Work Position
+                                fControllerSendsWorkPosition = true;
+                                String[] workPosition = part.replace("wpos:", "").split(",");
+
+                                // Set Machine Position
+                                fWorkPosition.setX(Float.parseFloat(workPosition[0]));
+                                fWorkPosition.setY(Float.parseFloat(workPosition[1]));
+                                fWorkPosition.setZ(Float.parseFloat(workPosition[2]));
+
+                                // Call the CalculateWorkCoordinateOffset method!
+                                CalculateWorkCoordinateOffset();
+                            }
+                            else if (part.startsWith("wco:"))
+                            {
+                                // Depending on $10 status report mask settings, position may be sent as either:
+                                // MPos:0.000,-10.000,5.000 machine position or
+                                // WPos:-2.500,0.000,11.000 work position
+                                String[] wco = part.replace("wco:", "").split(",");
+
+                                fXOffset = Float.parseFloat(wco[0]);
+                                fYOffset = Float.parseFloat(wco[1]);
+                                fZOffset = Float.parseFloat(wco[2]);
+
+                                // Call the CalculateWorkCoordinateOffset method!
+                                CalculateWorkCoordinateOffset();
+                            }
+                        }
+
+                        break;
+                }
 
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
                 // Check if the machine status changed
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
-                final int newActiveState = GRBLActiveStates.getGRBLActiveStateFromString(parts[0]);
                 if (newActiveState != fActiveState)
                 {
                     fActiveState = newActiveState;
@@ -127,16 +207,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 }
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
-
-                // Get Machine Position
-                fMachinePosition.setX(Float.parseFloat(parts[1]));
-                fMachinePosition.setY(Float.parseFloat(parts[2]));
-                fMachinePosition.setZ(Float.parseFloat(parts[3]));
-
-                // Get Work Position
-                fWorkPosition.setX(Float.parseFloat(parts[4]));
-                fWorkPosition.setY(Float.parseFloat(parts[5]));
-                fWorkPosition.setZ(Float.parseFloat(parts[6]));
 
                 ///////////////////////////////////////////////////////////////
                 // Debug
@@ -179,6 +249,20 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 }
                 else if (receivedStr.toLowerCase().startsWith("grbl"))
                 {
+                    // Get the GRBL Version of the controller
+                    String[] parts = receivedStr.split(" ");
+                    String versionStr = parts[1];
+
+                    // Set the GRBL version 
+                    if (versionStr.contains("1."))
+                    {
+                        this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL1_1);
+                    }
+                    else
+                    {
+                        this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL0_9);
+                    }
+
                     // Fire the ConnectionEstablishedEvent
                     fConnectionEstablished = true;
                     fConnectionEstablishedManualResetEvent.Set();
@@ -218,6 +302,24 @@ public class GRBLConnectionHandler extends ConnectionHandler
         catch (Exception ex)
         {
             System.err.println("GRBLConnectionHandler.OnDataReceived Error: " + ex.getMessage());
+        }
+    }
+
+    private void CalculateWorkCoordinateOffset()
+    {
+        if (fControllerSendsWorkPosition)
+        {
+            // MPos = WPos + WCO
+            fMachinePosition.setX(fWorkPosition.getX() + fXOffset);
+            fMachinePosition.setY(fWorkPosition.getY() + fYOffset);
+            fMachinePosition.setZ(fWorkPosition.getZ() + fZOffset);
+        }
+        else
+        {
+            // WPos = MPos - WCO
+            fWorkPosition.setX(fMachinePosition.getX() - fXOffset);
+            fWorkPosition.setY(fMachinePosition.getY() - fYOffset);
+            fWorkPosition.setZ(fMachinePosition.getZ() - fZOffset);
         }
     }
 

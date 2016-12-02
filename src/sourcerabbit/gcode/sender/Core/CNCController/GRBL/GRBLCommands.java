@@ -35,5 +35,6 @@ public class GRBLCommands
     public static final String COMMAND_VIEW_PARSER_STATE = "$G";
 
     // GCode Commands
-    public static final String GCODE_RESET_COORDINATES_TO_ZERO = "G10 P0 L20 X0 Y0 Z0";
+    //public static final String GCODE_RESET_COORDINATES_TO_ZERO = "G10 P0 L20 X0 Y0 Z0";
+    public static final String GCODE_RESET_COORDINATES_TO_ZERO = "G21 G92 X0 Y0 Z0";
 }

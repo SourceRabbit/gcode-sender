@@ -22,7 +22,7 @@ import java.util.HashMap;
  *
  * @author Nikos Siatras
  */
-public class ErrorCodes
+public class GRBLErrorCodes
 {
 
     private static HashMap<Integer, String> fErrorCodes = new HashMap<Integer, String>();

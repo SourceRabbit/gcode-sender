@@ -83,7 +83,7 @@ public class Process_Jogging extends Process
             case GRBL1_1:
                 try
                 {
-                    GCodeCommand command = new GCodeCommand(inchesOrMillimetersGCode + "G91G0" + fAxis + fStepValue);
+                    GCodeCommand command = new GCodeCommand("$J=G91 " + inchesOrMillimetersGCode + fAxis + fStepValue + "F55000");
                     ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
                 }
                 catch (Exception ex)
@@ -92,7 +92,5 @@ public class Process_Jogging extends Process
                 }
                 break;
         }
-
     }
-
 }

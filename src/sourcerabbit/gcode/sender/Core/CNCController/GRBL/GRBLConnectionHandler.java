@@ -108,7 +108,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 return;
             }
 
-            System.out.println("Data received:" + receivedStr);
+            //System.out.println("Data received:" + receivedStr);
             if (receivedStr.startsWith("<"))
             {
                 int newActiveState = -1;
@@ -131,7 +131,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         fWorkPosition.setX(Float.parseFloat(statusParts[4]));
                         fWorkPosition.setY(Float.parseFloat(statusParts[5]));
                         fWorkPosition.setZ(Float.parseFloat(statusParts[6]));
-
                         break;
 
                     case GRBL1_1:
@@ -250,11 +249,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 else if (receivedStr.toLowerCase().startsWith("grbl"))
                 {
                     // Get the GRBL Version of the controller
-                    String[] parts = receivedStr.split(" ");
-                    String versionStr = parts[1];
-
-                    // Set the GRBL version 
-                    if (versionStr.contains("1."))
+                    if (receivedStr.toLowerCase().contains("grbl 1."))
                     {
                         this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL1_1);
                     }

@@ -17,21 +17,16 @@
 package sourcerabbit.gcode.sender.UI;
 
 import java.awt.Toolkit;
-import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.JDialog;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLSettingsDescription;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
-import sourcerabbit.gcode.sender.Core.CSV.CSVReader;
 import sourcerabbit.gcode.sender.UI.Renderers.JTableRenderer;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
 
@@ -41,9 +36,9 @@ import sourcerabbit.gcode.sender.UI.UITools.UITools;
  */
 public class frmGRBLSettings extends JDialog
 {
-    
+
     private HashMap<String, String> fOldValues = new HashMap<String, String>();
-    
+
     private final GRBLSettingsDescription fSettingsDescription = new GRBLSettingsDescription();
 
     /**
@@ -59,49 +54,50 @@ public class frmGRBLSettings extends JDialog
 
         // Set Form Icon
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("Images/SourceRabbitIcon.png")));
-        
+
         jTableSettings.setDefaultRenderer(Object.class, new JTableRenderer());
 
         // Add event for incoming data
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getSerialConnectionEventManager().AddListener(fSerialConnectionEvents);
-        
+
         Init();
     }
-    
+
     ISerialConnectionEventListener fSerialConnectionEvents = new ISerialConnectionEventListener()
     {
-        
+
         @Override
         public void ConnectionEstablished(SerialConnectionEvent evt)
         {
-            
+
         }
-        
+
         @Override
         public void ConnectionClosed(SerialConnectionEvent evt)
         {
-            
+
         }
-        
+
         @Override
         public void DataReceivedFromSerialConnection(SerialConnectionEvent evt)
         {
             String data = evt.getSource().toString();
-            
+
             String[] parts = data.split(" ");
             String[] idAndValueParts = parts[0].split("=");
             String description = data.replace(parts[0], "").trim();
-            
+
             String item[] = new String[1];
             switch (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getCNCControlFrameworkVersion())
             {
                 case GRBL0_9:
-                    item = new String[3];
+                    item = new String[4];
                     item[0] = idAndValueParts[0];
                     item[1] = idAndValueParts[1];
-                    item[2] = description;
+                    item[2] = "";
+                    item[3] = description;
                     break;
-                
+
                 case GRBL1_1:
                     item = new String[4];
                     item[0] = idAndValueParts[0];
@@ -110,16 +106,14 @@ public class frmGRBLSettings extends JDialog
                     item[3] = fSettingsDescription.getSettingDescription(Integer.parseInt(item[0].replace("$", "")));
                     break;
             }
-            
+
             fOldValues.put(item[0], item[1]);
-            
+
             DefaultTableModel model = (DefaultTableModel) jTableSettings.getModel();
             model.addRow(item);
         }
     };
-    
-   
-    
+
     private void Init()
     {
         // Add the apropriate columns for each GRBL version
@@ -127,15 +121,17 @@ public class frmGRBLSettings extends JDialog
         {
             case GRBL0_9:
                 // Remove column "Type"
-                TableColumnModel cm = jTableSettings.getColumnModel();
-                cm.removeColumn(cm.getColumn(2));
+                TableColumn col = jTableSettings.getColumnModel().getColumn(2);
+                jTableSettings.removeColumn(col);
+                jTableSettings.revalidate();
+
                 break;
-            
+
             case GRBL1_1:
                 // Do nothing !
                 break;
         }
-        
+
         try
         {
             // Send "$$" command to GRBL Controller
@@ -144,10 +140,10 @@ public class frmGRBLSettings extends JDialog
         }
         catch (Exception ex)
         {
-            
+
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents()
@@ -254,7 +250,7 @@ public class frmGRBLSettings extends JDialog
     {//GEN-HEADEREND:event_jButtonSaveActionPerformed
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getSerialConnectionEventManager().RemoveListener(fSerialConnectionEvents);
         jButtonSave.requestFocus();
-        
+
         int tableRows = jTableSettings.getRowCount();
         for (int i = 0; i < tableRows; i++)
         {
@@ -262,7 +258,7 @@ public class frmGRBLSettings extends JDialog
             {
                 String id = jTableSettings.getValueAt(i, 0).toString();
                 String value = jTableSettings.getValueAt(i, 1).toString().trim();
-                
+
                 if (!fOldValues.get(id).equals(value))
                 {
                     String commandStr = id + "=" + value;
@@ -277,7 +273,7 @@ public class frmGRBLSettings extends JDialog
         }
         this.dispose();
     }//GEN-LAST:event_jButtonSaveActionPerformed
-    
+
     @Override
     public void dispose()
     {

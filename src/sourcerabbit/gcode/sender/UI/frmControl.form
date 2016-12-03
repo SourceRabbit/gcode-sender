@@ -179,7 +179,7 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jButtonResetZero" max="32767" attributes="0"/>
+                      <Component id="jButtonResetWorkPosition" max="32767" attributes="0"/>
                       <Group type="102" attributes="0">
                           <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
@@ -256,7 +256,7 @@
                       <Component id="jLabelMachineZ" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jButtonResetZero" min="-2" pref="32" max="-2" attributes="0"/>
+                  <Component id="jButtonResetWorkPosition" min="-2" pref="32" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="158" max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -316,13 +316,13 @@
             <Property name="text" type="java.lang.String" value="Z: 0"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JButton" name="jButtonResetZero">
+        <Component class="javax.swing.JButton" name="jButtonResetWorkPosition">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Reset Zero"/>
+            <Property name="text" type="java.lang.String" value="Reset Work Position"/>
             <Property name="toolTipText" type="java.lang.String" value="Reset the Work Position to 0,0,0"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonResetZeroActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonResetWorkPositionActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel2">

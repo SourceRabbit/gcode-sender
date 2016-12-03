@@ -74,9 +74,15 @@ public class GRBLActiveStates
                 return GRBLActiveStates.RUN;
 
             case "hold":
+            case "hold:0":
+            case "hold:1":
                 return GRBLActiveStates.HOLD;
 
             case "door":
+            case "door:0":
+            case "door:1":
+            case "door:2":
+            case "door:3":
                 return GRBLActiveStates.DOOR;
 
             case "home":

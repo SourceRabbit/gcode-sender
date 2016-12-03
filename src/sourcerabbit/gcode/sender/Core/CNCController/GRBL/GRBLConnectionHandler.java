@@ -26,6 +26,8 @@ import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEvent;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRBLStatusReportParser;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.*;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 
 /**
@@ -40,7 +42,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
     private final ManualResetEvent fWaitForCommandToBeExecuted;
     private ManualResetEvent fWaitForGetStatusCommandReply;
 
-    // Status thread
+    // Status thread and Parser
+    private GRBLStatusReportParser fMyStatusReportParser;
     private long fLastMachinePositionReceivedTimestamp;
     private int fMillisecondsToGetMachineStatus = 300;
     private boolean fKeepStatusThread = false;
@@ -49,10 +52,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
     // This holds the active command that has been send to GRBL controller for execution
     private GCodeCommand fLastCommandSentToController = null;
     private String fGCodeCommandResponse = "";
-
-    // Work Coordinate Offset (WCO):
-    private boolean fControllerSendsWorkPosition = false;
-    private Float fXOffset = 0.0f, fYOffset = 0.0f, fZOffset = 0.0f;
 
     public GRBLConnectionHandler()
     {
@@ -102,129 +101,39 @@ public class GRBLConnectionHandler extends ConnectionHandler
         try
         {
             String receivedStr = new String(data).replace("\r", "").trim();
-
             if (receivedStr.equals(""))
             {
                 return;
             }
-
             //System.out.println("Data received:" + receivedStr);
+
             if (receivedStr.startsWith("<"))
             {
-
-                if (fAProcessIsUsingTouchProbe)
-                {
-                    //return;
-                }
-
-                int newActiveState = -1;
-                final String[] statusParts;
-
-                switch (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getCNCControlFrameworkVersion())
-                {
-                    case GRBL0_9:
-                        receivedStr = receivedStr.toLowerCase().replace("mpos", "").replace("wpos", "").replace("wco", "").replace(":", "").replace("<", "").replace(">", "");
-                        // Machine status received !
-                        statusParts = receivedStr.split(",");
-                        newActiveState = GRBLActiveStates.getGRBLActiveStateFromString(statusParts[0]);
-
-                        // Set Machine Position
-                        fMachinePosition.setX(Float.parseFloat(statusParts[1]));
-                        fMachinePosition.setY(Float.parseFloat(statusParts[2]));
-                        fMachinePosition.setZ(Float.parseFloat(statusParts[3]));
-
-                        // Set Work Position
-                        fWorkPosition.setX(Float.parseFloat(statusParts[4]));
-                        fWorkPosition.setY(Float.parseFloat(statusParts[5]));
-                        fWorkPosition.setZ(Float.parseFloat(statusParts[6]));
-                        break;
-
-                    case GRBL1_1:
-                        // Example: <Idle|MPos:0.000,0.000,0.000|FS:0,0|WCO:0.000,0.000,0.000>
-                        receivedStr = receivedStr.toLowerCase().replace("<", "").replace(">", "");
-
-                        // Get the Active State
-                        statusParts = receivedStr.split("\\|");
-                        newActiveState = GRBLActiveStates.getGRBLActiveStateFromString(statusParts[0]);
-
-                        // Parse status message parts
-                        for (String part : statusParts)
-                        {
-                            if (part.startsWith("mpos:"))
-                            {
-                                // Get Machine Position
-                                fControllerSendsWorkPosition = false;
-                                String[] machinePosition = part.replace("mpos:", "").split(",");
-
-                                // Set Machine Position
-                                fMachinePosition.setX(Float.parseFloat(machinePosition[0]));
-                                fMachinePosition.setY(Float.parseFloat(machinePosition[1]));
-                                fMachinePosition.setZ(Float.parseFloat(machinePosition[2]));
-
-                                // Call the CalculateWorkCoordinateOffset method!
-                                CalculateWorkCoordinateOffset();
-                            }
-                            else if (part.startsWith("wpos:"))
-                            {
-                                // Get Work Position
-                                fControllerSendsWorkPosition = true;
-                                String[] workPosition = part.replace("wpos:", "").split(",");
-
-                                // Set Machine Position
-                                fWorkPosition.setX(Float.parseFloat(workPosition[0]));
-                                fWorkPosition.setY(Float.parseFloat(workPosition[1]));
-                                fWorkPosition.setZ(Float.parseFloat(workPosition[2]));
-
-                                // Call the CalculateWorkCoordinateOffset method!
-                                CalculateWorkCoordinateOffset();
-                            }
-                            else if (part.startsWith("wco:"))
-                            {
-                                String[] wco = part.replace("wco:", "").split(",");
-
-                                fXOffset = Float.parseFloat(wco[0]);
-                                fYOffset = Float.parseFloat(wco[1]);
-                                fZOffset = Float.parseFloat(wco[2]);
-
-                                // Call the CalculateWorkCoordinateOffset method!
-                                CalculateWorkCoordinateOffset();
-                            }
-                        }
-
-                        break;
-                }
+                // Ask the appropriate GRBL Status Parser to parse the new Status Message
+                // and get the current Active State of the machine.
+                int currentActiveState = fMyStatusReportParser.ParseStatusReportMessageAndReturnActiveState(receivedStr);
 
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
                 // Check if the machine status changed
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
-                if (newActiveState != fActiveState)
+                if (currentActiveState != fActiveState)
                 {
-                    fActiveState = newActiveState;
+                    fActiveState = currentActiveState;
 
-                    // 1500ms when machine is in RUN status otherwise 300ms
-                    fMillisecondsToGetMachineStatus = (fActiveState == GRBLActiveStates.RUN) ? 1500 : 300;
+                    // Set fMillisecondsToGetMachineStatus to 1000ms when machine is in RUN status, otherwise to 300ms
+                    fMillisecondsToGetMachineStatus = (fActiveState == GRBLActiveStates.RUN) ? 1000 : 300;
 
                     // Fire the MachineStatusChangedEvent
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(fActiveState, ""));
                 }
 
-                ///////////////////////////////////////////////////////////////
-                // Debug
-                ///////////////////////////////////////////////////////////////
-                //System.out.println("Last status received " + (System.currentTimeMillis() - fLastMachinePositionReceivedTimestamp) + "ms ago");
-                ///////////////////////////////////////////////////////////////
+                // Set the fLastMachinePositionReceivedTimestamp value and the 
+                // WaitForGetStatusCommandReply manual reset event.
                 fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
-
-                //////////////////////////////////////////////////////////////////
-                // Set the WaitForGetStatusCommandReply manual reset event
-                //////////////////////////////////////////////////////////////////
                 fWaitForGetStatusCommandReply.Set();
-                //System.out.println("Machine status received");
-                //////////////////////////////////////////////////////////////////
             }
             else
             {
-                //System.out.println("Data received:" + receivedStr);
                 fGCodeCommandResponse = receivedStr;
                 if (receivedStr.equals("ok"))
                 {
@@ -237,44 +146,38 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 }
                 else if (receivedStr.startsWith("error"))
                 {
-                    fLastCommandSentToController.setError(receivedStr);
+                    String errorMessage = "";
+
+                    // Get the error message
+                    switch (fMyControlFrameworkVersion)
+                    {
+                        case GRBL0_9:
+                            errorMessage = receivedStr;
+                            break;
+
+                        case GRBL1_1:
+                            String errorID = receivedStr.toLowerCase().replace("error", "").replace(":", "").trim();
+                            int errorIDInt = Integer.parseInt(errorID);
+                            errorMessage = GRBLErrorCodes.getErrorMessageFromCode(errorIDInt);
+                            fGCodeCommandResponse = "error: " + errorMessage;
+                            break;
+                    }
+
+                    fLastCommandSentToController.setError(errorMessage);
                     fGCodeExecutionEventsManager.FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
-
-                    if (receivedStr.equals("error: Alarm lock"))
-                    {
-                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
-                    }
                 }
-                else if (receivedStr.toLowerCase().startsWith("grbl"))
+                else if (receivedStr.startsWith("ALARM"))
                 {
-                    // Get the GRBL Version of the controller
-                    if (receivedStr.toLowerCase().contains("grbl 1."))
-                    {
-                        this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL1_1);
-                    }
-                    else
-                    {
-                        this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL0_9);
-                    }
-
-                    // Fire the ConnectionEstablishedEvent
-                    fConnectionEstablished = true;
-                    fConnectionEstablishedManualResetEvent.Set();
-                    fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
-                    fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE, ""));
-                }
-                else if (receivedStr.toLowerCase().contains("[reset to continue]"))
-                {
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.RESET_TO_CONTINUE, ""));
+                    // ALARM is ON!
+                    // Machine propably needs to be unlocked
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
                     fMyGCodeSender.CancelSendingGCode();
                     fWaitForCommandToBeExecuted.Set();
                 }
                 else if (receivedStr.startsWith("[PRB:"))
                 {
-                    // Example of incoming message [PRB:0.000,0.000,-0.910:1]
                     //System.out.println("Endmill touched the Touch Probe!");
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE, receivedStr));
                     /////////////////////////////////////////////////////
@@ -282,10 +185,29 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     // fWaitForCommandToBeExecuted.Set();
                     ////////////////////////////////////////////////////
                 }
-                else if (receivedStr.equals("ALARM: Probe fail") || receivedStr.equals("['$H'|'$X' to unlock]"))
+                else if (receivedStr.toLowerCase().startsWith("grbl"))
                 {
-                    // MACHINE NEEDS UNLOCK !
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
+                    // Parse the GRBL "Welcome Message" and find out which GRBL version 
+                    // is running on the controller.                    
+                    // From the GRBL version set the appropriate CNCControlFrameworkVersion
+                    // and StatusReportParser.
+                    if (receivedStr.toLowerCase().contains("grbl 1."))
+                    {
+                        fMyStatusReportParser = new GRBL_1_1_StatusReportParser(this);
+                        this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL1_1);
+                    }
+                    else
+                    {
+                        fMyStatusReportParser = new GRBL_0_9_StatusReportParser(this);
+                        this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL0_9);
+                    }
+
+                    // To Inform UI that connection with the controller is sucessful fire the ConnectionEstablishedEvent
+                    fConnectionEstablished = true;
+                    fConnectionEstablishedManualResetEvent.Set();
+                    fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
+                    fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE, ""));
                 }
                 else
                 {
@@ -298,24 +220,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
         catch (Exception ex)
         {
             System.err.println("GRBLConnectionHandler.OnDataReceived Error: " + ex.getMessage());
-        }
-    }
-
-    private void CalculateWorkCoordinateOffset()
-    {
-        if (fControllerSendsWorkPosition)
-        {
-            // MPos = WPos + WCO
-            fMachinePosition.setX(fWorkPosition.getX() + fXOffset);
-            fMachinePosition.setY(fWorkPosition.getY() + fYOffset);
-            fMachinePosition.setZ(fWorkPosition.getZ() + fZOffset);
-        }
-        else
-        {
-            // WPos = MPos - WCO
-            fWorkPosition.setX(fMachinePosition.getX() - fXOffset);
-            fWorkPosition.setY(fMachinePosition.getY() - fYOffset);
-            fWorkPosition.setZ(fMachinePosition.getZ() - fZOffset);
         }
     }
 
@@ -432,7 +336,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 {
                                     CloseConnection();
                                 }
-
                             }
                             catch (Exception ex)
                             {

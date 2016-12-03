@@ -12,10 +12,7 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CSV/CSVReader.java</file>
-            <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/GRBL/SettingsCodes.java</file>
-            <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/GRBL/ErrorCodes.java</file>
-            <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/UI/frmGRBLSettings.java</file>
+            <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/Processes/Process_HoleCenterFinder.java</file>
             <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/GRBL/GRBLConnectionHandler.java</file>
         </group>
     </open-files>

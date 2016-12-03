@@ -16,7 +16,9 @@ Copyright (C) 2015  Nikos Siatras
  */
 package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import sourcerabbit.gcode.sender.Core.CSV.CSVReader;
 
 /**
  *
@@ -25,7 +27,7 @@ import java.util.HashMap;
 public class GRBLErrorCodes
 {
 
-    private static HashMap<Integer, String> fErrorCodes = new HashMap<Integer, String>();
+    private static HashMap<Integer, String> fErrorsByID = new HashMap<Integer, String>();
 
     static
     {
@@ -63,10 +65,21 @@ public class GRBLErrorCodes
                 + "\"35\",\"Invalid gcode ID:35\",\"G2 and G3 arcs require at least one in-plane offset word.\"\n"
                 + "\"36\",\"Invalid gcode ID:36\",\"Unused value words found in block.\"\n"
                 + "\"37\",\"Invalid gcode ID:37\",\"G43.1 dynamic tool length offset is not assigned to configured tool length axis.\"";
+
+        CSVReader reader = new CSVReader();
+        reader.Parse(v1_1Errors);
+
+        ArrayList<ArrayList<String>> csvData = reader.getDataInArrayFormat();
+
+        for (ArrayList<String> array : csvData)
+        {
+            int id = Integer.parseInt(array.get(0));
+            fErrorsByID.put(id, array.get(1));
+        }
     }
 
-    public static String getErrorMessageFromCode(int code)
+    public static String getErrorMessageFromCode(int id)
     {
-        return "";
+        return fErrorsByID.containsKey(id) ? fErrorsByID.get(id) : "";
     }
 }

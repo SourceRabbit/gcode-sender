@@ -42,6 +42,8 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkID;
+import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkVersion;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.IGCodeExecutionEventListener;
@@ -54,6 +56,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineSta
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLCommands;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLErrorCodes;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
@@ -220,7 +223,7 @@ public class frmControl extends javax.swing.JFrame
                 }
 
                 jButtonKillAlarm.setVisible(activeState == GRBLActiveStates.ALARM);
-                jButtonResetZero.setEnabled(activeState == GRBLActiveStates.IDLE);
+                jButtonResetWorkPosition.setEnabled(activeState == GRBLActiveStates.IDLE);
                 jButtonReturnToZero.setEnabled(activeState == GRBLActiveStates.IDLE);
                 jButtonGCodeSend.setEnabled(activeState == GRBLActiveStates.IDLE);
             }
@@ -238,7 +241,7 @@ public class frmControl extends javax.swing.JFrame
                 jButtonConnectDisconnect.setText("Disconnect");
                 jButtonConnectDisconnect.setEnabled(true);
                 jButtonSoftReset.setEnabled(true);
-                jButtonResetZero.setEnabled(true);
+                jButtonResetWorkPosition.setEnabled(true);
 
                 // Enable Machine Control Components
                 SetMachineControlsEnabled(true);
@@ -264,7 +267,7 @@ public class frmControl extends javax.swing.JFrame
                 jButtonConnectDisconnect.setText("Connect");
                 jButtonConnectDisconnect.setEnabled(true);
                 jButtonSoftReset.setEnabled(false);
-                jButtonResetZero.setEnabled(false);
+                jButtonResetWorkPosition.setEnabled(false);
 
                 jLabelActiveState.setForeground(Color.red);
                 jLabelActiveState.setText("----");
@@ -296,7 +299,7 @@ public class frmControl extends javax.swing.JFrame
                 jButtonGCodeCancel.setEnabled(true);
                 jButtonGCodePause.setText("Pause");
                 SetMachineControlsEnabled(false);
-                jButtonResetZero.setEnabled(false);
+                jButtonResetWorkPosition.setEnabled(false);
                 jButtonSoftReset.setEnabled(false);
 
                 jTextFieldGCodeFile.setEnabled(false);
@@ -321,7 +324,7 @@ public class frmControl extends javax.swing.JFrame
                 jButtonGCodeCancel.setEnabled(false);
                 jButtonGCodePause.setText("Pause");
                 SetMachineControlsEnabled(true);
-                jButtonResetZero.setEnabled(true);
+                jButtonResetWorkPosition.setEnabled(true);
                 jButtonSoftReset.setEnabled(true);
 
                 jTextFieldGCodeFile.setEnabled(true);
@@ -344,7 +347,7 @@ public class frmControl extends javax.swing.JFrame
                 jButtonGCodeCancel.setEnabled(false);
                 jButtonGCodePause.setText("Pause");
                 SetMachineControlsEnabled(true);
-                jButtonResetZero.setEnabled(true);
+                jButtonResetWorkPosition.setEnabled(true);
                 jButtonSoftReset.setEnabled(true);
 
                 jTextFieldGCodeFile.setEnabled(true);
@@ -549,7 +552,7 @@ public class frmControl extends javax.swing.JFrame
         jLabelMachineX = new javax.swing.JLabel();
         jLabelMachineY = new javax.swing.JLabel();
         jLabelMachineZ = new javax.swing.JLabel();
-        jButtonResetZero = new javax.swing.JButton();
+        jButtonResetWorkPosition = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabelActiveState = new javax.swing.JLabel();
@@ -645,13 +648,13 @@ public class frmControl extends javax.swing.JFrame
 
         jLabelMachineZ.setText("Z: 0");
 
-        jButtonResetZero.setText("Reset Zero");
-        jButtonResetZero.setToolTipText("Reset the Work Position to 0,0,0");
-        jButtonResetZero.addActionListener(new java.awt.event.ActionListener()
+        jButtonResetWorkPosition.setText("Reset Work Position");
+        jButtonResetWorkPosition.setToolTipText("Reset the Work Position to 0,0,0");
+        jButtonResetWorkPosition.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                jButtonResetZeroActionPerformed(evt);
+                jButtonResetWorkPositionActionPerformed(evt);
             }
         });
 
@@ -680,7 +683,7 @@ public class frmControl extends javax.swing.JFrame
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButtonResetZero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonResetWorkPosition, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -738,7 +741,7 @@ public class frmControl extends javax.swing.JFrame
                     .addComponent(jLabelWorkZ)
                     .addComponent(jLabelMachineZ))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonResetZero, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButtonResetWorkPosition, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(158, 158, 158))
         );
 
@@ -1603,8 +1606,8 @@ public class frmControl extends javax.swing.JFrame
         }
     }//GEN-LAST:event_jButtonReturnToZeroActionPerformed
 
-    private void jButtonResetZeroActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonResetZeroActionPerformed
-    {//GEN-HEADEREND:event_jButtonResetZeroActionPerformed
+    private void jButtonResetWorkPositionActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonResetWorkPositionActionPerformed
+    {//GEN-HEADEREND:event_jButtonResetWorkPositionActionPerformed
         try
         {
             final GCodeCommand command = new GCodeCommand(GRBLCommands.GCODE_RESET_COORDINATES_TO_ZERO);
@@ -1615,7 +1618,7 @@ public class frmControl extends javax.swing.JFrame
         catch (Exception ex)
         {
         }
-    }//GEN-LAST:event_jButtonResetZeroActionPerformed
+    }//GEN-LAST:event_jButtonResetWorkPositionActionPerformed
 
     private void jButtonSoftResetActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonSoftResetActionPerformed
     {//GEN-HEADEREND:event_jButtonSoftResetActionPerformed
@@ -1794,7 +1797,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JButton jButtonGCodeSend;
     private javax.swing.JButton jButtonGCodeVisualize;
     private javax.swing.JButton jButtonKillAlarm;
-    private javax.swing.JButton jButtonResetZero;
+    private javax.swing.JButton jButtonResetWorkPosition;
     private javax.swing.JButton jButtonReturnToZero;
     private javax.swing.JButton jButtonSoftReset;
     private javax.swing.JButton jButtonXMinus;

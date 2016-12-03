@@ -35,7 +35,7 @@
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItem1">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/sourcerabbit/gcode/sender/UI/Images/WorkArea-16x16.png"/>
+                  <Image iconType="3" name="/sourcerabbit/gcode/sender/UI/Images/WorkArea-24x24.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Set Work Position"/>
               </Properties>
@@ -46,7 +46,7 @@
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/sourcerabbit/gcode/sender/UI/Images/ZTouchProbe/ZAxisTouchProbe-16x16.png"/>
+                  <Image iconType="3" name="/sourcerabbit/gcode/sender/UI/Images/ZTouchProbe/ZAxisTouchProbe-24x24.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Z Axis Touch Probe"/>
               </Properties>
@@ -57,7 +57,7 @@
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItemHoleCenterFinder">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/sourcerabbit/gcode/sender/UI/Images/HoleCenterFinder/HoleCenterFinder-16x16.png"/>
+                  <Image iconType="3" name="/sourcerabbit/gcode/sender/UI/Images/HoleCenterFinder/HoleCenterFinder-24x24.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Hole Center Finder"/>
               </Properties>
@@ -145,8 +145,8 @@
                   <Group type="102" attributes="0">
                       <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jPanel2" min="-2" pref="198" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="jPanel2" min="-2" pref="202" max="-2" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="jPanelMachineControl" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
@@ -180,15 +180,6 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jButtonResetWorkPosition" max="32767" attributes="0"/>
-                      <Group type="102" attributes="0">
-                          <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabelWorkZ" alignment="1" min="-2" pref="91" max="-2" attributes="0"/>
-                              <Component id="jLabelWorkY" alignment="1" min="-2" pref="91" max="-2" attributes="0"/>
-                              <Component id="jLabelWorkX" alignment="1" min="-2" pref="91" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                      </Group>
                       <Group type="102" alignment="1" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
@@ -220,6 +211,15 @@
                               </Group>
                               <Component id="jButtonKillAlarm" max="32767" attributes="0"/>
                           </Group>
+                      </Group>
+                      <Group type="102" attributes="0">
+                          <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="jLabelWorkZ" alignment="1" min="-2" pref="91" max="-2" attributes="0"/>
+                              <Component id="jLabelWorkY" alignment="1" min="-2" pref="91" max="-2" attributes="0"/>
+                              <Component id="jLabelWorkX" alignment="1" min="-2" pref="91" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
@@ -255,9 +255,9 @@
                       <Component id="jLabelWorkZ" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabelMachineZ" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="jButtonResetWorkPosition" min="-2" pref="32" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="158" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="153" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -923,7 +923,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane2" pref="196" max="32767" attributes="0"/>
+                      <Component id="jScrollPane2" pref="207" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jButtonClearConsole" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -1009,7 +1009,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="262" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="273" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jButtonClearLog" min="-2" max="-2" attributes="0"/>
@@ -1118,7 +1118,7 @@
                       <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
                       <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="275" max="32767" attributes="0"/>
+                      <EmptySpace pref="286" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

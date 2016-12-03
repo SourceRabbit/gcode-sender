@@ -27,7 +27,7 @@ Technical details:
 * Compatible with <b>GRBL 0.9</b> and later versions
 * Uses JSSC for serial communication
 * Event-Driven UI and USB-to-Serial communication
-* Developed with <b>NetBeans 8.0.2</b>
+* Developed with <b>NetBeans IDE</b>
 * To build you need to open the project in Netbeans and just... build
 
 Goals:

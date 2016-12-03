@@ -34,7 +34,6 @@ public class Process_HoleCenterFinder extends Process
 
     // Variables...
     private final int fMaxDistance = 50000;
-    private final int fSlowFeedRate = 30;
 
     private boolean fTouchProbeTouchedTheEdge = false;
     private final ManualResetEvent fWaitForTouchProbeToTouchTheEdge = new ManualResetEvent(false);
@@ -147,9 +146,9 @@ public class Process_HoleCenterFinder extends Process
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
         SetWorkPosition(axis, 0);
         final double xDiff = Math.max(workPosition1, workPosition2) - Math.min(workPosition1, workPosition2);
-        String moveXToMiddleStr = "G21 G1" + axis + "-" + String.valueOf(xDiff / 2) + "F" + feedRate;
-        GCodeCommand moveXToMiddleCommand = new GCodeCommand(moveXToMiddleStr);
-        response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveXToMiddleCommand);
+        String moveToMiddleStr = "G21 G1" + axis + "-" + String.valueOf(xDiff / 2) + "F" + feedRate;
+        GCodeCommand moveToMiddleCommand = new GCodeCommand(moveToMiddleStr);
+        response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveToMiddleCommand);
         if (!response.equals("ok"))
         {
             throw new Exception("");

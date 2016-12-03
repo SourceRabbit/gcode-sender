@@ -52,6 +52,9 @@ public class GRBLActiveStates
     // Once toggled off with another '$C' command, Grbl will reset itself.
     public static final int CHECK = 7;
 
+    // GRBL controller is jogging
+    public static final int JOG = 8;
+
     // GRBL sent the "[Reset to continue]" string.
     // This can happen if the hard_limits is on and the machine hits on the limit switches.
     public static final int RESET_TO_CONTINUE = 100001;
@@ -85,7 +88,11 @@ public class GRBLActiveStates
             case "check":
                 return GRBLActiveStates.CHECK;
 
+            case "jog":
+                return GRBLActiveStates.JOG;
+
             default:
+                System.err.println("GRBLActiveStates.getGRBLActiveStateFromString: Unknown state " + state);
                 return -1;
 
         }

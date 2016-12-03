@@ -111,6 +111,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
             //System.out.println("Data received:" + receivedStr);
             if (receivedStr.startsWith("<"))
             {
+
+                if (fAProcessIsUsingTouchProbe)
+                {
+                    //return;
+                }
+
                 int newActiveState = -1;
                 final String[] statusParts;
 
@@ -174,9 +180,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                             }
                             else if (part.startsWith("wco:"))
                             {
-                                // Depending on $10 status report mask settings, position may be sent as either:
-                                // MPos:0.000,-10.000,5.000 machine position or
-                                // WPos:-2.500,0.000,11.000 work position
                                 String[] wco = part.replace("wco:", "").split(",");
 
                                 fXOffset = Float.parseFloat(wco[0]);
@@ -204,8 +207,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     // Fire the MachineStatusChangedEvent
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(fActiveState, ""));
                 }
-                //////////////////////////////////////////////////////////////////////////////////////////////////////
-                //////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 ///////////////////////////////////////////////////////////////
                 // Debug
@@ -416,7 +417,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
                                 // If a Touch Probe operation is currently active then
                                 // do not ask for the machine status.
-                                if (fAnOperationIsUsingTouchProbe)
+                                if (fAProcessIsUsingTouchProbe)
                                 {
                                     Thread.sleep(100);
                                     continue;

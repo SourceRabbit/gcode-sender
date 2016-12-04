@@ -134,6 +134,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
             }
             else
             {
+                //System.out.println("Data received:" + receivedStr);
                 fGCodeCommandResponse = receivedStr;
                 if (receivedStr.equals("ok"))
                 {
@@ -176,12 +177,21 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     fMyGCodeSender.CancelSendingGCode();
                     fWaitForCommandToBeExecuted.Set();
                 }
+                else if (receivedStr.equals("[MSG:'$H'|'$X' to unlock]") || receivedStr.equals("['$H'|'$X' to unlock]"))
+                {
+                    // If the machine is in an Alarm state and the user choose to do a "soft reset"
+                    // then the GRBL controller lockes and needs to be unlocked.
+                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_IS_LOCKED, ""));
+                    fMyGCodeSender.CancelSendingGCode();
+                    fWaitForCommandToBeExecuted.Set();
+                }
                 else if (receivedStr.startsWith("[PRB:"))
                 {
                     //System.out.println("Endmill touched the Touch Probe!");
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE, receivedStr));
                     /////////////////////////////////////////////////////
-                    // DONT !!!!!!!!!!!!!!!!!!! GRBL sends an "OK" back
+                    // DO NOT SET THE fWaitForCommandToBeExecuted !!!
+                    // GRBL sends an "OK" back.
                     // fWaitForCommandToBeExecuted.Set();
                     ////////////////////////////////////////////////////
                 }

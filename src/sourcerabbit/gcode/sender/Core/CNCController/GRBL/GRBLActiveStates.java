@@ -58,9 +58,12 @@ public class GRBLActiveStates
     // GRBL sent the "[Reset to continue]" string.
     // This can happen if the hard_limits is on and the machine hits on the limit switches.
     public static final int RESET_TO_CONTINUE = 100001;
+    
+    // GRBL sent the "['$H'|'$X' to unlock]" string.
+    public static final int MACHINE_IS_LOCKED = 100002;
 
     // Machine touched the probe.
-    public static final int MACHINE_TOUCHED_PROBE = 100002;
+    public static final int MACHINE_TOUCHED_PROBE = 100003;
 
     public static int getGRBLActiveStateFromString(String state)
     {

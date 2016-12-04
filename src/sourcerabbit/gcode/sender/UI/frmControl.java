@@ -42,8 +42,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
-import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkID;
-import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkVersion;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.IGCodeExecutionEventListener;
@@ -56,7 +54,6 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineSta
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLCommands;
-import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLErrorCodes;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
@@ -214,15 +211,27 @@ public class frmControl extends javax.swing.JFrame
                     case GRBLActiveStates.ALARM:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Alarm!");
+                        jButtonKillAlarm.setText("Kill Alarm");
+                        break;
+
+                    case GRBLActiveStates.MACHINE_IS_LOCKED:
+                        jLabelActiveState.setForeground(Color.red);
+                        jLabelActiveState.setText("Locked!");
+                        jButtonKillAlarm.setText("Unlock");
                         break;
 
                     case GRBLActiveStates.RESET_TO_CONTINUE:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Reset to continue!");
                         break;
+
+                    case GRBLActiveStates.JOG:
+                        jLabelActiveState.setForeground(new Color(0, 153, 51));
+                        jLabelActiveState.setText("Jogging");
+                        break;
                 }
 
-                jButtonKillAlarm.setVisible(activeState == GRBLActiveStates.ALARM);
+                jButtonKillAlarm.setVisible(activeState == GRBLActiveStates.ALARM || activeState == GRBLActiveStates.MACHINE_IS_LOCKED);
                 jButtonResetWorkPosition.setEnabled(activeState == GRBLActiveStates.IDLE);
                 jButtonReturnToZero.setEnabled(activeState == GRBLActiveStates.IDLE);
                 jButtonGCodeSend.setEnabled(activeState == GRBLActiveStates.IDLE);
@@ -1591,7 +1600,6 @@ public class frmControl extends javax.swing.JFrame
                     ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command1);
                 }
 
-                //final GCodeCommand command2 = new GCodeCommand("G21 G90 G28 X0 Y0");
                 final GCodeCommand command2 = new GCodeCommand("G21 G90 X0 Y0");
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command2);
 
@@ -1612,7 +1620,6 @@ public class frmControl extends javax.swing.JFrame
         {
             final GCodeCommand command = new GCodeCommand(GRBLCommands.GCODE_RESET_COORDINATES_TO_ZERO);
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
-
             WriteToConsole("Reset work zero");
         }
         catch (Exception ex)
@@ -1638,6 +1645,7 @@ public class frmControl extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButtonKillAlarmActionPerformed
         try
         {
+            // Send Kill Alarm lock command for both Kill Alarm and Machine Unlock
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData(GRBLCommands.COMMAND_KILL_ALARM_LOCK);
         }
         catch (Exception ex)

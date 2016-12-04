@@ -249,6 +249,7 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
             case GRBLActiveStates.HOLD:
             case GRBLActiveStates.ALARM:
             case GRBLActiveStates.RESET_TO_CONTINUE:
+            case GRBLActiveStates.MACHINE_IS_LOCKED:
                 jButtonTouch.setEnabled(false);
                 jLabelWarning.setText("The machine's status must be Idle to use the \"Touch Probe\" operation.");
                 break;

@@ -223,17 +223,22 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
                 jButtonTouch.setText("Find Center");
                 jLabelWarning.setText("");
                 break;
+
+            case GRBLActiveStates.JOG:
             case GRBLActiveStates.RUN:
+            case GRBLActiveStates.MACHINE_TOUCHED_PROBE:
+                jButtonTouch.setEnabled(true);
+                jButtonTouch.setText("Click to Stop!");
                 break;
+
             case GRBLActiveStates.HOLD:
             case GRBLActiveStates.ALARM:
             case GRBLActiveStates.RESET_TO_CONTINUE:
+            case GRBLActiveStates.MACHINE_IS_LOCKED:
                 jButtonTouch.setEnabled(false);
                 jLabelWarning.setText("<html>The machine's status must be <b>Idle</b> to use the \"Hole Center Finder\" operation.</html>");
                 break;
 
-            case GRBLActiveStates.MACHINE_TOUCHED_PROBE:
-                break;
         }
     }
 
@@ -243,7 +248,6 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         {
             fMyProcess.KillImmediately();
             jButtonTouch.setText("Find Center");
-            return;
         }
         else
         {

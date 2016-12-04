@@ -63,8 +63,12 @@ public class GCodeCommand
      */
     public String getOptimizedCommand()
     {
-        return fCommand.replace(" ", "").replace(getComment(), "").trim();
+        String optimized = GCodeOptimizer.OptimizeGCodeCommand(this);
+        return GCodeOptimizer.OptimizeGCodeCommand(this);
+      
     }
+
+   
 
     /**
      * Returns the command coordinates A,X,Y,Z

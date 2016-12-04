@@ -108,7 +108,7 @@ public class Process_HoleCenterFinder extends Process
 
         // Before everything get the start Work position (The current work position).
         AskForMachineStatus();
-        startWorkPosition = axis.equals("X") ? ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX() : ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY();
+        startWorkPosition = axis.equals("X") ? ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX() : ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY();
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Step 1
@@ -122,7 +122,7 @@ public class Process_HoleCenterFinder extends Process
 
         // Ask for machine status to get the current Work Position
         AskForMachineStatus();
-        workPosition1 = axis.equals("X") ? ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX() : ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY();
+        workPosition1 = axis.equals("X") ? ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX() : ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY();
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Step 2
@@ -138,7 +138,7 @@ public class Process_HoleCenterFinder extends Process
 
         // Ask for machine status to get the new Work Position
         AskForMachineStatus();
-        workPosition2 = axis.equals("X") ? ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX() : ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY();
+        workPosition2 = axis.equals("X") ? ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX() : ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY();
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Step 3 
@@ -146,13 +146,7 @@ public class Process_HoleCenterFinder extends Process
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
         SetWorkPosition(axis, 0);
         final double xDiff = Math.max(workPosition1, workPosition2) - Math.min(workPosition1, workPosition2);
-        String moveToMiddleStr = "G21 G1" + axis + "-" + String.valueOf(xDiff / 2) + "F" + feedRate;
-        GCodeCommand moveToMiddleCommand = new GCodeCommand(moveToMiddleStr);
-        response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveToMiddleCommand);
-        if (!response.equals("ok"))
-        {
-            throw new Exception("");
-        }
+        MoveMachineTo(axis + "-", xDiff / 2, feedRate);
 
         /////////////////////////////////////////////////////////////////////////////////
         // Finished !!!

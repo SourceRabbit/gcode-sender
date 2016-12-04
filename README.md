@@ -47,6 +47,10 @@ Goals:
 
 Changelog
 ------
+1.1.6 -> 1.1.7
+* Supports GRBL v1.1
+* New GCode optimizer
+
 1.1.5 -> 1.1.6
 * Changes for better Touch Probe Operations
 * Small UI changes

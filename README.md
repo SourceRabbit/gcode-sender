@@ -24,7 +24,7 @@ sudo mkdir /var/lock <br>
 sudo chmod 777 /var/lock 
 
 Technical details:
-* Compatible with <b>GRBL 0.9</b> and later versions
+* Compatible with GRBL v0.9 and above
 * Uses JSSC for serial communication
 * Event-Driven UI and USB-to-Serial communication
 * Developed with <b>NetBeans IDE</b>

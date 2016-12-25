@@ -409,7 +409,7 @@ public class frmControl extends javax.swing.JFrame
             {
                 try
                 {
-                    if (jCheckBoxEnableGCodeLog.isSelected())
+                    if (jCheckBoxEnableGCodeLog.isSelected() || !evt.getCommand().getError().equals(""))
                     {
                         synchronized (fAddRemoveLogTableLines)
                         {
@@ -431,7 +431,7 @@ public class frmControl extends javax.swing.JFrame
             {
                 try
                 {
-                    if (jCheckBoxEnableGCodeLog.isSelected())
+                    if (jCheckBoxEnableGCodeLog.isSelected() || !evt.getCommand().getError().equals(""))
                     {
                         synchronized (fAddRemoveLogTableLines)
                         {
@@ -473,7 +473,7 @@ public class frmControl extends javax.swing.JFrame
             @Override
             public void GCodeCommandHasComment(GCodeExecutionEvent evt)
             {
-                System.out.println(evt.getCommand().getCommandComment());
+                System.out.println(evt.getCommand().getComment());
             }
         }
         );

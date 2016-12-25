@@ -28,6 +28,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRBLStatusReportParser;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.*;
+import sourcerabbit.gcode.sender.Core.Settings.GCodeSenderSettings;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 
 /**
@@ -45,7 +46,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
     // Status thread and Parser
     private GRBLStatusReportParser fMyStatusReportParser;
     private long fLastMachinePositionReceivedTimestamp;
-    private int fMillisecondsToGetMachineStatus = 300;
     private boolean fKeepStatusThread = false;
     private Thread fStatusThread;
 
@@ -121,9 +121,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 {
                     fActiveState = currentActiveState;
 
-                    // Set fMillisecondsToGetMachineStatus to 1000ms when machine is in RUN status, otherwise to 300ms
-                    fMillisecondsToGetMachineStatus = (fActiveState == GRBLActiveStates.RUN) ? 1000 : 300;
-
                     // Fire the MachineStatusChangedEvent
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(fActiveState, ""));
                 }
@@ -164,6 +161,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
                             fGCodeCommandResponse = "error: " + errorMessage;
                             break;
                     }
+
+                    System.err.println(errorMessage);
 
                     fLastCommandSentToController.setError(errorMessage);
                     fGCodeExecutionEventsManager.FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
@@ -323,7 +322,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 {
                     while (fKeepStatusThread)
                     {
-                        if ((System.currentTimeMillis() - fLastMachinePositionReceivedTimestamp) > fMillisecondsToGetMachineStatus)
+                        if ((System.currentTimeMillis() - fLastMachinePositionReceivedTimestamp) > GCodeSenderSettings.getStatusPollRate())
                         {
                             try
                             {

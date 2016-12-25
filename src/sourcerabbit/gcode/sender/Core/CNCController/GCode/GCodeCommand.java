@@ -65,10 +65,8 @@ public class GCodeCommand
     {
         String optimized = GCodeOptimizer.OptimizeGCodeCommand(this);
         return GCodeOptimizer.OptimizeGCodeCommand(this);
-      
-    }
 
-   
+    }
 
     /**
      * Returns the command coordinates A,X,Y,Z
@@ -131,16 +129,6 @@ public class GCodeCommand
     }
 
     /**
-     * Returns the command comment
-     *
-     * @return the command comment
-     */
-    public String getCommandComment()
-    {
-        return fComment;
-    }
-
-    /**
      * Returns the command
      *
      * @return the command
@@ -177,6 +165,6 @@ public class GCodeCommand
      */
     public String getError()
     {
-        return fError;
+        return fError.trim();
     }
 }

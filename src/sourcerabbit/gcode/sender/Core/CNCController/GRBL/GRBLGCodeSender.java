@@ -30,8 +30,6 @@ import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 public class GRBLGCodeSender extends GCodeSender
 {
 
-   
-
     // GRBL GCode Cycle
     private boolean fKeepGCodeCycle = false;
     private Thread fGCodeCycleThread;
@@ -77,7 +75,8 @@ public class GRBLGCodeSender extends GCodeSender
                     fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_START_CYCLE);
                     fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_GET_STATUS);
 
-                    int counter = 0;
+
+                    long lastStatusRequestTimestamp = System.currentTimeMillis();
 
                     while (fKeepGCodeCycle && gcodes.size() > 0)
                     {
@@ -87,12 +86,11 @@ public class GRBLGCodeSender extends GCodeSender
                             final GCodeCommand command = new GCodeCommand(gcodes.remove());
                             fMyConnectionHandler.SendGCodeCommand(command);
 
-                            // Ask for machine status every 50 GCode Commands
-                            counter++;
-                            if (counter > 50)
+                            // Ask for machine status every 1000 milliseconds
+                            if (System.currentTimeMillis() - lastStatusRequestTimestamp > 1000)
                             {
+                                lastStatusRequestTimestamp = System.currentTimeMillis();
                                 fMyConnectionHandler.SendGCodeCommand(new GCodeCommand(GRBLCommands.COMMAND_GET_STATUS));
-                                counter = 0;
                             }
 
                             fRowsSent += 1;

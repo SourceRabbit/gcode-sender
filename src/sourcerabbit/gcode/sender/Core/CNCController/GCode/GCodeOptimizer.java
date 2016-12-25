@@ -21,6 +21,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
+import sourcerabbit.gcode.sender.Core.Settings.GCodeSenderSettings;
 
 /**
  *
@@ -29,33 +30,23 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 public class GCodeOptimizer
 {
 
-    // The maximum number of decimals a GCode command can have
-    private final static int fMaxDecimalsLength;
-
     private final static DecimalFormatSymbols fDecimalSeparator = DecimalFormatSymbols.getInstance();
-    private final static DecimalFormat fDecimalFormatter;
-    private final static Pattern fDecimalPattern;
+    private static DecimalFormat fDecimalFormatter;
+    private static Pattern fDecimalPattern;
 
     static
     {
-        // Set the maximum number of decimals a GCode command can have
-        switch (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getCNCControlFramework())
-        {
-            case GRBL:
-                fMaxDecimalsLength = 2;
-                break;
+        Initialize();
+    }
 
-            default:
-                fMaxDecimalsLength = 4;
-                break;
-        }
-
+    public static void Initialize()
+    {
         // GCode decimal separator is always the '.' character.
         fDecimalSeparator.setDecimalSeparator('.');
 
         // Initialize the fDecimalFormatter
         String format = "#.";
-        for (int i = 0; i < fMaxDecimalsLength; i++)
+        for (int i = 0; i < GCodeSenderSettings.getTruncateDecimalDigits(); i++)
         {
             format += "#";
         }
@@ -63,7 +54,7 @@ public class GCodeOptimizer
 
         // Initialize the Regular Expression that "detects" the decimals
         format = "\\d+\\.\\d";
-        for (int i = 0; i < fMaxDecimalsLength; i++)
+        for (int i = 0; i < GCodeSenderSettings.getTruncateDecimalDigits(); i++)
         {
             format += "\\d";
         }
@@ -92,7 +83,6 @@ public class GCodeOptimizer
         /*System.out.println("Original: " + command);
         System.out.println("Optimized: " + sb.toString());
         System.out.println("-------------------------------------------------");*/
-
         // Return new command.
         return sb.toString();
     }

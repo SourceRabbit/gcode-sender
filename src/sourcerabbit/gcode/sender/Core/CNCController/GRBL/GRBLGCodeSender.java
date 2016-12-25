@@ -30,9 +30,13 @@ import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 public class GRBLGCodeSender extends GCodeSender
 {
 
+   
+
     // GRBL GCode Cycle
     private boolean fKeepGCodeCycle = false;
     private Thread fGCodeCycleThread;
+
+    private boolean fIsSendingGCodeFile = false;
 
     public GRBLGCodeSender(ConnectionHandler myHandler)
     {
@@ -65,18 +69,38 @@ public class GRBLGCodeSender extends GCodeSender
                 final Queue<String> gcodes = new ArrayDeque<>(fGCodeQueue);
                 fGCodeCycleStartedTimestamp = System.currentTimeMillis();
 
+                fIsSendingGCodeFile = true;
+
                 try
                 {
-                    // Send cycle start command
+                    // Send cycle start command and ask for the new machine status
                     fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_START_CYCLE);
+                    fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_GET_STATUS);
+
+                    int counter = 0;
 
                     while (fKeepGCodeCycle && gcodes.size() > 0)
                     {
-                        // Create a GCode Command to send
-                        final GCodeCommand command = new GCodeCommand(gcodes.remove());
-                        fMyConnectionHandler.SendGCodeCommand(command);
+                        try
+                        {
+                            // Create a GCode Command to send
+                            final GCodeCommand command = new GCodeCommand(gcodes.remove());
+                            fMyConnectionHandler.SendGCodeCommand(command);
 
-                        fRowsSent += 1;
+                            // Ask for machine status every 50 GCode Commands
+                            counter++;
+                            if (counter > 50)
+                            {
+                                fMyConnectionHandler.SendGCodeCommand(new GCodeCommand(GRBLCommands.COMMAND_GET_STATUS));
+                                counter = 0;
+                            }
+
+                            fRowsSent += 1;
+                        }
+                        catch (Exception ex)
+                        {
+                            System.err.println(ex.getMessage());
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -95,6 +119,8 @@ public class GRBLGCodeSender extends GCodeSender
                     fGCodeCycleStartedTimestamp = - 1;
                     fGCodeCycleEventManager.FireGCodeCycleFinishedEvent(new GCodeCycleEvent("Finished!\nTime: " + time));
                 }
+
+                fIsSendingGCodeFile = false;
             }
         });
         fGCodeCycleThread.setPriority(Thread.NORM_PRIORITY);
@@ -128,6 +154,8 @@ public class GRBLGCodeSender extends GCodeSender
             // Fire GCodeCycleCanceledEvent
             fGCodeCycleEventManager.FireGCodeCycleCanceledEvent(new GCodeCycleEvent("Canceled"));
             fGCodeCycleStartedTimestamp = -1;
+
+            fIsSendingGCodeFile = false;
         }
     }
 
@@ -161,6 +189,11 @@ public class GRBLGCodeSender extends GCodeSender
         {
         }
         fGCodeCycleEventManager.FireGCodeCycleResumedEvent(new GCodeCycleEvent("Resumed"));
+    }
+
+    public boolean IsCyclingGCode()
+    {
+        return fIsSendingGCodeFile;
     }
 
 }

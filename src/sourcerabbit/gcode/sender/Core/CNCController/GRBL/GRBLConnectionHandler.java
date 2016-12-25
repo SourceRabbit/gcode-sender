@@ -98,9 +98,10 @@ public class GRBLConnectionHandler extends ConnectionHandler
     @Override
     public void OnDataReceived(byte[] data)
     {
+        String receivedStr = "";
         try
         {
-            String receivedStr = new String(data).replace("\r", "").trim();
+            receivedStr = new String(data).replace("\r", "").trim();
             if (receivedStr.equals(""))
             {
                 return;
@@ -229,7 +230,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
         }
         catch (Exception ex)
         {
-            System.err.println("GRBLConnectionHandler.OnDataReceived Error: " + ex.getMessage());
+            System.err.println("GRBLConnectionHandler.OnDataReceived Error: " + ex.getMessage() + " Data: " + receivedStr);
+
         }
     }
 
@@ -325,17 +327,18 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         {
                             try
                             {
-                                // Ask for status report           
-                                fWaitForGetStatusCommandReply = new ManualResetEvent(false);
-                                fWaitForGetStatusCommandReply.Reset();
-
-                                // If a Touch Probe operation is currently active then
-                                // do not ask for the machine status.
-                                if (fAProcessIsUsingTouchProbe)
+                                // If a Touch Probe operation is currently active 
+                                // do not ask for the machine status. Also do not ask for machine status
+                                // if the GCodeSender is cycling GCode.
+                                if (fAProcessIsUsingTouchProbe || fMyGCodeSender.IsCyclingGCode())
                                 {
                                     Thread.sleep(100);
                                     continue;
                                 }
+
+                                // Ask for status report           
+                                fWaitForGetStatusCommandReply = new ManualResetEvent(false);
+                                //fWaitForGetStatusCommandReply.Reset();
 
                                 if (AskForMachineStatus())
                                 {
@@ -349,6 +352,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
                             }
                             catch (Exception ex)
                             {
+                                System.err.println("StartStatusReportThread Error:" + ex.getMessage());
+                                fWaitForGetStatusCommandReply.Set();
                             }
                         }
 

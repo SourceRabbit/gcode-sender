@@ -42,7 +42,7 @@ public class GCodeOptimizer
         switch (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getCNCControlFramework())
         {
             case GRBL:
-                fMaxDecimalsLength = 3;
+                fMaxDecimalsLength = 2;
                 break;
 
             default:

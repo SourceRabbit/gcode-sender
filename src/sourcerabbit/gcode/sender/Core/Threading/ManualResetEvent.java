@@ -68,4 +68,9 @@ public class ManualResetEvent
         fInitialState = true;
         notify();
     }
+    
+    public boolean getState()
+    {
+        return fInitialState;
+    }
 }

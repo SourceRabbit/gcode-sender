@@ -198,6 +198,11 @@ public class frmControl extends javax.swing.JFrame
                         jLabelActiveState.setText("Idle");
                         break;
 
+                    case GRBLActiveStates.CHECK:
+                        jLabelActiveState.setForeground(new Color(0, 153, 51));
+                        jLabelActiveState.setText("Check");
+                        break;
+
                     case GRBLActiveStates.RUN:
                         jLabelActiveState.setForeground(Color.blue);
                         jLabelActiveState.setText("Run");
@@ -232,9 +237,9 @@ public class frmControl extends javax.swing.JFrame
                 }
 
                 jButtonKillAlarm.setVisible(activeState == GRBLActiveStates.ALARM || activeState == GRBLActiveStates.MACHINE_IS_LOCKED);
-                jButtonResetWorkPosition.setEnabled(activeState == GRBLActiveStates.IDLE);
-                jButtonReturnToZero.setEnabled(activeState == GRBLActiveStates.IDLE);
-                jButtonGCodeSend.setEnabled(activeState == GRBLActiveStates.IDLE);
+                jButtonResetWorkPosition.setEnabled(activeState == GRBLActiveStates.IDLE || activeState == GRBLActiveStates.CHECK);
+                jButtonReturnToZero.setEnabled(activeState == GRBLActiveStates.IDLE || activeState == GRBLActiveStates.CHECK);
+                jButtonGCodeSend.setEnabled(activeState == GRBLActiveStates.IDLE || activeState == GRBLActiveStates.CHECK);
             }
         });
 
@@ -1703,14 +1708,21 @@ public class frmControl extends javax.swing.JFrame
 
     private void jButtonClearLogActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonClearLogActionPerformed
     {//GEN-HEADEREND:event_jButtonClearLogActionPerformed
-        synchronized (fAddRemoveLogTableLines)
+        try
         {
-            DefaultTableModel model = (DefaultTableModel) jTableGCodeLog.getModel();
-            int rowCount = model.getRowCount();
-            for (int i = rowCount - 1; i >= 0; i--)
+            synchronized (fAddRemoveLogTableLines)
             {
-                model.removeRow(i);
+                DefaultTableModel model = (DefaultTableModel) jTableGCodeLog.getModel();
+                int rowCount = model.getRowCount();
+                for (int i = rowCount - 1; i >= 0; i--)
+                {
+                    model.removeRow(i);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+
         }
     }//GEN-LAST:event_jButtonClearLogActionPerformed
 

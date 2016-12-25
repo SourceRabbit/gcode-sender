@@ -169,4 +169,13 @@ public class GCodeSender
     {
         return fGCodeFile;
     }
+
+    /**
+     * Returns true if the GCode sender is sending a GCode file to the
+     * controller (CYCLE)
+     */
+    public boolean IsCyclingGCode()
+    {
+        return false;
+    }
 }

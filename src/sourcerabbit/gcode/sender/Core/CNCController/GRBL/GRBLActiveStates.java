@@ -72,7 +72,7 @@ public class GRBLActiveStates
         {
             case "idle":
                 return GRBLActiveStates.IDLE;
-
+                
             case "run":
                 return GRBLActiveStates.RUN;
 

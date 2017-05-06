@@ -47,6 +47,12 @@ Goals:
 
 Changelog
 ------
+1.1.8 -> 1.1.9
+* Keyboard Jogging Implemented
+
+1.1.7 -> 1.1.8
+* New GCode Sender Settings window implemented
+
 1.1.6 -> 1.1.7
 * Supports GRBL v1.1
 * New GCode optimizer

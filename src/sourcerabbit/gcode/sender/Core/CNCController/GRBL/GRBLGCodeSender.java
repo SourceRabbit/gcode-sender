@@ -189,6 +189,7 @@ public class GRBLGCodeSender extends GCodeSender
         fGCodeCycleEventManager.FireGCodeCycleResumedEvent(new GCodeCycleEvent("Resumed"));
     }
 
+    @Override
     public boolean IsCyclingGCode()
     {
         return fIsSendingGCodeFile;

@@ -23,6 +23,8 @@ import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.util.Range;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
@@ -36,6 +38,7 @@ import java.util.Calendar;
 import java.util.Queue;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
@@ -102,8 +105,11 @@ public class frmControl extends javax.swing.JFrame
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("Images/SourceRabbitIcon.png")));
 
         this.jCheckBoxEnableGCodeLog.setSelected(SettingsManager.getIsGCodeLogEnabled());
+        this.jCheckBoxEnableKeyboardJogging.setSelected(SettingsManager.getIsKeyboardJoggingEnabled());
 
         InitMacroButtons();
+
+        InitKeyListener();
 
         // Fix jSpinnerStep to work with system decimal point
         jSpinnerStep.setEditor(new JSpinner.NumberEditor(jSpinnerStep, "##.##"));
@@ -553,6 +559,95 @@ public class frmControl extends javax.swing.JFrame
         fMachineStatusThread.start();
     }
 
+    // Initialize a new KeyListener to control the jogging via Keyboard
+    private void InitKeyListener()
+    {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher()
+        {
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent e)
+            {
+                // Check if a "text" option is focused
+                boolean textIsFocused = jTextFieldGCodeFile.hasFocus()
+                        || jTextFieldCommand.hasFocus()
+                        || (e.getSource() instanceof JFormattedTextField
+                        || jTextAreaConsole.hasFocus()
+                        || jTableGCodeLog.hasFocus()
+                        || fMacroTexts.contains(e.getSource())
+                        || fMacroButtons.contains(e.getSource()));
+
+                if (!textIsFocused && jCheckBoxEnableKeyboardJogging.isSelected() && e.getID() == KeyEvent.KEY_PRESSED)
+                {
+                    boolean jog = false;
+                    final String jogAxis;
+
+                    switch (e.getKeyCode())
+                    {
+                        case KeyEvent.VK_RIGHT:
+                        case KeyEvent.VK_KP_RIGHT:
+                            jog = true;
+                            jogAxis = "X";
+                            break;
+
+                        case KeyEvent.VK_LEFT:
+                        case KeyEvent.VK_KP_LEFT:
+                            jog = true;
+                            jogAxis = "X-";
+                            break;
+
+                        case KeyEvent.VK_UP:
+                        case KeyEvent.VK_KP_UP:
+                            jog = true;
+                            jogAxis = "Y";
+                            break;
+
+                        case KeyEvent.VK_DOWN:
+                        case KeyEvent.VK_KP_DOWN:
+                            jog = true;
+                            jogAxis = "Y-";
+                            break;
+
+                        case KeyEvent.VK_PAGE_UP:
+                            jog = true;
+                            jogAxis = "Z";
+                            break;
+
+                        case KeyEvent.VK_PAGE_DOWN:
+                            jog = true;
+                            jogAxis = "Z-";
+                            break;
+
+                        default:
+                            jogAxis = "";
+                            break;
+                    }
+
+                    if (jog)
+                    {
+                        final double stepValue = (double) jSpinnerStep.getValue();
+
+                        Thread th = new Thread(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                Process_Jogging p = new Process_Jogging(null, jogAxis, stepValue, fJoggingUnits);
+                                p.Execute();
+                                p.Dispose();
+                            }
+                        });
+                        th.start();
+
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+        });
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents()
@@ -588,6 +683,8 @@ public class frmControl extends javax.swing.JFrame
         jButtonZMinus = new javax.swing.JButton();
         jButtonZPlus = new javax.swing.JButton();
         jButtonReturnToZero = new javax.swing.JButton();
+        jCheckBoxEnableKeyboardJogging = new javax.swing.JCheckBox();
+        jLabelRemoveFocus = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jTextFieldGCodeFile = new javax.swing.JTextField();
@@ -906,6 +1003,28 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jCheckBoxEnableKeyboardJogging.setSelected(true);
+        jCheckBoxEnableKeyboardJogging.setText("Enable Keyboard Jogging");
+        jCheckBoxEnableKeyboardJogging.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jCheckBoxEnableKeyboardJoggingActionPerformed(evt);
+            }
+        });
+
+        jLabelRemoveFocus.setFont(new java.awt.Font("Tahoma", 0, 9)); // NOI18N
+        jLabelRemoveFocus.setForeground(new java.awt.Color(0, 75, 127));
+        jLabelRemoveFocus.setText("[Click To Focus]");
+        jLabelRemoveFocus.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabelRemoveFocus.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                jLabelRemoveFocusMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanelMachineControlLayout = new javax.swing.GroupLayout(jPanelMachineControl);
         jPanelMachineControl.setLayout(jPanelMachineControlLayout);
         jPanelMachineControlLayout.setHorizontalGroup(
@@ -914,17 +1033,6 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap()
                 .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                        .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelMachineControlLayout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jSpinnerStep))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelMachineControlLayout.createSequentialGroup()
-                                .addComponent(jRadioButtonInches)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jRadioButtonMillimeters)))
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanelMachineControlLayout.createSequentialGroup()
                         .addComponent(jButtonXMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -936,7 +1044,23 @@ public class frmControl extends javax.swing.JFrame
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jButtonZMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButtonZPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jButtonZPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanelMachineControlLayout.createSequentialGroup()
+                        .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelMachineControlLayout.createSequentialGroup()
+                                    .addComponent(jLabel4)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(jSpinnerStep))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelMachineControlLayout.createSequentialGroup()
+                                    .addComponent(jRadioButtonInches)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(jRadioButtonMillimeters)))
+                            .addGroup(jPanelMachineControlLayout.createSequentialGroup()
+                                .addComponent(jCheckBoxEnableKeyboardJogging)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabelRemoveFocus)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanelMachineControlLayout.setVerticalGroup(
@@ -969,9 +1093,13 @@ public class frmControl extends javax.swing.JFrame
                     .addGroup(jPanelMachineControlLayout.createSequentialGroup()
                         .addGap(31, 31, 31)
                         .addComponent(jButtonXMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jCheckBoxEnableKeyboardJogging)
+                    .addComponent(jLabelRemoveFocus))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "GCode File", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
@@ -1200,7 +1328,7 @@ public class frmControl extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel8)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonClearConsole)
                 .addContainerGap())
@@ -1287,7 +1415,7 @@ public class frmControl extends javax.swing.JFrame
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButtonClearLog)
@@ -1319,7 +1447,7 @@ public class frmControl extends javax.swing.JFrame
                 .addComponent(jLabel9)
                 .addGap(3, 3, 3)
                 .addComponent(jLabel10)
-                .addContainerGap(286, Short.MAX_VALUE))
+                .addContainerGap(312, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Macros", jPanelMacros);
@@ -1431,18 +1559,18 @@ public class frmControl extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(5, 5, 5)
                         .addComponent(jTabbedPane1)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         getAccessibleContext().setAccessibleName("frmControl");
@@ -1807,6 +1935,23 @@ public class frmControl extends javax.swing.JFrame
         frm.setVisible(true);
     }//GEN-LAST:event_jMenuItemHoleCenterFinderActionPerformed
 
+    private void jLabelRemoveFocusMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jLabelRemoveFocusMouseClicked
+    {//GEN-HEADEREND:event_jLabelRemoveFocusMouseClicked
+        requestFocus();
+    }//GEN-LAST:event_jLabelRemoveFocusMouseClicked
+
+    private void jCheckBoxEnableKeyboardJoggingActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jCheckBoxEnableKeyboardJoggingActionPerformed
+    {//GEN-HEADEREND:event_jCheckBoxEnableKeyboardJoggingActionPerformed
+        try
+        {
+            SettingsManager.setIsKeyboardJoggingEnabled(jCheckBoxEnableKeyboardJogging.isSelected());
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }//GEN-LAST:event_jCheckBoxEnableKeyboardJoggingActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClearConsole;
     private javax.swing.JButton jButtonClearLog;
@@ -1827,6 +1972,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JButton jButtonZMinus;
     private javax.swing.JButton jButtonZPlus;
     private javax.swing.JCheckBox jCheckBoxEnableGCodeLog;
+    private javax.swing.JCheckBox jCheckBoxEnableKeyboardJogging;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
@@ -1844,6 +1990,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JLabel jLabelMachineY;
     private javax.swing.JLabel jLabelMachineZ;
     private javax.swing.JLabel jLabelRemainingRows;
+    private javax.swing.JLabel jLabelRemoveFocus;
     private javax.swing.JLabel jLabelRowsInFile;
     private javax.swing.JLabel jLabelRowsInFile1;
     private javax.swing.JLabel jLabelRowsInFile2;

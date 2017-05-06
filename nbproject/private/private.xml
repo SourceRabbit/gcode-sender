@@ -12,10 +12,10 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/GRBL/GRBLGCodeSender.java</file>
-            <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/UI/frmControl.java</file>
-            <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/GCode/GCodeCommand.java</file>
-            <file>file:/D:/GitHub-Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/GCode/GCodeOptimizer.java</file>
+            <file>file:/E:/_Development/GitHub%20Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/UI/frmControl.java</file>
+            <file>file:/E:/_Development/GitHub%20Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/GRBL/GRBLGCodeSender.java</file>
+            <file>file:/E:/_Development/GitHub%20Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/Connection/ConnectionHandler.java</file>
+            <file>file:/E:/_Development/GitHub%20Repositories/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/Processes/Process_Jogging.java</file>
         </group>
     </open-files>
 </project-private>

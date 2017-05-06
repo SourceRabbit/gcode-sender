@@ -20,6 +20,8 @@ import javax.swing.JDialog;
 import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkID;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLCommands;
+import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.Units.EUnits;
 
 /**
@@ -39,7 +41,6 @@ public class Process_Jogging extends Process
         fAxis = axis;
         fStepValue = stepValue;
         fUnits = units;
-
     }
 
     @Override
@@ -54,7 +55,7 @@ public class Process_Jogging extends Process
     private void ExecuteForGRBL()
     {
         // Get appropriate GCode for Metric or Imperial Units
-        String inchesOrMillimetersGCode = "";
+        final String inchesOrMillimetersGCode;
         switch (fUnits)
         {
             case Imperial:
@@ -63,6 +64,10 @@ public class Process_Jogging extends Process
 
             case Metric:
                 inchesOrMillimetersGCode = "G21";
+                break;
+
+            default:
+                inchesOrMillimetersGCode = "";
                 break;
         }
 
@@ -83,14 +88,16 @@ public class Process_Jogging extends Process
             case GRBL1_1:
                 try
                 {
-                    GCodeCommand command = new GCodeCommand("$J=G91 " + inchesOrMillimetersGCode + fAxis + fStepValue + "F55000");
+                    GCodeCommand command = new GCodeCommand("$J=G91 " + inchesOrMillimetersGCode + fAxis + fStepValue + "F9000");
                     ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
                 }
                 catch (Exception ex)
                 {
 
                 }
+
                 break;
         }
     }
+
 }

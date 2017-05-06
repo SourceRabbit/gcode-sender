@@ -237,7 +237,6 @@ public class ConnectionHandler implements SerialPortEventListener
 
     public boolean SendData(String data) throws SerialPortException
     {
-
         try
         {
             fBytesOut += data.getBytes().length + 1;
@@ -254,7 +253,6 @@ public class ConnectionHandler implements SerialPortEventListener
             }
             throw ex;
         }
-
     }
 
     public boolean SendGCodeCommand(GCodeCommand command) throws Exception
@@ -272,6 +270,25 @@ public class ConnectionHandler implements SerialPortEventListener
         try
         {
             return fSerialPort.writeString(data);
+        }
+        catch (Exception ex)
+        {
+            try
+            {
+                CloseConnection();
+            }
+            catch (Exception ex1)
+            {
+            }
+            throw ex;
+        }
+    }
+
+    public boolean SendDataImmediately_WithoutMessageCollector(byte data) throws SerialPortException
+    {
+        try
+        {
+            return fSerialPort.writeByte(data);
         }
         catch (Exception ex)
         {

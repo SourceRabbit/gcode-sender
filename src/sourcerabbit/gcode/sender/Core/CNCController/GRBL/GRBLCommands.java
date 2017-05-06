@@ -28,6 +28,7 @@ public class GRBLCommands
     public static final String COMMAND_START_CYCLE = "~";
     public static final String COMMAND_GET_STATUS = "?";
     public static final String COMMAND_SOFT_RESET = String.valueOf((char) 24);
+    public static final byte JOG_CANCEL_COMMAND = (byte) 0x85;
 
     // Non real time commands
     public static final String COMMAND_KILL_ALARM_LOCK = "$X";
@@ -37,4 +38,5 @@ public class GRBLCommands
     // GCode Commands
     //public static final String GCODE_RESET_COORDINATES_TO_ZERO = "G10 P0 L20 X0 Y0 Z0";
     public static final String GCODE_RESET_COORDINATES_TO_ZERO = "G21 G92 X0 Y0 Z0";
+
 }

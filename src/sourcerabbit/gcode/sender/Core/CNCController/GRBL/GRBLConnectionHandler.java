@@ -129,8 +129,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 // WaitForGetStatusCommandReply manual reset event.
                 fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
                 fWaitForGetStatusCommandReply.Set();
-            }
-            else
+            } else
             {
                 //System.out.println("Data received:" + receivedStr);
                 fGCodeCommandResponse = receivedStr;
@@ -142,8 +141,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         fLastCommandSentToController = null;
                         fWaitForCommandToBeExecuted.Set();
                     }
-                }
-                else if (receivedStr.startsWith("error"))
+                } else if (receivedStr.startsWith("error"))
                 {
                     String errorMessage = "";
 
@@ -162,30 +160,27 @@ public class GRBLConnectionHandler extends ConnectionHandler
                             break;
                     }
 
-                    System.err.println(errorMessage);
+                    System.err.println("GRBLConnectionHander Error: " + errorMessage);
 
                     fLastCommandSentToController.setError(errorMessage);
                     fGCodeExecutionEventsManager.FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
-                }
-                else if (receivedStr.startsWith("ALARM"))
+                } else if (receivedStr.startsWith("ALARM"))
                 {
                     // ALARM is ON!
                     // Machine propably needs to be unlocked
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
                     fMyGCodeSender.CancelSendingGCode();
                     fWaitForCommandToBeExecuted.Set();
-                }
-                else if (receivedStr.equals("[MSG:'$H'|'$X' to unlock]") || receivedStr.equals("['$H'|'$X' to unlock]"))
+                } else if (receivedStr.equals("[MSG:'$H'|'$X' to unlock]") || receivedStr.equals("['$H'|'$X' to unlock]"))
                 {
                     // If the machine is in an Alarm state and the user choose to do a "soft reset"
                     // then the GRBL controller lockes and needs to be unlocked.
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_IS_LOCKED, ""));
                     fMyGCodeSender.CancelSendingGCode();
                     fWaitForCommandToBeExecuted.Set();
-                }
-                else if (receivedStr.startsWith("[PRB:"))
+                } else if (receivedStr.startsWith("[PRB:"))
                 {
                     //System.out.println("Endmill touched the Touch Probe!");
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE, receivedStr));
@@ -194,8 +189,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     // GRBL sends an "OK" back.
                     // fWaitForCommandToBeExecuted.Set();
                     ////////////////////////////////////////////////////
-                }
-                else if (receivedStr.toLowerCase().startsWith("grbl"))
+                } else if (receivedStr.toLowerCase().startsWith("grbl"))
                 {
                     // Parse the GRBL "Welcome Message" and find out which GRBL version 
                     // is running on the controller.                    
@@ -205,8 +199,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     {
                         fMyStatusReportParser = new GRBL_1_1_StatusReportParser(this);
                         this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL1_1);
-                    }
-                    else
+                    } else
                     {
                         fMyStatusReportParser = new GRBL_0_9_StatusReportParser(this);
                         this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL0_9);
@@ -218,19 +211,16 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
                     fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE, ""));
-                }
-                else
+                } else
                 {
                     fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
                 }
             }
-        }
-        catch (Exception ex)
+        } catch (Exception ex)
         {
             System.err.println("GRBLConnectionHandler.OnDataReceived Error: " + ex.getMessage() + " Data: " + receivedStr);
-
         }
     }
 
@@ -270,14 +260,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
             {
                 // Wait for "ok" or "error:" to come back
                 fWaitForCommandToBeExecuted.WaitOne();
-            }
-            else
+            } else
             {
                 try
                 {
                     CloseConnection();
-                }
-                catch (Exception ex)
+                } catch (Exception ex)
                 {
                 }
                 return false;
@@ -299,8 +287,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
         try
         {
             SendGCodeCommand(command);
-        }
-        catch (Exception ex)
+        } catch (Exception ex)
         {
         }
 
@@ -343,13 +330,11 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 {
                                     // Wait for Get Status Command Reply
                                     fWaitForGetStatusCommandReply.WaitOne();
-                                }
-                                else
+                                } else
                                 {
                                     CloseConnection();
                                 }
-                            }
-                            catch (Exception ex)
+                            } catch (Exception ex)
                             {
                                 System.err.println("StartStatusReportThread Error:" + ex.getMessage());
                                 fWaitForGetStatusCommandReply.Set();
@@ -359,8 +344,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         try
                         {
                             Thread.sleep(100);
-                        }
-                        catch (Exception ex)
+                        } catch (Exception ex)
                         {
                         }
                     }
@@ -384,8 +368,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
             try
             {
                 return SendData(GRBLCommands.COMMAND_GET_STATUS);
-            }
-            catch (Exception ex)
+            } catch (Exception ex)
             {
                 return false;
             }
@@ -402,8 +385,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
         try
         {
             fStatusThread.interrupt();
-        }
-        catch (Exception ex)
+        } catch (Exception ex)
         {
         }
     }
@@ -435,8 +417,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         try
                         {
                             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_SOFT_RESET);
-                        }
-                        catch (Exception ex)
+                        } catch (Exception ex)
                         {
 
                         }

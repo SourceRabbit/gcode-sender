@@ -30,7 +30,7 @@ import java.util.Properties;
 public class SettingsManager
 {
 
-    private static final String fAppVersion = "1.1.8";
+    private static final String fAppVersion = "1.1.9";
     public static final Properties fAppSettings = new Properties();
     private static String fSettingsFilePath = "";
 
@@ -205,4 +205,35 @@ public class SettingsManager
         return fAppVersion;
     }
 
+    /////////////////////////////////////////////////////////////////////////
+    /**
+     * Set the IsKeyboardJoggingEnabled
+     *
+     * @param value
+     */
+    public static void setIsKeyboardJoggingEnabled(boolean value)
+    {
+        fAppSettings.setProperty("IsKeyboardJoggingEnabled", String.valueOf(value));
+        SaveSettings();
+    }
+
+    /**
+     * Returns the last GCodeBrowsedDirectory
+     *
+     * @return
+     */
+    public static boolean getIsKeyboardJoggingEnabled()
+    {
+        String value = fAppSettings.getProperty("IsKeyboardJoggingEnabled");
+        if (value == null || value.equals(""))
+        {
+            return false;
+        }
+        else
+        {
+            return Boolean.parseBoolean(value);
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////
 }

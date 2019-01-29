@@ -1700,7 +1700,24 @@ public class frmControl extends javax.swing.JFrame
 
     private void jButtonGCodeSendActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGCodeSendActionPerformed
     {//GEN-HEADEREND:event_jButtonGCodeSendActionPerformed
-        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().StartSendingGCode();
+
+        boolean startCycle = true;
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX() != 0 || ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY() != 0 || ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ() != 0)
+        {
+            startCycle = false;
+            int answer = JOptionPane.showConfirmDialog(
+                    null,
+                    "The work position is not 0,0,0.\nDo you want to start the GCode Cycle?",
+                    "Work position is not 0,0,0",
+                    JOptionPane.YES_NO_OPTION);
+
+            startCycle = (answer == JOptionPane.YES_OPTION);
+        }
+
+        if (startCycle)
+        {
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().StartSendingGCode();
+        }
     }//GEN-LAST:event_jButtonGCodeSendActionPerformed
 
     private void jButtonGCodePauseActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGCodePauseActionPerformed

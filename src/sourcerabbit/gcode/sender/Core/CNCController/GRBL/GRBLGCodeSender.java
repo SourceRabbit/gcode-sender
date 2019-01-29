@@ -86,8 +86,8 @@ public class GRBLGCodeSender extends GCodeSender
                             final GCodeCommand command = new GCodeCommand(gcodes.remove());
                             fMyConnectionHandler.SendGCodeCommand(command);
 
-                            // Ask for machine status every 1000 milliseconds
-                            if (System.currentTimeMillis() - lastStatusRequestTimestamp > 1000)
+                            // Ask for machine status every 3000 milliseconds
+                            if (System.currentTimeMillis() - lastStatusRequestTimestamp > 3000)
                             {
                                 lastStatusRequestTimestamp = System.currentTimeMillis();
                                 fMyConnectionHandler.SendGCodeCommand(new GCodeCommand(GRBLCommands.COMMAND_GET_STATUS));

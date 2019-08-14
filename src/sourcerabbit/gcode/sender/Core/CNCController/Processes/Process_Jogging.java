@@ -20,8 +20,6 @@ import javax.swing.JDialog;
 import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkID;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
-import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLCommands;
-import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.Units.EUnits;
 
 /**

@@ -27,7 +27,8 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRBLStatusReportParser;
-import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.*;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRBL_0_9_StatusReportParser;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRBL_1_1_StatusReportParser;
 import sourcerabbit.gcode.sender.Core.Settings.GCodeSenderSettings;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 

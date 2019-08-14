@@ -168,7 +168,7 @@ public class Process_ZAxisTouchProbe extends Process
 
     private String SetZAxisPosition(double value)
     {
-        String commandStr = "G92 X0 Y0 Z" + String.valueOf(value);
+        String commandStr = "G92 Z" + String.valueOf(value);
         GCodeCommand commandSetZ = new GCodeCommand(commandStr);
         return ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(commandSetZ);
     }

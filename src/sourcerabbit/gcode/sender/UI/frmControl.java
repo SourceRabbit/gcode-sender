@@ -1796,7 +1796,10 @@ public class frmControl extends javax.swing.JFrame
         try
         {
             // Send Kill Alarm lock command for both Kill Alarm and Machine Unlock
+            // And then ask for machine settings in order to make the GRBLConnection handler to get the
+            // max X,Y and Z travels.
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData(GRBLCommands.COMMAND_KILL_ALARM_LOCK);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData("$$");
         }
         catch (Exception ex)
         {
@@ -1807,9 +1810,6 @@ public class frmControl extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButtonGCodeVisualizeActionPerformed
         try
         {
-            /*frmGCodeViewer frm = new frmGCodeViewer();
-            frm.setVisible(true);*/
-
             final Chart2D chart = new Chart2D();
             // Create an ITrace: 
             ITrace2D trace = new Trace2DSimple();

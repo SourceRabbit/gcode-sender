@@ -33,8 +33,6 @@ public class Process_HoleCenterFinder extends Process
 {
 
     // Variables...
-    private final int fMaxDistance = 50000;
-
     private boolean fTouchProbeTouchedTheEdge = false;
     private final ManualResetEvent fWaitForTouchProbeToTouchTheEdge = new ManualResetEvent(false);
     private final ManualResetEvent fWaitForMachineToBeIdle = new ManualResetEvent(false);
@@ -165,9 +163,10 @@ public class Process_HoleCenterFinder extends Process
      */
     private String SendTouchProbeToTouchTheEdge(String axis, int feedRate)
     {
+
         fWaitForTouchProbeToTouchTheEdge.Reset();
         fTouchProbeTouchedTheEdge = false;
-        final GCodeCommand command = new GCodeCommand("G38.2 " + axis + fMaxDistance + "F" + feedRate);
+        final GCodeCommand command = new GCodeCommand("G38.2 " + axis + (CenterHoleFinderSettings.getHoleCenterFinderDiameter()/2) + "F" + feedRate);
         String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
         fWaitForTouchProbeToTouchTheEdge.WaitOne();
         return response;

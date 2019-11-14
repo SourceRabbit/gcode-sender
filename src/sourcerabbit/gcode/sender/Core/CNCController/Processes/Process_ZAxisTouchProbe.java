@@ -18,6 +18,7 @@ package sourcerabbit.gcode.sender.Core.CNCController.Processes;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
@@ -33,7 +34,7 @@ public class Process_ZAxisTouchProbe extends Process
 {
 
     // Variables
-    private final int fMaxDistance = 200;
+    private int fMaxDistance = 30;
     private final int fFeedRate = 80;
     private final int fSlowFeedRate = 30;
 
@@ -85,6 +86,12 @@ public class Process_ZAxisTouchProbe extends Process
 
     public void ExecuteForGRBL()
     {
+
+        if (ConnectionHandler.fZMaxTravel > 0)
+        {
+            fMaxDistance = ConnectionHandler.fZMaxTravel - 10;
+        }
+
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
 
         // Step 1
@@ -104,6 +111,7 @@ public class Process_ZAxisTouchProbe extends Process
         String moveZStr = "G21G91G1Z0.5F" + fSlowFeedRate;
         GCodeCommand moveZCommand = new GCodeCommand(moveZStr);
         response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand);
+        System.out.println(response);
         if (!response.equals("ok"))
         {
             MachineFailedToTouchTheProbe();

@@ -53,10 +53,16 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         jSpinnerFeedRate.setEditor(new JSpinner.NumberEditor(jSpinnerFeedRate, "##.##"));
         UITools.FixSpinnerToWorkWithSystemDecimalPoint(jSpinnerFeedRate);
 
+        // Fix jSpinnerDiameter to work with system decimal point
+        jSpinnerDiameter.setEditor(new JSpinner.NumberEditor(jSpinnerDiameter, "##.##"));
+        UITools.FixSpinnerToWorkWithSystemDecimalPoint(jSpinnerDiameter);
+
         InitEvents();
 
         // Set the last used touch probe feed rate value to jSpinnerFeedRate
+        // and hole diameter
         jSpinnerFeedRate.setValue(CenterHoleFinderSettings.getTouchProbeFeedRate());
+        jSpinnerDiameter.setValue(CenterHoleFinderSettings.getHoleCenterFinderDiameter());
     }
 
     @SuppressWarnings("unchecked")
@@ -75,6 +81,10 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        jSpinnerDiameter = new javax.swing.JSpinner();
+        jLabel21 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Hole Center Finder");
@@ -134,6 +144,21 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         jLabel18.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel18.setText("3. Click the \"Find Center\" button");
 
+        jLabel20.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel20.setForeground(new java.awt.Color(0, 75, 127));
+        jLabel20.setText("Hole Diameter:");
+
+        jSpinnerDiameter.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jSpinnerDiameter.setModel(new javax.swing.SpinnerNumberModel(80.0d, 10.0d, 55000.0d, 10.0d));
+        jSpinnerDiameter.setValue(100);
+
+        jLabel21.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel21.setForeground(new java.awt.Color(0, 75, 127));
+        jLabel21.setText("mm");
+
+        jLabel22.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        jLabel22.setText("A proximity of the holes diameter");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -149,15 +174,24 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
                                 .addGap(10, 10, 10)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel14)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel19)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jSpinnerFeedRate, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel15))
                                     .addComponent(jLabel16)
                                     .addComponent(jLabel17)
-                                    .addComponent(jLabel18))))
+                                    .addComponent(jLabel18)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(jLabel22)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(jLabel20)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(jSpinnerDiameter, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(jLabel19)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(jSpinnerFeedRate, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel15)
+                                            .addComponent(jLabel21))))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
@@ -170,7 +204,7 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -185,9 +219,16 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
                             .addComponent(jLabel15)
                             .addComponent(jSpinnerFeedRate, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel20)
+                            .addComponent(jLabel21)
+                            .addComponent(jSpinnerDiameter, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel10))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jLabelWarning, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonTouch, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -251,11 +292,15 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         }
         else
         {
-            Double dd = Double.parseDouble(jSpinnerFeedRate.getValue().toString());
-            final int feedRate = dd.intValue();
+            Double feedRateDouble = Double.parseDouble(jSpinnerFeedRate.getValue().toString());
+            final int feedRate = feedRateDouble.intValue();
+
+            Double diameterDouble = Double.parseDouble(jSpinnerDiameter.getValue().toString());
+            final int diameter = diameterDouble.intValue();
 
             // Set last settings
             CenterHoleFinderSettings.setTouchProbeFeedRate(feedRate);
+            CenterHoleFinderSettings.setHoleCenterFinderDiameter(diameter);
 
             fMyProcess.ExecuteInNewThread();
             jButtonTouch.setText("Click to Stop!");
@@ -280,7 +325,11 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabelWarning;
+    private javax.swing.JSpinner jSpinnerDiameter;
     private javax.swing.JSpinner jSpinnerFeedRate;
     // End of variables declaration//GEN-END:variables
 }

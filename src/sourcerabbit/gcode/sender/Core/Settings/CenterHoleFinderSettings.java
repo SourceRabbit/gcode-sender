@@ -24,6 +24,7 @@ public class CenterHoleFinderSettings
 {
 
     private final static String TOUCH_PROBE_FEEDRATE = "TOUCH_PROBE_FEEDRATE";
+    private final static String HOLE_CENTER_FINDER_DIAMETER = "HOLE_CENTER_FINDER_DIAMETER";
 
     static
     {
@@ -55,4 +56,31 @@ public class CenterHoleFinderSettings
             return 100;
         }
     }
+
+    public static void setHoleCenterFinderDiameter(int value)
+    {
+        SettingsManager.fAppSettings.setProperty(HOLE_CENTER_FINDER_DIAMETER, String.valueOf(value));
+        SettingsManager.SaveSettings();
+    }
+
+    public static int getHoleCenterFinderDiameter()
+    {
+        try
+        {
+            String value = SettingsManager.fAppSettings.getProperty(HOLE_CENTER_FINDER_DIAMETER);
+            if (value == null || value.equals(""))
+            {
+                return 100;
+            }
+            else
+            {
+                return Integer.parseInt(value);
+            }
+        }
+        catch (Exception ex)
+        {
+            return 100;
+        }
+    }
+
 }

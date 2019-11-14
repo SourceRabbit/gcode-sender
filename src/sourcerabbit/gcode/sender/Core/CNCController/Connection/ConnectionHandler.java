@@ -79,6 +79,11 @@ public class ConnectionHandler implements SerialPortEventListener
     protected ECNCControlFrameworkID fMyControlFrameworkID;
     protected ECNCControlFrameworkVersion fMyControlFrameworkVersion;
 
+    // Max Travels
+    public static int fXMaxTravel = 00;
+    public static int fYMaxTravel = 00;
+    public static int fZMaxTravel = 00;
+
     public ConnectionHandler()
     {
         fMyGCodeSender = new GRBLGCodeSender(this);
@@ -140,8 +145,7 @@ public class ConnectionHandler implements SerialPortEventListener
                 {
                     fSerialPort.closePort();
                 }
-            }
-            finally
+            } finally
             {
                 fIncomingDataBuffer = null;
                 fSerialPort = null;

@@ -73,6 +73,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
      */
     private void InitEvents()
     {
+
         // Connection Closed Event
         super.fSerialConnectionEventManager.AddListener(new ISerialConnectionEventListener()
         {
@@ -103,6 +104,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
         try
         {
             receivedStr = new String(data).replace("\r", "").trim();
+
             if (receivedStr.equals(""))
             {
                 return;
@@ -130,9 +132,11 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 // WaitForGetStatusCommandReply manual reset event.
                 fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
                 fWaitForGetStatusCommandReply.Set();
+
             }
             else
             {
+                System.out.println(receivedStr);
                 //System.out.println("Data received:" + receivedStr);
                 fGCodeCommandResponse = receivedStr;
                 if (receivedStr.equals("ok"))
@@ -144,87 +148,120 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         fWaitForCommandToBeExecuted.Set();
                     }
                 }
-                else if (receivedStr.startsWith("error"))
+                else
                 {
-                    String errorMessage = "";
-
-                    // Get the error message
-                    switch (fMyControlFrameworkVersion)
+                    if (receivedStr.startsWith("error"))
                     {
-                        case GRBL0_9:
-                            errorMessage = receivedStr;
-                            break;
+                        String errorMessage = "";
 
-                        case GRBL1_1:
-                            String errorID = receivedStr.toLowerCase().replace("error", "").replace(":", "").trim();
-                            int errorIDInt = Integer.parseInt(errorID);
-                            errorMessage = GRBLErrorCodes.getErrorMessageFromCode(errorIDInt);
-                            fGCodeCommandResponse = "error: " + errorMessage;
-                            break;
-                    }
+                        // Get the error message
+                        switch (fMyControlFrameworkVersion)
+                        {
+                            case GRBL0_9:
+                                errorMessage = receivedStr;
+                                break;
 
-                    System.err.println("GRBLConnectionHander Error: " + errorMessage);
+                            case GRBL1_1:
+                                String errorID = receivedStr.toLowerCase().replace("error", "").replace(":", "").trim();
+                                int errorIDInt = Integer.parseInt(errorID);
+                                errorMessage = GRBLErrorCodes.getErrorMessageFromCode(errorIDInt);
+                                fGCodeCommandResponse = "error: " + errorMessage;
+                                break;
+                        }
 
-                    fLastCommandSentToController.setError(errorMessage);
-                    fGCodeExecutionEventsManager.FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
-                    fLastCommandSentToController = null;
-                    fWaitForCommandToBeExecuted.Set();
-                }
-                else if (receivedStr.startsWith("ALARM"))
-                {
-                    // ALARM is ON!
-                    // Machine propably needs to be unlocked
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
-                    fMyGCodeSender.CancelSendingGCode();
-                    fWaitForCommandToBeExecuted.Set();
-                }
-                else if (receivedStr.equals("[MSG:'$H'|'$X' to unlock]") || receivedStr.equals("['$H'|'$X' to unlock]"))
-                {
-                    // If the machine is in an Alarm state and the user choose to do a "soft reset"
-                    // then the GRBL controller lockes and needs to be unlocked.
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_IS_LOCKED, ""));
-                    fMyGCodeSender.CancelSendingGCode();
-                    fWaitForCommandToBeExecuted.Set();
-                }
-                else if (receivedStr.startsWith("[PRB:"))
-                {
-                    //System.out.println("Endmill touched the Touch Probe!");
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE, receivedStr));
-                    /////////////////////////////////////////////////////
-                    // DO NOT SET THE fWaitForCommandToBeExecuted !!!
-                    // GRBL sends an "OK" back.
-                    // fWaitForCommandToBeExecuted.Set();
-                    ////////////////////////////////////////////////////
-                }
-                else if (receivedStr.toLowerCase().startsWith("grbl"))
-                {
-                    // Parse the GRBL "Welcome Message" and find out which GRBL version 
-                    // is running on the controller.                    
-                    // From the GRBL version set the appropriate CNCControlFrameworkVersion
-                    // and StatusReportParser.
-                    if (receivedStr.toLowerCase().contains("grbl 1."))
-                    {
-                        fMyStatusReportParser = new GRBL_1_1_StatusReportParser(this);
-                        this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL1_1);
+                        System.err.println("GRBLConnectionHander Error: " + errorMessage);
+
+                        fLastCommandSentToController.setError(errorMessage);
+                        fGCodeExecutionEventsManager.FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
+                        fLastCommandSentToController = null;
+                        fWaitForCommandToBeExecuted.Set();
                     }
                     else
                     {
-                        fMyStatusReportParser = new GRBL_0_9_StatusReportParser(this);
-                        this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL0_9);
-                    }
+                        if (receivedStr.startsWith("$"))
+                        {
+                            // READ CONTROLLER SETTINGS HERE !!!!
+                            if (receivedStr.startsWith("$130"))
+                            {
+                                fXMaxTravel = (int)Double.parseDouble(receivedStr.replace("$130=", ""));
+                            }
+                            else if (receivedStr.startsWith("$131"))
+                            {
+                                fYMaxTravel = (int)Double.parseDouble(receivedStr.replace("$131=", ""));
+                            }
+                            else if (receivedStr.startsWith("$132"))
+                            {
+                                fZMaxTravel = (int)Double.parseDouble(receivedStr.replace("$132=", ""));
+                            }
+                        }
 
-                    // To Inform UI that connection with the controller is sucessful fire the ConnectionEstablishedEvent
-                    fConnectionEstablished = true;
-                    fConnectionEstablishedManualResetEvent.Set();
-                    fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
-                    fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
-                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE, ""));
-                }
-                else
-                {
-                    fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
-                    fLastCommandSentToController = null;
-                    fWaitForCommandToBeExecuted.Set();
+                        if (receivedStr.startsWith("ALARM"))
+                        {
+                            // ALARM is ON!
+                            // Machine propably needs to be unlocked
+                            fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
+                            fMyGCodeSender.CancelSendingGCode();
+                            fWaitForCommandToBeExecuted.Set();
+                        }
+                        else
+                        {
+                            if (receivedStr.equals("[MSG:'$H'|'$X' to unlock]") || receivedStr.equals("['$H'|'$X' to unlock]"))
+                            {
+                                // If the machine is in an Alarm state and the user choose to do a "soft reset"
+                                // then the GRBL controller lockes and needs to be unlocked.
+                                fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_IS_LOCKED, ""));
+                                fMyGCodeSender.CancelSendingGCode();
+                                fWaitForCommandToBeExecuted.Set();
+                            }
+
+                            else
+                            {
+                                if (receivedStr.startsWith("[PRB:"))
+                                {
+                                    //System.out.println("Endmill touched the Touch Probe!");
+                                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE, receivedStr));
+                                    /////////////////////////////////////////////////////
+                                    // DO NOT SET THE fWaitForCommandToBeExecuted !!!
+                                    // GRBL sends an "OK" back.
+                                    // fWaitForCommandToBeExecuted.Set();
+                                    ////////////////////////////////////////////////////
+                                }
+                                else
+                                {
+                                    if (receivedStr.toLowerCase().startsWith("grbl"))
+                                    {
+                                        // Parse the GRBL "Welcome Message" and find out which GRBL version 
+                                        // is running on the controller.                    
+                                        // From the GRBL version set the appropriate CNCControlFrameworkVersion
+                                        // and StatusReportParser.
+                                        if (receivedStr.toLowerCase().contains("grbl 1."))
+                                        {
+                                            fMyStatusReportParser = new GRBL_1_1_StatusReportParser(this);
+                                            this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL1_1);
+                                        }
+                                        else
+                                        {
+                                            fMyStatusReportParser = new GRBL_0_9_StatusReportParser(this);
+                                            this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL0_9);
+                                        }
+
+                                        // To Inform UI that connection with the controller is sucessful fire the ConnectionEstablishedEvent
+                                        fConnectionEstablished = true;
+                                        fConnectionEstablishedManualResetEvent.Set();
+                                        fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
+                                        fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
+                                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE, ""));
+                                    }
+                                    else
+                                    {
+                                        fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
+                                        fLastCommandSentToController = null;
+                                        fWaitForCommandToBeExecuted.Set();
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -232,6 +269,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
         {
             System.err.println("GRBLConnectionHandler.OnDataReceived Error: " + ex.getMessage() + " Data: " + receivedStr);
         }
+
     }
 
     @Override
@@ -312,6 +350,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
      */
     private void StartStatusReportThread()
     {
+
         if (fConnectionEstablished)
         {
             // Start the status thread

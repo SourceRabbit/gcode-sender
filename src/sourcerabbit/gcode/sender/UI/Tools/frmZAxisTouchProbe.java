@@ -120,10 +120,10 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
         jLabel15.setText("D:");
 
         jLabel16.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel16.setText("1mm to 50mm");
+        jLabel16.setText("1mm to 20mm");
 
         jLabel19.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel19.setText("Set endmill 1mm to 50mm above the touch probe");
+        jLabel19.setText("Set endmill 1mm to 20mm above the touch probe");
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(0, 75, 127));

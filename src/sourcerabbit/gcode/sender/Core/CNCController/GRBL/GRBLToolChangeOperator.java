@@ -17,6 +17,8 @@
 package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.GCodeCycleEvent;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.IGCodeCycleListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.IMachineStatusEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
@@ -53,8 +55,6 @@ public class GRBLToolChangeOperator
                 fWaitForMachineToBeIdle.Set();
                 break;
             case GRBLActiveStates.RUN:
-                // When GCode Cycle Stars get the height difference between work position Z
-                // and the Tool Setter Height
                 break;
             case GRBLActiveStates.HOLD:
             case GRBLActiveStates.ALARM:
@@ -78,14 +78,42 @@ public class GRBLToolChangeOperator
                 final int activeState = evt.getMachineStatus();
                 MachineStatusHasChange(activeState);
             });
+
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getCycleEventManager().AddListener(new IGCodeCycleListener()
+            {
+                @Override
+                public void GCodeCycleStarted(GCodeCycleEvent evt)
+                {
+                }
+
+                @Override
+                public void GCodeCycleFinished(GCodeCycleEvent evt)
+                {
+                    fIsTheFirstToolChangeInTheGCodeCycle = true;
+                }
+
+                @Override
+                public void GCodeCycleCanceled(GCodeCycleEvent evt)
+                {
+                    fIsTheFirstToolChangeInTheGCodeCycle = true;
+                }
+
+                @Override
+                public void GCodeCyclePaused(GCodeCycleEvent evt)
+                {
+                }
+
+                @Override
+                public void GCodeCycleResumed(GCodeCycleEvent evt)
+                {
+                }
+            });
         }
     }
 
     public void DoSemiAutoToolChangeSequence(GCodeCommand command)
     {
         InitializeMachineStatusEventListener();
-
-        String commandStr = "";
 
         // Step 1 - Get current work position status
         AskForMachineStatus();
@@ -155,7 +183,7 @@ public class GRBLToolChangeOperator
             //////////////////////////////////////////////////////////////////////////////
 
             // At this point we know that the endmill is exactly at SemiAutoToolChangeSettings.getToolSetterHeight()
-            // from the table but... we do not know the distance between the work Z 0 and the table.
+            // from the table but... we do not know the distance between the work Z 0 (before the tool change) and the tool setter.
             // So if it is the FIRST TOOL CHANGE IN THE GCODE CYCLE we have to make the calculation
             // of the travel between the work Z 0 point to the Tool setter top
             if (fIsTheFirstToolChangeInTheGCodeCycle)
@@ -164,17 +192,40 @@ public class GRBLToolChangeOperator
                 fIsTheFirstToolChangeInTheGCodeCycle = false;
             }
 
-            // Move endmill back to  fTravelBetweenWorkZeroAndToolSetterTop
-            MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", fTravelBetweenWorkZeroAndToolSetterTop);
-            SendPauseCommand(2);
+            if (fTravelBetweenWorkZeroAndToolSetterTop < 0)
+            {
+                // That means the original work zero is below the tool setter height
+                // So move the Z 10mm up
+                MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", 10);
+            }
+            else
+            {
+                // Move endmill back to  fTravelBetweenWorkZeroAndToolSetterTop
+                MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", fTravelBetweenWorkZeroAndToolSetterTop);
+                SendPauseCommand(2);
+            }
 
             AskForMachineStatus();
 
             // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             // At this point the Endmill is at the original Work Z 0 point
             // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            ChangeWorkPositionWithValue("Z", 0);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
+            if (fTravelBetweenWorkZeroAndToolSetterTop < 0)
+            {
+                ChangeWorkPositionWithValue("Z", Math.abs(fTravelBetweenWorkZeroAndToolSetterTop) + 10);
+            }
+            else
+            {
+                ChangeWorkPositionWithValue("Z", 0);
+            }
+
+            // RAISE THE ENDMILL TO THE TOP IN ORDER TO AVOID WORKHOLDING
+            AskForMachineStatus();
+            double maxDistance = Math.abs(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ() + 2);
+            MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", maxDistance);
+            AskForMachineStatus();
+            SendPauseCommand(2);
+
         }
         catch (Exception ex)
         {
@@ -184,7 +235,7 @@ public class GRBLToolChangeOperator
         // Step 6 - Return to X and Y before Tool Change
         try
         {
-            MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", 4);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
             AskForMachineStatus();
             MoveFromPositionToPosition_ABSOLUTE("X", machinePositionXBeforeToolChange);
             MoveFromPositionToPosition_ABSOLUTE("Y", machinePositionYBeforeToolChange);
@@ -195,8 +246,12 @@ public class GRBLToolChangeOperator
                 AskForMachineStatus();
             }
 
+            // Move endmill back to ZERO
+            MoveFromPositionToPosition_ABSOLUTE_With_FeedRate("Z", 0, 40);
             ChangeWorkPositionWithValue("X", workPositionXBeforeToolChange);
             ChangeWorkPositionWithValue("Y", workPositionYBeforeToolChange);
+            ChangeWorkPositionWithValue("Z", workPositionZBeforeToolChange);
+
             AskForMachineStatus();
         }
         catch (Exception ex)
@@ -209,6 +264,12 @@ public class GRBLToolChangeOperator
     private void MoveFromPositionToPosition_ABSOLUTE(String axis, double to)
     {
         String command = "G90 " + axis + String.valueOf(to) + "F3000";
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
+    }
+
+    private void MoveFromPositionToPosition_ABSOLUTE_With_FeedRate(String axis, double to, int feedRate)
+    {
+        String command = "G90 " + axis + String.valueOf(to) + "F" + String.valueOf(feedRate);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
     }
 

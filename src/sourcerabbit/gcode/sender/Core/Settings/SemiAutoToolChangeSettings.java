@@ -113,30 +113,5 @@ public class SemiAutoToolChangeSettings
         }
     }
     
-    public static void setToolSetterHeight(double value)
-    {
-        SettingsManager.fAppSettings.setProperty(TOOL_SETTER_HEIGHT, String.valueOf(value));
-        SettingsManager.SaveSettings();
-    }
-
-    public static double getToolSetterHeight()
-    {
-        try
-        {
-            String value = SettingsManager.fAppSettings.getProperty(TOOL_SETTER_HEIGHT);
-            if (value == null || value.equals(""))
-            {
-                return 20;
-            }
-            else
-            {
-                return Double.parseDouble(value);
-            }
-        }
-        catch (Exception ex)
-        {
-            return 0;
-        }
-    }
 
 }

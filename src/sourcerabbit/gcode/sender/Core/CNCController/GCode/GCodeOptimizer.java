@@ -71,19 +71,16 @@ public class GCodeOptimizer
     private static String TruncateDecimals(final String command)
     {
         Matcher matcher = fDecimalPattern.matcher(command);
-        Float d;
+        Double d;
         StringBuffer sb = new StringBuffer();
         while (matcher.find())
         {
-            d = Float.parseFloat(matcher.group());
+            d = Double.parseDouble(matcher.group());
             matcher.appendReplacement(sb, fDecimalFormatter.format(d));
         }
         matcher.appendTail(sb);
 
-        /*System.out.println("Original: " + command);
-        System.out.println("Optimized: " + sb.toString());
-        System.out.println("-------------------------------------------------");*/
-        // Return new command.
+
         return sb.toString();
     }
 }

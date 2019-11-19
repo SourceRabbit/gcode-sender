@@ -65,7 +65,6 @@ public class GCodeCommand
     {
         String optimized = GCodeOptimizer.OptimizeGCodeCommand(this);
         return GCodeOptimizer.OptimizeGCodeCommand(this);
-
     }
 
     /**
@@ -79,25 +78,25 @@ public class GCodeCommand
         {
             final Pattern pattern = Pattern.compile("[AXYZ][+-]?[0-9]*\\.?[0-9]*\\.?[0-9]­*");
             final Matcher m = pattern.matcher(fCommand);
-            Float x = null, y = null, z = null, a = null;
+            Double x = null, y = null, z = null, a = null;
             while (m.find())
             {
                 final String groupStr = m.group();
                 if (groupStr.contains("X"))
                 {
-                    x = Float.parseFloat(groupStr.replace("X", ""));
+                    x = Double.parseDouble(groupStr.replace("X", ""));
                 }
                 else if (groupStr.contains("Y"))
                 {
-                    y = Float.parseFloat(groupStr.replace("Y", ""));
+                    y = Double.parseDouble(groupStr.replace("Y", ""));
                 }
                 else if (groupStr.contains("Z"))
                 {
-                    z = Float.parseFloat(groupStr.replace("Z", ""));
+                    z = Double.parseDouble(groupStr.replace("Z", ""));
                 }
                 else if (groupStr.contains("A"))
                 {
-                    a = Float.parseFloat(groupStr.replace("A", ""));
+                    a = Double.parseDouble(groupStr.replace("A", ""));
                 }
             }
 

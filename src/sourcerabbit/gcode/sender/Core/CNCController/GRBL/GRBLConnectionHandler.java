@@ -117,6 +117,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 // and get the current Active State of the machine.
                 int currentActiveState = fMyStatusReportParser.ParseStatusReportMessageAndReturnActiveState(receivedStr);
 
+                //System.out.println(receivedStr);
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
                 // Check if the machine status changed
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +137,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
             }
             else
             {
-                System.out.println(receivedStr);
                 //System.out.println("Data received:" + receivedStr);
                 fGCodeCommandResponse = receivedStr;
                 if (receivedStr.equals("ok"))
@@ -169,7 +169,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 break;
                         }
 
-                        System.err.println("GRBLConnectionHander Error: " + errorMessage);
+                        System.err.println("GRBLConnectionHander Error: " + errorMessage + "---> Last Command: " + fLastCommandSentToController.getCommand());
 
                         fLastCommandSentToController.setError(errorMessage);
                         fGCodeExecutionEventsManager.FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
@@ -183,15 +183,21 @@ public class GRBLConnectionHandler extends ConnectionHandler
                             // READ CONTROLLER SETTINGS HERE !!!!
                             if (receivedStr.startsWith("$130"))
                             {
-                                fXMaxTravel = (int)Double.parseDouble(receivedStr.replace("$130=", ""));
+                                fXMaxTravel = (int) Double.parseDouble(receivedStr.replace("$130=", ""));
                             }
-                            else if (receivedStr.startsWith("$131"))
+                            else
                             {
-                                fYMaxTravel = (int)Double.parseDouble(receivedStr.replace("$131=", ""));
-                            }
-                            else if (receivedStr.startsWith("$132"))
-                            {
-                                fZMaxTravel = (int)Double.parseDouble(receivedStr.replace("$132=", ""));
+                                if (receivedStr.startsWith("$131"))
+                                {
+                                    fYMaxTravel = (int) Double.parseDouble(receivedStr.replace("$131=", ""));
+                                }
+                                else
+                                {
+                                    if (receivedStr.startsWith("$132"))
+                                    {
+                                        fZMaxTravel = (int) Double.parseDouble(receivedStr.replace("$132=", ""));
+                                    }
+                                }
                             }
                         }
 

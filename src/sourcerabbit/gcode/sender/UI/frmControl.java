@@ -63,6 +63,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 import sourcerabbit.gcode.sender.Core.CNCController.Processes.Process_Jogging;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
 import sourcerabbit.gcode.sender.Core.Units.EUnits;
+import sourcerabbit.gcode.sender.UI.Machine.frmToolChangeSettings;
 import sourcerabbit.gcode.sender.UI.Tools.frmHoleCenterFinder;
 import sourcerabbit.gcode.sender.UI.Tools.frmSetWorkPosition;
 import sourcerabbit.gcode.sender.UI.Tools.frmZAxisTouchProbe;
@@ -75,7 +76,7 @@ import sourcerabbit.gcode.sender.UI.UITools.UITools;
 public class frmControl extends javax.swing.JFrame
 {
 
-    private final frmControl fInstance;
+    public static frmControl fInstance;
     private ManualResetEvent fMachineStatusThreadWait;
     private boolean fKeepMachineStatusThreadRunning;
     private Thread fMachineStatusThread;
@@ -181,7 +182,7 @@ public class frmControl extends javax.swing.JFrame
         }
     }
 
-    private void WriteToConsole(String output)
+    public void WriteToConsole(String output)
     {
         String dateTime = (fDateFormat.format(fCalendar.getTime()));
         jTextAreaConsole.append(dateTime + " - " + output + "\n");
@@ -519,14 +520,14 @@ public class frmControl extends javax.swing.JFrame
                     fMachineStatusThreadWait.Reset();
 
                     // Update Machine Position
-                    jLabelMachineX.setText("X: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX());
-                    jLabelMachineY.setText("Y: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY());
-                    jLabelMachineZ.setText("Z: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ());
+                    jLabelMachineX.setText("X: " + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX()));
+                    jLabelMachineY.setText("Y: " + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY()));
+                    jLabelMachineZ.setText("Z: " + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ()));
 
                     // Update Work position
-                    jLabelWorkX.setText("X: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX());
-                    jLabelWorkY.setText("Y: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY());
-                    jLabelWorkZ.setText("Z: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ());
+                    jLabelWorkX.setText("X: " + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX()));
+                    jLabelWorkY.setText("Y: " + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY()));
+                    jLabelWorkZ.setText("Z: " + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ()));
 
                     // Update bytes per second
                     jLabelBytesPerSecond.setText(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesInPerSec() + " / " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesOutPerSec());
@@ -729,6 +730,8 @@ public class frmControl extends javax.swing.JFrame
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItemHoleCenterFinder = new javax.swing.JMenuItem();
+        jMenu4 = new javax.swing.JMenu();
+        jMenuItemToolChangeSettings = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
@@ -1513,6 +1516,20 @@ public class frmControl extends javax.swing.JFrame
 
         jMenuBar1.add(jMenu2);
 
+        jMenu4.setText("Machine");
+
+        jMenuItemToolChangeSettings.setText("Tool Change Settings");
+        jMenuItemToolChangeSettings.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jMenuItemToolChangeSettingsActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItemToolChangeSettings);
+
+        jMenuBar1.add(jMenu4);
+
         jMenu3.setText("Help");
 
         jMenuItem3.setText("About");
@@ -1969,6 +1986,12 @@ public class frmControl extends javax.swing.JFrame
         }
     }//GEN-LAST:event_jCheckBoxEnableKeyboardJoggingActionPerformed
 
+    private void jMenuItemToolChangeSettingsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItemToolChangeSettingsActionPerformed
+    {//GEN-HEADEREND:event_jMenuItemToolChangeSettingsActionPerformed
+        frmToolChangeSettings frm = new frmToolChangeSettings(this, true);
+        frm.setVisible(true);
+    }//GEN-LAST:event_jMenuItemToolChangeSettingsActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClearConsole;
     private javax.swing.JButton jButtonClearLog;
@@ -2023,6 +2046,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
@@ -2031,6 +2055,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JMenuItem jMenuItemExit;
     private javax.swing.JMenuItem jMenuItemGRBLSettings;
     private javax.swing.JMenuItem jMenuItemHoleCenterFinder;
+    private javax.swing.JMenuItem jMenuItemToolChangeSettings;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

@@ -120,8 +120,8 @@ public class ConnectionHandler implements SerialPortEventListener
             throw new Exception("Serial port not found!");
         }
 
-        fMachinePosition = new Position4D((float) 0, (float) 0, (float) 0, null);
-        fWorkPosition = new Position4D((float) 0, (float) 0, (float) 0, null);
+        fMachinePosition = new Position4D((double) 0.000, (double) 0.000, (double) 0.000, null);
+        fWorkPosition = new Position4D((double) 0.000, (double) 0.000, (double) 0.000, null);
 
         StartByteCountThread();
 

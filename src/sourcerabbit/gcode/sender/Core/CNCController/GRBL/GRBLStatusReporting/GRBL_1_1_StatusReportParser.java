@@ -16,6 +16,8 @@ Copyright (C) 2015  Nikos Siatras
  */
 package sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLConnectionHandler;
 import sourcerabbit.gcode.sender.Core.Machine.MachineInformation;
@@ -29,7 +31,7 @@ public class GRBL_1_1_StatusReportParser extends GRBLStatusReportParser
 
     // Work Coordinate Offset (WCO):
     public boolean fControllerSendsWorkPosition = false;
-    public Float fXOffset = 0.0f, fYOffset = 0.0f, fZOffset = 0.0f;
+    public Double fXOffset = 0.000, fYOffset = 0.000, fZOffset = 0.000;
 
     public GRBL_1_1_StatusReportParser(GRBLConnectionHandler myConnectionHandler)
     {
@@ -58,10 +60,14 @@ public class GRBL_1_1_StatusReportParser extends GRBLStatusReportParser
                 String[] machinePosition = part.replace("mpos:", "").split(",");
 
                 // Set Machine Position
-                fMyConnectionHandler.getMachinePosition().setX(Float.parseFloat(machinePosition[0]));
-                fMyConnectionHandler.getMachinePosition().setY(Float.parseFloat(machinePosition[1]));
-                fMyConnectionHandler.getMachinePosition().setZ(Float.parseFloat(machinePosition[2]));
-
+                BigDecimal decimalX = new BigDecimal(machinePosition[0]);
+                BigDecimal decimalY = new BigDecimal(machinePosition[1]);
+                BigDecimal decimalZ = new BigDecimal(machinePosition[2]);
+                
+                fMyConnectionHandler.getMachinePosition().setX(decimalX.doubleValue());
+                fMyConnectionHandler.getMachinePosition().setY(decimalY.doubleValue());
+                fMyConnectionHandler.getMachinePosition().setZ(decimalZ.doubleValue());
+                
                 // Call the CalculateWorkCoordinateOffset method!
                 CalculateCoordinateOffset();
             }
@@ -72,9 +78,9 @@ public class GRBL_1_1_StatusReportParser extends GRBLStatusReportParser
                 String[] workPosition = part.replace("wpos:", "").split(",");
 
                 // Set Machine Position
-                fMyConnectionHandler.getWorkPosition().setX(Float.parseFloat(workPosition[0]));
-                fMyConnectionHandler.getWorkPosition().setY(Float.parseFloat(workPosition[1]));
-                fMyConnectionHandler.getWorkPosition().setZ(Float.parseFloat(workPosition[2]));
+                fMyConnectionHandler.getWorkPosition().setX(Double.parseDouble(workPosition[0]));
+                fMyConnectionHandler.getWorkPosition().setY(Double.parseDouble(workPosition[1]));
+                fMyConnectionHandler.getWorkPosition().setZ(Double.parseDouble(workPosition[2]));
 
                 // Call the CalculateWorkCoordinateOffset method!
                 CalculateCoordinateOffset();
@@ -82,10 +88,14 @@ public class GRBL_1_1_StatusReportParser extends GRBLStatusReportParser
             else if (part.startsWith("wco:"))
             {
                 String[] wco = part.replace("wco:", "").split(",");
+                
+                BigDecimal decimalX = new BigDecimal(wco[0]);
+                BigDecimal decimalY = new BigDecimal(wco[1]);
+                BigDecimal decimalZ = new BigDecimal(wco[2]);
 
-                fXOffset = Float.parseFloat(wco[0]);
-                fYOffset = Float.parseFloat(wco[1]);
-                fZOffset = Float.parseFloat(wco[2]);
+                fXOffset = decimalX.doubleValue();
+                fYOffset = decimalY.doubleValue();
+                fZOffset = decimalZ.doubleValue();
 
                 // Call the CalculateWorkCoordinateOffset method!
                 CalculateCoordinateOffset();
@@ -131,17 +141,39 @@ public class GRBL_1_1_StatusReportParser extends GRBLStatusReportParser
     {
         if (fControllerSendsWorkPosition)
         {
+            // Controller sends Work Position
+            // Calculate the Machine position !!
             // MPos = WPos + WCO
-            fMyConnectionHandler.getMachinePosition().setX(fMyConnectionHandler.getWorkPosition().getX() + fXOffset);
-            fMyConnectionHandler.getMachinePosition().setY(fMyConnectionHandler.getWorkPosition().getY() + fYOffset);
-            fMyConnectionHandler.getMachinePosition().setZ(fMyConnectionHandler.getWorkPosition().getZ() + fZOffset);
+            fMyConnectionHandler.getMachinePosition().setX(fMyConnectionHandler.getWorkPosition().getX()+ fXOffset);
+            fMyConnectionHandler.getMachinePosition().setY(fMyConnectionHandler.getWorkPosition().getY()+ fYOffset);
+            fMyConnectionHandler.getMachinePosition().setZ(fMyConnectionHandler.getWorkPosition().getZ()+ fZOffset);
         }
         else
         {
+            BigDecimal mpos,offset,calc;
+            
+            // Controller sends Machine Position
+            // Calculate the work position !!
             // WPos = MPos - WCO
-            fMyConnectionHandler.getWorkPosition().setX(fMyConnectionHandler.getMachinePosition().getX() - fXOffset);
-            fMyConnectionHandler.getWorkPosition().setY(fMyConnectionHandler.getMachinePosition().getY() - fYOffset);
-            fMyConnectionHandler.getWorkPosition().setZ(fMyConnectionHandler.getMachinePosition().getZ() - fZOffset);
+            
+            // X Axis
+            mpos = new BigDecimal(fMyConnectionHandler.getMachinePosition().getX(),MathContext.DECIMAL32);
+            offset = new BigDecimal(fXOffset,MathContext.UNLIMITED);
+            calc = mpos.subtract(offset);           
+            fMyConnectionHandler.getWorkPosition().setX(calc.doubleValue());
+            
+            // Y Axis
+            mpos = new BigDecimal(fMyConnectionHandler.getMachinePosition().getY(),MathContext.DECIMAL32);
+            offset = new BigDecimal(fYOffset,MathContext.UNLIMITED);
+            calc = mpos.subtract(offset); 
+            fMyConnectionHandler.getWorkPosition().setY(calc.doubleValue());
+
+            // Z Axis
+            mpos = new BigDecimal(fMyConnectionHandler.getMachinePosition().getZ(),MathContext.DECIMAL32);
+            offset = new BigDecimal(fZOffset,MathContext.UNLIMITED);
+            calc = mpos.subtract(offset);          
+            fMyConnectionHandler.getWorkPosition().setZ(calc.doubleValue());
+
         }
     }
 }

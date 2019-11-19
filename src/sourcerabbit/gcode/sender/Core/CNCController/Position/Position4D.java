@@ -23,9 +23,9 @@ package sourcerabbit.gcode.sender.Core.CNCController.Position;
 public class Position4D
 {
 
-    private Float fX, fY, fZ, fA;
+    private Double fX, fY, fZ, fA;
 
-    public Position4D(Float x, Float y, Float z, Float a)
+    public Position4D(Double x, Double y, Double z, Double a)
     {
         fX = x;
         fY = y;
@@ -33,27 +33,27 @@ public class Position4D
         fA = a;
     }
 
-    public void setX(Float x)
+    public void setX(double x)
     {
         fX = x;
     }
 
-    public void setY(Float y)
+    public void setY(double y)
     {
         fY = y;
     }
 
-    public void setZ(Float z)
+    public void setZ(double z)
     {
         fZ = z;
     }
 
-    public void setA(Float a)
+    public void setA(double a)
     {
         fA = a;
     }
 
-    public void setPosition(Float x, Float y, Float z, Float a)
+    public void setPosition(double x, double y, double z, double a)
     {
         fX = x;
         fY = y;
@@ -61,22 +61,22 @@ public class Position4D
         fA = a;
     }
 
-    public Float getX()
+    public Double getX()
     {
         return fX;
     }
 
-    public Float getY()
+    public Double getY()
     {
         return fY;
     }
 
-    public Float getZ()
+    public Double getZ()
     {
         return fZ;
     }
 
-    public Float getA()
+    public Double getA()
     {
         return fA;
     }

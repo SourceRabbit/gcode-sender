@@ -22,6 +22,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.GCodeCycleEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCodeSender;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
+import sourcerabbit.gcode.sender.Core.Settings.SemiAutoToolChangeSettings;
 
 /**
  *
@@ -33,12 +34,15 @@ public class GRBLGCodeSender extends GCodeSender
     // GRBL GCode Cycle
     private boolean fKeepGCodeCycle = false;
     private Thread fGCodeCycleThread;
-
     private boolean fIsSendingGCodeFile = false;
+
+    // GRBL Tool Change
+    private final GRBLToolChangeOperator fSemiAutoToolChangeOperator;
 
     public GRBLGCodeSender(ConnectionHandler myHandler)
     {
         super(myHandler);
+        fSemiAutoToolChangeOperator = new GRBLToolChangeOperator(this);
     }
 
     /**
@@ -72,9 +76,7 @@ public class GRBLGCodeSender extends GCodeSender
                 try
                 {
                     // Send cycle start command and ask for the new machine status
-                    fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_START_CYCLE);
-                    fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_GET_STATUS);
-
+                    fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_START_CYCLE + GRBLCommands.COMMAND_GET_STATUS);
 
                     long lastStatusRequestTimestamp = System.currentTimeMillis();
 
@@ -84,7 +86,32 @@ public class GRBLGCodeSender extends GCodeSender
                         {
                             // Create a GCode Command to send
                             final GCodeCommand command = new GCodeCommand(gcodes.remove());
-                            fMyConnectionHandler.SendGCodeCommand(command);
+
+                            ///////////////////////////////////////////////////////////////////////////////////
+                            // COMMAND WITH TOOL CHANGE
+                            // Check if the command has T (for tool change)
+                            // and ask the GRBLToolChangeManager to do the tool change
+                            ///////////////////////////////////////////////////////////////////////////////////
+                            if (SemiAutoToolChangeSettings.getEnableSemiAutoToolChange() && command.getCommand().contains("M6") && command.getCommand().contains("T"))
+                            {
+                                fSemiAutoToolChangeOperator.DoSemiAutoToolChangeSequence(command);
+                            }
+                            else
+                            {
+                                if (command.getCommand().equals("M998"))
+                                {
+                                    // DO NOTHING
+                                    // This command tells the machine to move to the tool change height
+                                }
+                                else
+                                {
+                                    ///////////////////////////////////////////////////////////////////////////////////
+                                    // Send the command
+                                    ///////////////////////////////////////////////////////////////////////////////////
+                                    fMyConnectionHandler.SendGCodeCommand(command);
+                                    ///////////////////////////////////////////////////////////////////////////////////
+                                }
+                            }
 
                             // Ask for machine status every 3000 milliseconds
                             if (System.currentTimeMillis() - lastStatusRequestTimestamp > 3000)
@@ -112,7 +139,6 @@ public class GRBLGCodeSender extends GCodeSender
                     final long second = (millis / 1000) % 60;
                     final long minute = (millis / (1000 * 60)) % 60;
                     final long hour = (millis / (1000 * 60 * 60)) % 24;
-
                     final String time = String.format("%02d:%02d:%02d", hour, minute, second);
                     fGCodeCycleStartedTimestamp = - 1;
                     fGCodeCycleEventManager.FireGCodeCycleFinishedEvent(new GCodeCycleEvent("Finished!\nTime: " + time));
@@ -127,8 +153,7 @@ public class GRBLGCodeSender extends GCodeSender
     }
 
     /**
-     * Cancel Sending GCode to GRBL Controller! This method stops immediately
-     * the GCode cycle and the CNC machine stops.
+     * Cancel Sending GCode to GRBL Controller! This method stops immediately the GCode cycle and the CNC machine stops.
      */
     @Override
     public void CancelSendingGCode()

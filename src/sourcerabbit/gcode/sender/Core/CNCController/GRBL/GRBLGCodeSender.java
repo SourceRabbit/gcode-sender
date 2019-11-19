@@ -37,7 +37,7 @@ public class GRBLGCodeSender extends GCodeSender
     private boolean fIsSendingGCodeFile = false;
 
     // GRBL Tool Change
-    private final GRBLToolChangeOperator fSemiAutoToolChangeOperator;
+    public final GRBLToolChangeOperator fSemiAutoToolChangeOperator;
 
     public GRBLGCodeSender(ConnectionHandler myHandler)
     {

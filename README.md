@@ -8,7 +8,7 @@ Downloads
 ------
 
 To download the latest installer for <b>Windows</b> and <b>Mac</b> please visit:<br>
-[https://www.sourcerabbit.com/GCode-Sender/](https://www.sourcerabbit.com/GCode-Sender/#DownloadsSection)<br>
+[https://www.sourcerabbit.com/](https://www.sourcerabbit.com/)<br>
 
 For other operating systems:<br>
 [https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/latest](https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/latest)<br>

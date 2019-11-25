@@ -17,7 +17,7 @@ Copyright (C) 2015  Nikos Siatras
 package sourcerabbit.gcode.sender.UI.Machine;
 
 import java.awt.Component;
-import javax.swing.JSpinner;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.Core.Settings.SemiAutoToolChangeSettings;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
@@ -217,6 +217,25 @@ public class frmToolChangeSettings extends javax.swing.JDialog
         }
 
         SemiAutoToolChangeSettings.setEnableSemiAutoToolChange(jCheckBoxEnableSemiAutoToolChange.isSelected());
+
+        // Set the touch probe to  NC (Normally Closed)
+        // when Semi Auto Tool change is Enabled
+        String touchProbeNC_or_NO = "$6=0";
+        if (jCheckBoxEnableSemiAutoToolChange.isSelected())
+        {
+            // Set the touch probe to  NC (Normally Closed)
+            touchProbeNC_or_NO = "$6=1";
+        }
+
+        try
+        {
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData(touchProbeNC_or_NO);
+        }
+        catch (Exception ex)
+        {
+
+        }
+
         SemiAutoToolChangeSettings.setToolSetterX(toolSetterX);
         SemiAutoToolChangeSettings.setToolSetterY(toolSetterY);
         this.dispose();

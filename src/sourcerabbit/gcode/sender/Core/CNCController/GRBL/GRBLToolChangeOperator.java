@@ -247,7 +247,7 @@ public class GRBLToolChangeOperator
             }
 
             // Move endmill back to ZERO
-            MoveFromPositionToPosition_ABSOLUTE_With_FeedRate("Z", 0, 40);
+            MoveFromPositionToPosition_ABSOLUTE("Z", 0);
             ChangeWorkPositionWithValue("X", workPositionXBeforeToolChange);
             ChangeWorkPositionWithValue("Y", workPositionYBeforeToolChange);
             ChangeWorkPositionWithValue("Z", workPositionZBeforeToolChange);
@@ -264,12 +264,6 @@ public class GRBLToolChangeOperator
     private void MoveFromPositionToPosition_ABSOLUTE(String axis, double to)
     {
         String command = "G90 " + axis + String.valueOf(to) + "F3000";
-        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
-    }
-
-    private void MoveFromPositionToPosition_ABSOLUTE_With_FeedRate(String axis, double to, int feedRate)
-    {
-        String command = "G90 " + axis + String.valueOf(to) + "F" + String.valueOf(feedRate);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
     }
 

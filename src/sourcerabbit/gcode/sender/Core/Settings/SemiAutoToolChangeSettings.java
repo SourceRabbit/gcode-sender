@@ -39,7 +39,7 @@ public class SemiAutoToolChangeSettings
         SettingsManager.SaveSettings();
     }
 
-    public static boolean getEnableSemiAutoToolChange()
+    public static boolean isSemiAutoToolChangeEnabled()
     {
         try
         {

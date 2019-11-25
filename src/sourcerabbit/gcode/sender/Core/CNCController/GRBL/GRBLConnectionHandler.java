@@ -54,6 +54,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
     private GCodeCommand fLastCommandSentToController = null;
     private String fGCodeCommandResponse = "";
 
+    private boolean fMachineSettingsAsked = false;
+
     public GRBLConnectionHandler()
     {
         super.fMessageSplitter = "\n";
@@ -113,6 +115,11 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
             if (receivedStr.startsWith("<"))
             {
+                if (isShowVerboseOutputEnabled())
+                {
+                    fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
+                }
+
                 // Ask the appropriate GRBL Status Parser to parse the new Status Message
                 // and get the current Active State of the machine.
                 int currentActiveState = fMyStatusReportParser.ParseStatusReportMessageAndReturnActiveState(receivedStr);
@@ -127,6 +134,24 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
                     // Fire the MachineStatusChangedEvent
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(fActiveState, ""));
+                }
+
+                if (fActiveState == GRBLActiveStates.IDLE)
+                {
+                    if (!fMachineSettingsAsked)
+                    {
+                        // The first time the machine goes to Idle ask the controller settings 
+                        // in order to get the max X,Y and Z travels.
+                        SendData("$$");
+                        fMachineSettingsAsked = true;
+                    }
+                }
+                else
+                {
+                    if (fActiveState == GRBLActiveStates.ALARM || fActiveState == GRBLActiveStates.MACHINE_IS_LOCKED || fActiveState == GRBLActiveStates.RESET_TO_CONTINUE)
+                    {
+                        fMachineSettingsAsked = false;
+                    }
                 }
 
                 // Set the fLastMachinePositionReceivedTimestamp value and the 

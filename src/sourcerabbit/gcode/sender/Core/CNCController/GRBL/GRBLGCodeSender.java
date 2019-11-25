@@ -92,7 +92,7 @@ public class GRBLGCodeSender extends GCodeSender
                             // Check if the command has T (for tool change)
                             // and ask the GRBLToolChangeManager to do the tool change
                             ///////////////////////////////////////////////////////////////////////////////////
-                            if (SemiAutoToolChangeSettings.getEnableSemiAutoToolChange() && command.getCommand().contains("M6") && command.getCommand().contains("T"))
+                            if (SemiAutoToolChangeSettings.isSemiAutoToolChangeEnabled() && command.getCommand().contains("M6") && command.getCommand().contains("T"))
                             {
                                 fSemiAutoToolChangeOperator.DoSemiAutoToolChangeSequence(command);
                             }

@@ -84,6 +84,9 @@ public class ConnectionHandler implements SerialPortEventListener
     public static int fYMaxTravel = 00;
     public static int fZMaxTravel = 00;
 
+    // For UI purposes
+    protected boolean fShowVerboseOutput = false;
+
     public ConnectionHandler()
     {
         fMyGCodeSender = new GRBLGCodeSender(this);
@@ -308,9 +311,7 @@ public class ConnectionHandler implements SerialPortEventListener
     }
 
     /**
-     * Call the "StartUsingTouchProbe" at the start of each operation that
-     * requires the use of touch probe. After the operation finishes then call
-     * the "StopUsingTouchProbe" method.
+     * Call the "StartUsingTouchProbe" at the start of each operation that requires the use of touch probe. After the operation finishes then call the "StopUsingTouchProbe" method.
      */
     public void StartUsingTouchProbe()
     {
@@ -318,8 +319,7 @@ public class ConnectionHandler implements SerialPortEventListener
     }
 
     /**
-     * Call the "StopUsingTouchProbe" when an operation that requires touch
-     * probe finishes.
+     * Call the "StopUsingTouchProbe" when an operation that requires touch probe finishes.
      */
     public void StopUsingTouchProbe()
     {
@@ -464,5 +464,20 @@ public class ConnectionHandler implements SerialPortEventListener
     public ECNCControlFrameworkVersion getCNCControlFrameworkVersion()
     {
         return fMyControlFrameworkVersion;
+    }
+
+    /**
+     * Set the Show Verbose output boolean
+     *
+     * @param value
+     */
+    public void setShowVerboseOutput(boolean value)
+    {
+        fShowVerboseOutput = value;
+    }
+
+    public boolean isShowVerboseOutputEnabled()
+    {
+        return fShowVerboseOutput;
     }
 }

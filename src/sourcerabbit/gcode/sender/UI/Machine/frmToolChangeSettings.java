@@ -47,10 +47,10 @@ public class frmToolChangeSettings extends javax.swing.JDialog
         this.setLocation((int) pos.getX(), (int) pos.getY());
 
         // Enable Settings if getEnableSemiAutoToolChange == true
-        jCheckBoxEnableSemiAutoToolChange.setSelected(SemiAutoToolChangeSettings.getEnableSemiAutoToolChange());
+        jCheckBoxEnableSemiAutoToolChange.setSelected(SemiAutoToolChangeSettings.isSemiAutoToolChangeEnabled());
         for (Component component : jPanel1.getComponents())
         {
-            component.setEnabled(SemiAutoToolChangeSettings.getEnableSemiAutoToolChange());
+            component.setEnabled(SemiAutoToolChangeSettings.isSemiAutoToolChangeEnabled());
         }
 
         jTextFieldToolSetterX.setText(String.valueOf(SemiAutoToolChangeSettings.getToolSetterX()));

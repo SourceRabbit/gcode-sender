@@ -60,76 +60,92 @@ public class GRBL_1_1_StatusReportParser extends GRBLStatusReportParser
                 String[] machinePosition = part.replace("mpos:", "").split(",");
 
                 // Set Machine Position
-                BigDecimal decimalX = new BigDecimal(machinePosition[0]);
-                BigDecimal decimalY = new BigDecimal(machinePosition[1]);
-                BigDecimal decimalZ = new BigDecimal(machinePosition[2]);
-                
-                fMyConnectionHandler.getMachinePosition().setX(decimalX.doubleValue());
-                fMyConnectionHandler.getMachinePosition().setY(decimalY.doubleValue());
-                fMyConnectionHandler.getMachinePosition().setZ(decimalZ.doubleValue());
-                
-                // Call the CalculateWorkCoordinateOffset method!
-                CalculateCoordinateOffset();
-            }
-            else if (part.startsWith("wpos:"))
-            {
-                // Get Work Position
-                fControllerSendsWorkPosition = true;
-                String[] workPosition = part.replace("wpos:", "").split(",");
+                BigDecimal machineXBigDecimal = parseMachineOrWorkPositionToBigDecimal64(machinePosition[0]);
+                BigDecimal machineYBigDecimal = parseMachineOrWorkPositionToBigDecimal64(machinePosition[1]);
+                BigDecimal machineZBigDecimal = parseMachineOrWorkPositionToBigDecimal64(machinePosition[2]);
 
-                // Set Machine Position
-                fMyConnectionHandler.getWorkPosition().setX(Double.parseDouble(workPosition[0]));
-                fMyConnectionHandler.getWorkPosition().setY(Double.parseDouble(workPosition[1]));
-                fMyConnectionHandler.getWorkPosition().setZ(Double.parseDouble(workPosition[2]));
+                fMyConnectionHandler.getMachinePosition().setX(machineXBigDecimal.doubleValue());
+                fMyConnectionHandler.getMachinePosition().setY(machineYBigDecimal.doubleValue());
+                fMyConnectionHandler.getMachinePosition().setZ(machineZBigDecimal.doubleValue());
 
                 // Call the CalculateWorkCoordinateOffset method!
                 CalculateCoordinateOffset();
             }
-            else if (part.startsWith("wco:"))
+            else
             {
-                String[] wco = part.replace("wco:", "").split(",");
-                
-                BigDecimal decimalX = new BigDecimal(wco[0]);
-                BigDecimal decimalY = new BigDecimal(wco[1]);
-                BigDecimal decimalZ = new BigDecimal(wco[2]);
-
-                fXOffset = decimalX.doubleValue();
-                fYOffset = decimalY.doubleValue();
-                fZOffset = decimalZ.doubleValue();
-
-                // Call the CalculateWorkCoordinateOffset method!
-                CalculateCoordinateOffset();
-            }
-            else if (part.startsWith("f:"))
-            {
-                try
+                if (part.startsWith("wpos:"))
                 {
-                    // F:500 contains real-time feed rate data as the value
-                    String[] parts = part.replace("f:", "").split(",");
-                    int liveFeedRate = Integer.parseInt(parts[0]);
-                    MachineInformation.LiveFeedRate().set(liveFeedRate);
+                    // Get Work Position
+                    fControllerSendsWorkPosition = true;
+                    String[] workPosition = part.replace("wpos:", "").split(",");
+
+                    // Set work Position
+                    BigDecimal workXBigDecimal = parseMachineOrWorkPositionToBigDecimal64(workPosition[0]);
+                    BigDecimal workYBigDecimal = parseMachineOrWorkPositionToBigDecimal64(workPosition[1]);
+                    BigDecimal workZBigDecimal = parseMachineOrWorkPositionToBigDecimal64(workPosition[2]);
+
+                    fMyConnectionHandler.getWorkPosition().setX(workXBigDecimal.doubleValue());
+                    fMyConnectionHandler.getWorkPosition().setY(workYBigDecimal.doubleValue());
+                    fMyConnectionHandler.getWorkPosition().setZ(workZBigDecimal.doubleValue());
+
+                    // Call the CalculateWorkCoordinateOffset method!
+                    CalculateCoordinateOffset();
                 }
-                catch (Exception ex)
+                else
                 {
+                    if (part.startsWith("wco:"))
+                    {
+                        String[] wco = part.replace("wco:", "").split(",");
 
-                }
-            }
-            else if (part.startsWith("fs:"))
-            {
-                try
-                {
-                    // FS:500,8000 contains real-time feed rate, followed by spindle speed, data as the values. 
-                    // Note the FS:, rather than F:, data type name indicates spindle speed data is included.
-                    String[] parts = part.replace("fs:", "").split(",");
-                    int liveFeedRate = Integer.parseInt(parts[0]);
-                    MachineInformation.LiveFeedRate().set(liveFeedRate);
+                        BigDecimal decimalX = new BigDecimal(wco[0]);
+                        BigDecimal decimalY = new BigDecimal(wco[1]);
+                        BigDecimal decimalZ = new BigDecimal(wco[2]);
 
-                    int liveSpindleRPM = Integer.parseInt(parts[1]);
-                    MachineInformation.LiveSpindleRPM().set(liveSpindleRPM);
-                }
-                catch (Exception ex)
-                {
+                        fXOffset = decimalX.doubleValue();
+                        fYOffset = decimalY.doubleValue();
+                        fZOffset = decimalZ.doubleValue();
 
+                        // Call the CalculateWorkCoordinateOffset method!
+                        CalculateCoordinateOffset();
+                    }
+                    else
+                    {
+                        if (part.startsWith("f:"))
+                        {
+                            try
+                            {
+                                // F:500 contains real-time feed rate data as the value
+                                String[] parts = part.replace("f:", "").split(",");
+                                int liveFeedRate = Integer.parseInt(parts[0]);
+                                MachineInformation.LiveFeedRate().set(liveFeedRate);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        else
+                        {
+                            if (part.startsWith("fs:"))
+                            {
+                                try
+                                {
+                                    // FS:500,8000 contains real-time feed rate, followed by spindle speed, data as the values. 
+                                    // Note the FS:, rather than F:, data type name indicates spindle speed data is included.
+                                    String[] parts = part.replace("fs:", "").split(",");
+                                    int liveFeedRate = Integer.parseInt(parts[0]);
+                                    MachineInformation.LiveFeedRate().set(liveFeedRate);
+
+                                    int liveSpindleRPM = Integer.parseInt(parts[1]);
+                                    MachineInformation.LiveSpindleRPM().set(liveSpindleRPM);
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -144,36 +160,59 @@ public class GRBL_1_1_StatusReportParser extends GRBLStatusReportParser
             // Controller sends Work Position
             // Calculate the Machine position !!
             // MPos = WPos + WCO
-            fMyConnectionHandler.getMachinePosition().setX(fMyConnectionHandler.getWorkPosition().getX()+ fXOffset);
-            fMyConnectionHandler.getMachinePosition().setY(fMyConnectionHandler.getWorkPosition().getY()+ fYOffset);
-            fMyConnectionHandler.getMachinePosition().setZ(fMyConnectionHandler.getWorkPosition().getZ()+ fZOffset);
+            fMyConnectionHandler.getMachinePosition().setX(fMyConnectionHandler.getWorkPosition().getX() + fXOffset);
+            fMyConnectionHandler.getMachinePosition().setY(fMyConnectionHandler.getWorkPosition().getY() + fYOffset);
+            fMyConnectionHandler.getMachinePosition().setZ(fMyConnectionHandler.getWorkPosition().getZ() + fZOffset);
         }
         else
         {
-            BigDecimal mpos,offset,calc;
-            
+            BigDecimal mpos, offset, calc;
+
             // Controller sends Machine Position
             // Calculate the work position !!
             // WPos = MPos - WCO
-            
             // X Axis
-            mpos = new BigDecimal(fMyConnectionHandler.getMachinePosition().getX(),MathContext.DECIMAL32);
-            offset = new BigDecimal(fXOffset,MathContext.UNLIMITED);
-            calc = mpos.subtract(offset);           
-            fMyConnectionHandler.getWorkPosition().setX(calc.doubleValue());
-            
+            BigDecimal workPositionX = getWorkPositionFromMachinePositionAndOffset(fMyConnectionHandler.getMachinePosition().getX(), fXOffset);
+            fMyConnectionHandler.getWorkPosition().setX(workPositionX.doubleValue());
+
             // Y Axis
-            mpos = new BigDecimal(fMyConnectionHandler.getMachinePosition().getY(),MathContext.DECIMAL32);
-            offset = new BigDecimal(fYOffset,MathContext.UNLIMITED);
-            calc = mpos.subtract(offset); 
-            fMyConnectionHandler.getWorkPosition().setY(calc.doubleValue());
+            BigDecimal workPositionY = getWorkPositionFromMachinePositionAndOffset(fMyConnectionHandler.getMachinePosition().getY(), fYOffset);
+            fMyConnectionHandler.getWorkPosition().setY(workPositionY.doubleValue());
 
             // Z Axis
-            mpos = new BigDecimal(fMyConnectionHandler.getMachinePosition().getZ(),MathContext.DECIMAL32);
-            offset = new BigDecimal(fZOffset,MathContext.UNLIMITED);
-            calc = mpos.subtract(offset);          
-            fMyConnectionHandler.getWorkPosition().setZ(calc.doubleValue());
-
+            BigDecimal workPositionZ = getWorkPositionFromMachinePositionAndOffset(fMyConnectionHandler.getMachinePosition().getZ(), fZOffset);
+            fMyConnectionHandler.getWorkPosition().setZ(workPositionZ.doubleValue());
         }
     }
+
+    private BigDecimal parseMachineOrWorkPositionToBigDecimal64(String value)
+    {
+        double valueToDouble = Double.parseDouble(value);
+        BigDecimal bigDecimalValue = new BigDecimal(0, MathContext.DECIMAL64);
+        bigDecimalValue = bigDecimalValue.setScale(2);
+        bigDecimalValue = bigDecimalValue.add(new BigDecimal(valueToDouble, MathContext.DECIMAL64));
+        return bigDecimalValue;
+    }
+
+    private BigDecimal getWorkPositionFromMachinePositionAndOffset(double machinePosition, double offset)
+    {
+        // Calculate the work position !!
+        // WPos = MPos - WCO (offset)
+
+        BigDecimal result = new BigDecimal(0, MathContext.DECIMAL64);
+        result.setScale(0);
+
+        BigDecimal machinePositionBigDecimal = new BigDecimal(0, MathContext.DECIMAL64);
+        machinePositionBigDecimal.setScale(0);
+        machinePositionBigDecimal = machinePositionBigDecimal.add(new BigDecimal(machinePosition, MathContext.DECIMAL64));
+
+        BigDecimal offsetBigDecimal = new BigDecimal(0, MathContext.DECIMAL64);
+        offsetBigDecimal.setScale(0);
+        offsetBigDecimal = offsetBigDecimal.add(new BigDecimal(offset, MathContext.DECIMAL64));
+
+        result = result.add(machinePositionBigDecimal).subtract(offsetBigDecimal);
+
+        return result;
+    }
+
 }

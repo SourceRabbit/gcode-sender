@@ -116,7 +116,16 @@ public class GRBLToolChangeOperator
         InitializeMachineStatusEventListener();
 
         // Step 1 - Get current work position status
+        try
+        {
+            Thread.sleep(1000);
+        }
+        catch (Exception ex)
+        {
+
+        }
         AskForMachineStatus();
+
         final double workPositionXBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX();
         final double workPositionYBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY();
         final double workPositionZBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ();
@@ -125,10 +134,10 @@ public class GRBLToolChangeOperator
         final double machinePositionYBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY();
         final double machinePositionZBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ();
 
-        // Step 2 - Go to Work X0,Y0,Z4
+        // Step 2 - Go to Work Z4
+        frmControl.fInstance.WriteToConsole("Semi auto tool change process started.");
         MoveFromPositionToPosition_ABSOLUTE("Z", 4);
-        MoveFromPositionToPosition_ABSOLUTE("X", 0);
-        MoveFromPositionToPosition_ABSOLUTE("Y", 0);
+        //MoveFromPositionToPosition_2Axis_ABSOLUTE("X", 0, "Y", 0);
         SendPauseCommand(0.2);
 
         // Step 3 - Change work position with Machine Position to all axes
@@ -144,13 +153,12 @@ public class GRBLToolChangeOperator
             System.err.println("GRBLToolChangeOperator.DoSemiAutoToolChangeSequence Step 3 Failed:" + ex.getMessage());
         }
 
-        // Step 4 - Move Z to top and then X and Y to  the Tool Setter's Location and pause
+        // Step 4 - Move Z to top and then X and Y to the Tool Setter's Location and pause
         // until the user changes the tool
         try
         {
             MoveFromPositionToPosition_ABSOLUTE("Z", -2);
-            MoveFromPositionToPosition_ABSOLUTE("X", SemiAutoToolChangeSettings.getToolSetterX());
-            MoveFromPositionToPosition_ABSOLUTE("Y", SemiAutoToolChangeSettings.getToolSetterY());
+            MoveFromPositionToPosition_2Axis_ABSOLUTE("X", SemiAutoToolChangeSettings.getToolSetterX(), "Y", SemiAutoToolChangeSettings.getToolSetterY());
 
             // Wait until Y moves to Tool Setter Y position
             while (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY() != SemiAutoToolChangeSettings.getToolSetterY())
@@ -159,7 +167,16 @@ public class GRBLToolChangeOperator
                 AskForMachineStatus();
             }
 
-            frmControl.fInstance.WriteToConsole("Change Tool " + command.getCommand());
+            if (fIsTheFirstToolChangeInTheGCodeCycle)
+            {
+                frmControl.fInstance.WriteToConsole("Turn off the Spindle and press the resume button.");
+            }
+            else
+            {
+                frmControl.fInstance.WriteToConsole("Change Tool " + command.getCommand() + " and press the 'Resume' button.");
+            }
+
+            Thread.sleep(500);
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
             AskForMachineStatus();
         }
@@ -174,16 +191,24 @@ public class GRBLToolChangeOperator
             //////////////////////////////////////////////////////////////////////////////
             // Move Endmill to the tool setter
             //////////////////////////////////////////////////////////////////////////////
+            frmControl.fInstance.WriteToConsole("Touching the tool setter...");
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
-            MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel, 500);
+            MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel, 800);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
+
+            // Move end mill to tool setter slower this time
+            MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", 6);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
+            MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel, 180);
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
             AskForMachineStatus();
-            SendPauseCommand(1);
+            //SendPauseCommand(1);
             //////////////////////////////////////////////////////////////////////////////
 
             // At this point we know that the endmill is exactly at SemiAutoToolChangeSettings.getToolSetterHeight()
-            // from the table but... we do not know the distance between the work Z 0 (before the tool change) and the tool setter.
+            // but... we do not know the distance between the work Z 0 (before the tool change) and the tool setter.
             // So if it is the FIRST TOOL CHANGE IN THE GCODE CYCLE we have to make the calculation
             // of the travel between the work Z 0 point to the Tool setter top
             if (fIsTheFirstToolChangeInTheGCodeCycle)
@@ -202,7 +227,7 @@ public class GRBLToolChangeOperator
             {
                 // Move endmill back to  fTravelBetweenWorkZeroAndToolSetterTop
                 MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", fTravelBetweenWorkZeroAndToolSetterTop);
-                SendPauseCommand(2);
+                SendPauseCommand(0.5);
             }
 
             AskForMachineStatus();
@@ -224,7 +249,7 @@ public class GRBLToolChangeOperator
             double maxDistance = Math.abs(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ() + 2);
             MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", maxDistance);
             AskForMachineStatus();
-            SendPauseCommand(2);
+            SendPauseCommand(0.5);
 
         }
         catch (Exception ex)
@@ -235,10 +260,11 @@ public class GRBLToolChangeOperator
         // Step 6 - Return to X and Y before Tool Change
         try
         {
+            frmControl.fInstance.WriteToConsole("Turn on the Spindle and press the 'Resume' button.");
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
             AskForMachineStatus();
-            MoveFromPositionToPosition_ABSOLUTE("X", machinePositionXBeforeToolChange);
-            MoveFromPositionToPosition_ABSOLUTE("Y", machinePositionYBeforeToolChange);
+            MoveFromPositionToPosition_2Axis_ABSOLUTE("X", machinePositionXBeforeToolChange, "Y", machinePositionYBeforeToolChange);
+
             // Wait until Y moves to Tool Setter Y position
             while (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY() != machinePositionYBeforeToolChange)
             {
@@ -247,7 +273,7 @@ public class GRBLToolChangeOperator
             }
 
             // Move endmill back to ZERO
-            MoveFromPositionToPosition_ABSOLUTE("Z", 0);
+            MoveFromPositionToPosition_ABSOLUTE("Z", workPositionZBeforeToolChange);
             ChangeWorkPositionWithValue("X", workPositionXBeforeToolChange);
             ChangeWorkPositionWithValue("Y", workPositionYBeforeToolChange);
             ChangeWorkPositionWithValue("Z", workPositionZBeforeToolChange);
@@ -264,6 +290,12 @@ public class GRBLToolChangeOperator
     private void MoveFromPositionToPosition_ABSOLUTE(String axis, double to)
     {
         String command = "G90 " + axis + String.valueOf(to) + "F3000";
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
+    }
+
+    private void MoveFromPositionToPosition_2Axis_ABSOLUTE(String axis1, double to1, String axis2, double to2)
+    {
+        String command = "G90 " + axis1 + String.valueOf(to1) + axis2 + String.valueOf(to2) + "F9000";
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
     }
 

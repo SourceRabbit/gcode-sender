@@ -43,6 +43,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
@@ -76,21 +77,21 @@ import sourcerabbit.gcode.sender.UI.UITools.UITools;
  */
 public class frmControl extends javax.swing.JFrame
 {
-    
+
     public static frmControl fInstance;
     private ManualResetEvent fMachineStatusThreadWait;
     private boolean fKeepMachineStatusThreadRunning;
     private Thread fMachineStatusThread;
     private EUnits fJoggingUnits = EUnits.Metric;
     private static final Object fAddRemoveLogTableLines = new Object();
-    
+
     private final Calendar fCalendar = Calendar.getInstance();
     private final DateFormat fDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     // Macros
-    private ArrayList<JTextField> fMacroTexts = new ArrayList<>();
-    private ArrayList<JButton> fMacroButtons = new ArrayList<>();
-    
+    private final ArrayList<JTextField> fMacroTexts = new ArrayList<>();
+    private final ArrayList<JButton> fMacroButtons = new ArrayList<>();
+
     public frmControl()
     {
         fInstance = this;
@@ -99,29 +100,34 @@ public class frmControl extends javax.swing.JFrame
         // Set form in middle of screen
         Position2D pos = UITools.getPositionForFormToOpenInMiddleOfScreen(this.getSize().width, this.getSize().height);
         this.setLocation((int) pos.getX(), (int) pos.getY());
-        
+
         InitEvents();
         InitUIThreads();
-        
+
         this.setTitle("SourceRabbit GCode Sender (Version " + SettingsManager.getAppVersion() + ")");
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("Images/SourceRabbitIcon.png")));
-        
+
         this.jCheckBoxEnableGCodeLog.setSelected(SettingsManager.getIsGCodeLogEnabled());
         this.jCheckBoxEnableKeyboardJogging.setSelected(SettingsManager.getIsKeyboardJoggingEnabled());
-        
+
         InitMacroButtons();
-        
+
         InitKeyListener();
 
         // Fix jSpinnerStep to work with system decimal point
-        jSpinnerStep.setEditor(new JSpinner.NumberEditor(jSpinnerStep, "##.##"));
+        jSpinnerStep.setEditor(new JSpinner.NumberEditor(jSpinnerStep, "##.###"));
+        SpinnerNumberModel spinnerModel = (SpinnerNumberModel) jSpinnerStep.getModel();
+        spinnerModel.setStepSize(.001);
+        spinnerModel.setValue(1.000);
+        spinnerModel.setMinimum(0.001);
+        jSpinnerStep.setModel(spinnerModel);
         UITools.FixSpinnerToWorkWithSystemDecimalPoint(jSpinnerStep);
     }
-    
+
     private void InitMacroButtons()
     {
         ArrayList<String> savedMacros = SettingsManager.getMacros();
-        
+
         int topOffset = 50;
         for (int i = 0; i < 7; i++)
         {
@@ -131,13 +137,13 @@ public class frmControl extends javax.swing.JFrame
             button.setSize(50, 30);
             button.setLocation(10, topOffset + (i * 35));
             fMacroButtons.add(button);
-            
+
             final JTextField textField = new JTextField();
             textField.setText(savedMacros.get(i));
             textField.setSize(300, 30);
             textField.setLocation(80, topOffset + (i * 35));
             fMacroTexts.add(textField);
-            
+
             textField.addKeyListener(new KeyAdapter()
             {
                 @Override
@@ -154,11 +160,11 @@ public class frmControl extends javax.swing.JFrame
                     }
                     catch (Exception ex)
                     {
-                        
+
                     }
                 }
             });
-            
+
             button.addActionListener(new java.awt.event.ActionListener()
             {
                 @Override
@@ -182,14 +188,14 @@ public class frmControl extends javax.swing.JFrame
             jPanelMacros.add(textField);
         }
     }
-    
+
     public void WriteToConsole(String output)
     {
         String dateTime = (fDateFormat.format(fCalendar.getTime()));
         jTextAreaConsole.append(dateTime + " - " + output + "\n");
         jTextAreaConsole.setCaretPosition(jTextAreaConsole.getDocument().getLength());
     }
-    
+
     private void InitEvents()
     {
         // Machine status events
@@ -205,45 +211,45 @@ public class frmControl extends javax.swing.JFrame
                         jLabelActiveState.setForeground(new Color(0, 153, 51));
                         jLabelActiveState.setText("Idle");
                         break;
-                    
+
                     case GRBLActiveStates.CHECK:
                         jLabelActiveState.setForeground(new Color(0, 153, 51));
                         jLabelActiveState.setText("Check");
                         break;
-                    
+
                     case GRBLActiveStates.RUN:
                         jLabelActiveState.setForeground(Color.blue);
                         jLabelActiveState.setText("Run");
                         break;
-                    
+
                     case GRBLActiveStates.HOLD:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Hold");
                         break;
-                    
+
                     case GRBLActiveStates.ALARM:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Alarm!");
                         jButtonKillAlarm.setText("Kill Alarm");
                         break;
-                    
+
                     case GRBLActiveStates.MACHINE_IS_LOCKED:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Locked!");
                         jButtonKillAlarm.setText("Unlock");
                         break;
-                    
+
                     case GRBLActiveStates.RESET_TO_CONTINUE:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Reset to continue!");
                         break;
-                    
+
                     case GRBLActiveStates.JOG:
                         jLabelActiveState.setForeground(new Color(0, 153, 51));
                         jLabelActiveState.setText("Jogging");
                         break;
                 }
-                
+
                 jButtonKillAlarm.setVisible(activeState == GRBLActiveStates.ALARM || activeState == GRBLActiveStates.MACHINE_IS_LOCKED);
                 jButtonResetWorkPosition.setEnabled(activeState == GRBLActiveStates.IDLE || activeState == GRBLActiveStates.CHECK);
                 jButtonReturnToZero.setEnabled(activeState == GRBLActiveStates.IDLE || activeState == GRBLActiveStates.CHECK);
@@ -267,39 +273,39 @@ public class frmControl extends javax.swing.JFrame
 
                 // Enable Machine Control Components
                 SetMachineControlsEnabled(true);
-                
+
                 jButtonGCodeBrowse.setEnabled(true);
                 jButtonGCodeSend.setEnabled(true);
                 jButtonGCodePause.setEnabled(false);
                 jButtonGCodeCancel.setEnabled(false);
                 jButtonGCodePause.setText("Pause");
                 SetMachineControlsEnabled(true);
-                
+
                 jMenuItemGRBLSettings.setEnabled(true);
             }
-            
+
             @Override
             public void ConnectionClosed(SerialConnectionEvent evt)
             {
                 WriteToConsole("Connection Closed!");
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode();
-                
+
                 jLabelConnectionStatus.setForeground(Color.red);
                 jLabelConnectionStatus.setText("Disconnected");
                 jButtonConnectDisconnect.setText("Connect");
                 jButtonConnectDisconnect.setEnabled(true);
                 jButtonSoftReset.setEnabled(false);
                 jButtonResetWorkPosition.setEnabled(false);
-                
+
                 jLabelActiveState.setForeground(Color.red);
                 jLabelActiveState.setText("----");
 
                 // Disable Machine Control Components
                 SetMachineControlsEnabled(false);
-                
+
                 jMenuItemGRBLSettings.setEnabled(false);
             }
-            
+
             @Override
             public void DataReceivedFromSerialConnection(SerialConnectionEvent evt)
             {
@@ -320,7 +326,7 @@ public class frmControl extends javax.swing.JFrame
             public void GCodeCycleStarted(GCodeCycleEvent evt)
             {
                 WriteToConsole("Cycle Started!");
-                
+
                 jButtonGCodeBrowse.setEnabled(false);
                 jButtonGCodeSend.setEnabled(false);
                 jButtonGCodePause.setEnabled(true);
@@ -329,23 +335,23 @@ public class frmControl extends javax.swing.JFrame
                 SetMachineControlsEnabled(false);
                 jButtonResetWorkPosition.setEnabled(false);
                 jButtonSoftReset.setEnabled(false);
-                
+
                 jTextFieldGCodeFile.setEnabled(false);
-                
+
                 jTextFieldCommand.setEnabled(false);
                 jTextAreaConsole.setEnabled(false);
-                
+
                 jMenuItemGRBLSettings.setEnabled(false);
-                
+
                 jProgressBarGCodeProgress.setValue(0);
                 jProgressBarGCodeProgress.setMaximum(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsInFile());
             }
-            
+
             @Override
             public void GCodeCycleFinished(GCodeCycleEvent evt)
             {
                 WriteToConsole("Cycle Finished!");
-                
+
                 jButtonGCodeBrowse.setEnabled(true);
                 jButtonGCodeSend.setEnabled(true);
                 jButtonGCodePause.setEnabled(false);
@@ -354,17 +360,17 @@ public class frmControl extends javax.swing.JFrame
                 SetMachineControlsEnabled(true);
                 jButtonResetWorkPosition.setEnabled(true);
                 jButtonSoftReset.setEnabled(true);
-                
+
                 jTextFieldGCodeFile.setEnabled(true);
-                
+
                 jTextFieldCommand.setEnabled(true);
                 jTextAreaConsole.setEnabled(true);
-                
+
                 jMenuItemGRBLSettings.setEnabled(true);
-                
+
                 JOptionPane.showMessageDialog(fInstance, evt.getSource().toString(), "Finished", JOptionPane.INFORMATION_MESSAGE);
             }
-            
+
             @Override
             public void GCodeCycleCanceled(GCodeCycleEvent evt)
             {
@@ -377,40 +383,40 @@ public class frmControl extends javax.swing.JFrame
                 SetMachineControlsEnabled(true);
                 jButtonResetWorkPosition.setEnabled(true);
                 jButtonSoftReset.setEnabled(true);
-                
+
                 jTextFieldGCodeFile.setEnabled(true);
-                
+
                 jTextFieldCommand.setEnabled(true);
                 jTextAreaConsole.setEnabled(true);
-                
+
                 jMenuItemGRBLSettings.setEnabled(true);
-                
+
                 jProgressBarGCodeProgress.setValue(0);
                 jProgressBarGCodeProgress.setMaximum(0);
             }
-            
+
             @Override
             public void GCodeCyclePaused(GCodeCycleEvent evt)
             {
                 WriteToConsole("Cycle Paused");
                 jLabelActiveState.setText("Hold");
                 jLabelActiveState.setForeground(Color.red);
-                
+
                 jButtonGCodePause.setText("Resume");
-                
+
                 jButtonGCodeCancel.setEnabled(false);
             }
-            
+
             @Override
             public void GCodeCycleResumed(GCodeCycleEvent evt)
             {
                 WriteToConsole("Cycle Resumed");
-                
+
                 jLabelActiveState.setText("Run");
                 jLabelActiveState.setForeground(Color.blue);
-                
+
                 jButtonGCodePause.setText("Pause");
-                
+
                 jButtonGCodeCancel.setEnabled(true);
             }
         });
@@ -439,7 +445,7 @@ public class frmControl extends javax.swing.JFrame
                 {
                 }
             }
-            
+
             @Override
             public void GCodeExecutedSuccessfully(GCodeExecutionEvent evt)
             {
@@ -462,7 +468,7 @@ public class frmControl extends javax.swing.JFrame
                 {
                 }
             }
-            
+
             @Override
             public void GCodeExecutedWithError(GCodeExecutionEvent evt)
             {
@@ -483,7 +489,7 @@ public class frmControl extends javax.swing.JFrame
                 {
                 }
             }
-            
+
             @Override
             public void GCodeCommandHasComment(GCodeExecutionEvent evt)
             {
@@ -492,7 +498,7 @@ public class frmControl extends javax.swing.JFrame
         }
         );
     }
-    
+
     private void SetMachineControlsEnabled(boolean state)
     {
         // Enable Machine Control Components
@@ -511,10 +517,10 @@ public class frmControl extends javax.swing.JFrame
         }
         catch (Exception ex)
         {
-            
+
         }
     }
-    
+
     private void InitUIThreads()
     {
         fMachineStatusThread = new Thread(new Runnable()
@@ -538,9 +544,9 @@ public class frmControl extends javax.swing.JFrame
 
                     // Update bytes per second
                     jLabelBytesPerSecond.setText(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesInPerSec() + " / " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesOutPerSec());
-                    
+
                     // Semi Auto Tool Change Status
-                    if(SemiAutoToolChangeSettings.isSemiAutoToolChangeEnabled())
+                    if (SemiAutoToolChangeSettings.isSemiAutoToolChangeEnabled())
                     {
                         jLabelSemiAutoToolChangeStatus.setText("On");
                         jLabelSemiAutoToolChangeStatus.setForeground(Color.blue);
@@ -554,7 +560,7 @@ public class frmControl extends javax.swing.JFrame
                     // Update remaining rows & rows sent
                     jLabelSentRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsSent()));
                     jLabelRemainingRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsRemaining()));
-                    
+
                     jProgressBarGCodeProgress.setValue(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsSent());
 
                     // Time elapsed
@@ -564,11 +570,11 @@ public class frmControl extends javax.swing.JFrame
                         long second = (millis / 1000) % 60;
                         long minute = (millis / (1000 * 60)) % 60;
                         long hour = (millis / (1000 * 60 * 60)) % 24;
-                        
+
                         String time = String.format("%02d:%02d:%02d", hour, minute, second);
                         jLabelTimeElapsed.setText(time);
                     }
-                    
+
                     fMachineStatusThreadWait.WaitOne(200);
                 }
             }
@@ -595,12 +601,12 @@ public class frmControl extends javax.swing.JFrame
                         || jTableGCodeLog.hasFocus()
                         || fMacroTexts.contains(e.getSource())
                         || fMacroButtons.contains(e.getSource()));
-                
+
                 if (!textIsFocused && jCheckBoxEnableKeyboardJogging.isSelected() && e.getID() == KeyEvent.KEY_PRESSED)
                 {
                     boolean jog = false;
                     final String jogAxis;
-                    
+
                     switch (e.getKeyCode())
                     {
                         case KeyEvent.VK_RIGHT:
@@ -608,44 +614,44 @@ public class frmControl extends javax.swing.JFrame
                             jog = true;
                             jogAxis = "X";
                             break;
-                        
+
                         case KeyEvent.VK_LEFT:
                         case KeyEvent.VK_KP_LEFT:
                             jog = true;
                             jogAxis = "X-";
                             break;
-                        
+
                         case KeyEvent.VK_UP:
                         case KeyEvent.VK_KP_UP:
                             jog = true;
                             jogAxis = "Y";
                             break;
-                        
+
                         case KeyEvent.VK_DOWN:
                         case KeyEvent.VK_KP_DOWN:
                             jog = true;
                             jogAxis = "Y-";
                             break;
-                        
+
                         case KeyEvent.VK_PAGE_UP:
                             jog = true;
                             jogAxis = "Z";
                             break;
-                        
+
                         case KeyEvent.VK_PAGE_DOWN:
                             jog = true;
                             jogAxis = "Z-";
                             break;
-                        
+
                         default:
                             jogAxis = "";
                             break;
                     }
-                    
+
                     if (jog)
                     {
                         final double stepValue = (double) jSpinnerStep.getValue();
-                        
+
                         Thread th = new Thread(new Runnable()
                         {
                             @Override
@@ -657,17 +663,17 @@ public class frmControl extends javax.swing.JFrame
                             }
                         });
                         th.start();
-                        
+
                         return true;
                     }
                 }
-                
+
                 return false;
             }
-            
+
         });
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents()
@@ -1747,13 +1753,13 @@ public class frmControl extends javax.swing.JFrame
             fc = new JFileChooser();
         }
         int returnVal = fc.showOpenDialog(this);
-        
+
         if (fc.getSelectedFile() != null && returnVal == JFileChooser.APPROVE_OPTION)
         {
             File gcodeFile = fc.getSelectedFile();
             String gcodeFilePath = fc.getSelectedFile().getPath();
             jTextFieldGCodeFile.setText(gcodeFilePath);
-            
+
             SettingsManager.setLastGCodeBrowsedDirectory(gcodeFile.getParent());
 
             // Ask the GCodeSender of the active connection handler to load the GCode File
@@ -1766,7 +1772,7 @@ public class frmControl extends javax.swing.JFrame
 
     private void jButtonGCodeSendActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGCodeSendActionPerformed
     {//GEN-HEADEREND:event_jButtonGCodeSendActionPerformed
-        
+
         boolean startCycle = true;
         if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX() != 0 || ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY() != 0 || ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ() != 0)
         {
@@ -1776,10 +1782,10 @@ public class frmControl extends javax.swing.JFrame
                     "The work position is not 0,0,0.\nDo you want to start the GCode Cycle?",
                     "Work position is not 0,0,0",
                     JOptionPane.YES_NO_OPTION);
-            
+
             startCycle = (answer == JOptionPane.YES_OPTION);
         }
-        
+
         if (startCycle)
         {
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().StartSendingGCode();
@@ -1815,13 +1821,13 @@ public class frmControl extends javax.swing.JFrame
                     final GCodeCommand command1 = new GCodeCommand("G21 G90 G0 Z2");
                     ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command1);
                 }
-                
+
                 final GCodeCommand command2 = new GCodeCommand("G21 G90 X0 Y0");
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command2);
-                
+
                 final GCodeCommand command3 = new GCodeCommand("G21 G90 G0 Z0");
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command3);
-                
+
                 WriteToConsole("Return to zero");
             }
         }
@@ -1878,17 +1884,17 @@ public class frmControl extends javax.swing.JFrame
             ITrace2D trace = new Trace2DSimple();
             // Add the trace to the chart. This has to be done before adding points (deadlock prevention): 
             chart.addTrace(trace);
-            
+
             final Queue<String> gcodeQueue = new ArrayDeque(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeQueue());
             double x = 0, y = 0, z = 0, maxX = 0, maxY = 0;
-            
+
             while (gcodeQueue.size() > 0)
             {
                 final GCodeCommand command = new GCodeCommand(gcodeQueue.remove());
                 x = (command.getCoordinates().getX() != null) ? command.getCoordinates().getX() : x;
                 y = (command.getCoordinates().getY() != null) ? command.getCoordinates().getY() : y;
                 z = (command.getCoordinates().getZ() != null) ? command.getCoordinates().getZ() : z;
-                
+
                 if (z < 0)
                 {
                     maxX = Math.max(x, maxX);
@@ -1896,7 +1902,7 @@ public class frmControl extends javax.swing.JFrame
                     trace.addPoint(x, y);
                 }
             }
-            
+
             chart.getAxisX().setRangePolicy(new RangePolicyFixedViewport(new Range(0, Math.max(maxY, maxX))));
             chart.getAxisY().setRangePolicy(new RangePolicyFixedViewport(new Range(0, Math.max(maxY, maxX))));
 
@@ -1910,7 +1916,7 @@ public class frmControl extends javax.swing.JFrame
         }
         catch (Exception ex)
         {
-            
+
         }
     }//GEN-LAST:event_jButtonGCodeVisualizeActionPerformed
 
@@ -1930,7 +1936,7 @@ public class frmControl extends javax.swing.JFrame
         }
         catch (Exception ex)
         {
-            
+
         }
     }//GEN-LAST:event_jButtonClearLogActionPerformed
 
@@ -1942,7 +1948,7 @@ public class frmControl extends javax.swing.JFrame
         }
         catch (Exception ex)
         {
-            
+
         }
     }//GEN-LAST:event_jCheckBoxEnableGCodeLogActionPerformed
 
@@ -1953,9 +1959,9 @@ public class frmControl extends javax.swing.JFrame
             final String str = this.jTextFieldCommand.getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
             GCodeCommand command = new GCodeCommand(str);
             String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
-            
+
             WriteToConsole(str + "\nResponse:" + response + "\n");
-            
+
             jTextFieldCommand.setText("");
         }
         catch (Exception ex)
@@ -2028,7 +2034,7 @@ public class frmControl extends javax.swing.JFrame
         }
         catch (Exception ex)
         {
-            
+
         }
     }//GEN-LAST:event_jCheckBoxEnableKeyboardJoggingActionPerformed
 

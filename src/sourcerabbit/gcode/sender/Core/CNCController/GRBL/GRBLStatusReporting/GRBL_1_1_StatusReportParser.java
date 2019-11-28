@@ -166,8 +166,6 @@ public class GRBL_1_1_StatusReportParser extends GRBLStatusReportParser
         }
         else
         {
-            BigDecimal mpos, offset, calc;
-
             // Controller sends Machine Position
             // Calculate the work position !!
             // WPos = MPos - WCO

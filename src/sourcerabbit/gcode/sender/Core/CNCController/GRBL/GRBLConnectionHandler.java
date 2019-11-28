@@ -31,6 +31,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRB
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRBL_1_1_StatusReportParser;
 import sourcerabbit.gcode.sender.Core.Settings.GCodeSenderSettings;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
+import sourcerabbit.gcode.sender.UI.frmControl;
 
 /**
  *
@@ -195,103 +196,84 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         }
 
                         System.err.println("GRBLConnectionHander Error: " + errorMessage + "---> Last Command: " + fLastCommandSentToController.getCommand());
+                        frmControl.fInstance.WriteToConsole("Error: " + errorMessage + "---> Last Command: " + fLastCommandSentToController.getCommand());
 
                         fLastCommandSentToController.setError(errorMessage);
                         fGCodeExecutionEventsManager.FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
                         fLastCommandSentToController = null;
                         fWaitForCommandToBeExecuted.Set();
                     }
-                    else
+                    else if (receivedStr.startsWith("$"))
                     {
-                        if (receivedStr.startsWith("$"))
+                        // READ CONTROLLER SETTINGS HERE !!!!
+                        if (receivedStr.startsWith("$130"))
                         {
-                            // READ CONTROLLER SETTINGS HERE !!!!
-                            if (receivedStr.startsWith("$130"))
-                            {
-                                fXMaxTravel = (int) Double.parseDouble(receivedStr.replace("$130=", ""));
-                            }
-                            else
-                            {
-                                if (receivedStr.startsWith("$131"))
-                                {
-                                    fYMaxTravel = (int) Double.parseDouble(receivedStr.replace("$131=", ""));
-                                }
-                                else
-                                {
-                                    if (receivedStr.startsWith("$132"))
-                                    {
-                                        fZMaxTravel = (int) Double.parseDouble(receivedStr.replace("$132=", ""));
-                                    }
-                                }
-                            }
+                            fXMaxTravel = (int) Double.parseDouble(receivedStr.replace("$130=", ""));
                         }
-
-                        if (receivedStr.startsWith("ALARM"))
+                        else if (receivedStr.startsWith("$131"))
                         {
-                            // ALARM is ON!
-                            // Machine propably needs to be unlocked
-                            fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
-                            fMyGCodeSender.CancelSendingGCode();
-                            fWaitForCommandToBeExecuted.Set();
+                            fYMaxTravel = (int) Double.parseDouble(receivedStr.replace("$131=", ""));
+                        }
+                        else if (receivedStr.startsWith("$132"))
+                        {
+                            fZMaxTravel = (int) Double.parseDouble(receivedStr.replace("$132=", ""));
+                        }
+                    }
+                    else if (receivedStr.startsWith("ALARM"))
+                    {
+                        // ALARM is ON!
+                        // Machine propably needs to be unlocked
+                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
+                        fMyGCodeSender.CancelSendingGCode();
+                        fWaitForCommandToBeExecuted.Set();
+                    }
+                    else if (receivedStr.equals("[MSG:'$H'|'$X' to unlock]") || receivedStr.equals("['$H'|'$X' to unlock]"))
+                    {
+                        // If the machine is in an Alarm state and the user choose to do a "soft reset"
+                        // then the GRBL controller lockes and needs to be unlocked.
+                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_IS_LOCKED, ""));
+                        fMyGCodeSender.CancelSendingGCode();
+                        fWaitForCommandToBeExecuted.Set();
+                    }
+                    else if (receivedStr.startsWith("[PRB:"))
+                    {
+                        //System.out.println("Endmill touched the Touch Probe!");
+                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE, receivedStr));
+                        /////////////////////////////////////////////////////
+                        // DO NOT SET THE fWaitForCommandToBeExecuted !!!
+                        // GRBL sends an "OK" back.
+                        // fWaitForCommandToBeExecuted.Set();
+                        ////////////////////////////////////////////////////
+                    }
+                    else if (receivedStr.toLowerCase().startsWith("grbl"))
+                    {
+                        // Parse the GRBL "Welcome Message" and find out which GRBL version 
+                        // is running on the controller.                    
+                        // From the GRBL version set the appropriate CNCControlFrameworkVersion
+                        // and StatusReportParser.
+                        if (receivedStr.toLowerCase().contains("grbl 1."))
+                        {
+                            fMyStatusReportParser = new GRBL_1_1_StatusReportParser(this);
+                            this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL1_1);
                         }
                         else
                         {
-                            if (receivedStr.equals("[MSG:'$H'|'$X' to unlock]") || receivedStr.equals("['$H'|'$X' to unlock]"))
-                            {
-                                // If the machine is in an Alarm state and the user choose to do a "soft reset"
-                                // then the GRBL controller lockes and needs to be unlocked.
-                                fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_IS_LOCKED, ""));
-                                fMyGCodeSender.CancelSendingGCode();
-                                fWaitForCommandToBeExecuted.Set();
-                            }
-
-                            else
-                            {
-                                if (receivedStr.startsWith("[PRB:"))
-                                {
-                                    //System.out.println("Endmill touched the Touch Probe!");
-                                    fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE, receivedStr));
-                                    /////////////////////////////////////////////////////
-                                    // DO NOT SET THE fWaitForCommandToBeExecuted !!!
-                                    // GRBL sends an "OK" back.
-                                    // fWaitForCommandToBeExecuted.Set();
-                                    ////////////////////////////////////////////////////
-                                }
-                                else
-                                {
-                                    if (receivedStr.toLowerCase().startsWith("grbl"))
-                                    {
-                                        // Parse the GRBL "Welcome Message" and find out which GRBL version 
-                                        // is running on the controller.                    
-                                        // From the GRBL version set the appropriate CNCControlFrameworkVersion
-                                        // and StatusReportParser.
-                                        if (receivedStr.toLowerCase().contains("grbl 1."))
-                                        {
-                                            fMyStatusReportParser = new GRBL_1_1_StatusReportParser(this);
-                                            this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL1_1);
-                                        }
-                                        else
-                                        {
-                                            fMyStatusReportParser = new GRBL_0_9_StatusReportParser(this);
-                                            this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL0_9);
-                                        }
-
-                                        // To Inform UI that connection with the controller is sucessful fire the ConnectionEstablishedEvent
-                                        fConnectionEstablished = true;
-                                        fConnectionEstablishedManualResetEvent.Set();
-                                        fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
-                                        fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
-                                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE, ""));
-                                    }
-                                    else
-                                    {
-                                        fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
-                                        fLastCommandSentToController = null;
-                                        fWaitForCommandToBeExecuted.Set();
-                                    }
-                                }
-                            }
+                            fMyStatusReportParser = new GRBL_0_9_StatusReportParser(this);
+                            this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL0_9);
                         }
+
+                        // To Inform UI that connection with the controller is sucessful fire the ConnectionEstablishedEvent
+                        fConnectionEstablished = true;
+                        fConnectionEstablishedManualResetEvent.Set();
+                        fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
+                        fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
+                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE, ""));
+                    }
+                    else
+                    {
+                        fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
+                        fLastCommandSentToController = null;
+                        fWaitForCommandToBeExecuted.Set();
                     }
                 }
             }
@@ -300,7 +282,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
         {
             System.err.println("GRBLConnectionHandler.OnDataReceived Error: " + ex.getMessage() + " Data: " + receivedStr);
         }
-
     }
 
     @Override
@@ -362,7 +343,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
      * @return
      */
     @Override
-    public String SendGCodeCommandAndGetResponse(GCodeCommand command)
+    public String SendGCodeCommandAndGetResponse(GCodeCommand command
+    )
     {
         fGCodeCommandResponse = "";
         try

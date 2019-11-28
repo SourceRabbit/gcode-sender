@@ -16,6 +16,8 @@
  */
 package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.GCodeCycleEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.IGCodeCycleListener;
@@ -118,7 +120,7 @@ public class GRBLToolChangeOperator
         // Step 1 - Get current work position status
         try
         {
-            Thread.sleep(1000);
+            Thread.sleep(600);
         }
         catch (Exception ex)
         {
@@ -134,13 +136,10 @@ public class GRBLToolChangeOperator
         final double machinePositionYBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY();
         final double machinePositionZBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ();
 
-        // Step 2 - Go to Work Z4
-        frmControl.fInstance.WriteToConsole("Semi auto tool change process started.");
-        MoveFromPositionToPosition_ABSOLUTE("Z", 4);
-        //MoveFromPositionToPosition_2Axis_ABSOLUTE("X", 0, "Y", 0);
+        frmControl.fInstance.WriteToConsole("Semi auto tool change process started!");
         SendPauseCommand(0.2);
 
-        // Step 3 - Change work position with Machine Position to all axes
+        // Step 2 - Change work position with Machine Position to all axes
         try
         {
             ChangeWorkPositionWithMachinePosition("X");
@@ -153,7 +152,7 @@ public class GRBLToolChangeOperator
             System.err.println("GRBLToolChangeOperator.DoSemiAutoToolChangeSequence Step 3 Failed:" + ex.getMessage());
         }
 
-        // Step 4 - Move Z to top and then X and Y to the Tool Setter's Location and pause
+        // Step 2 - Move Z to top and then X and Y to the Tool Setter's Location and pause
         // until the user changes the tool
         try
         {
@@ -185,7 +184,7 @@ public class GRBLToolChangeOperator
             System.err.println("GRBLToolChangeOperator.DoSemiAutoToolChangeSequence Step 4 Failed:" + ex.getMessage());
         }
 
-        // Step 5 - Touch the tool setter
+        // Step 4 - Touch the tool setter
         try
         {
             //////////////////////////////////////////////////////////////////////////////
@@ -196,15 +195,17 @@ public class GRBLToolChangeOperator
             MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel, 800);
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
+            SendPauseCommand(0.2);
 
             // Move end mill to tool setter slower this time
             MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", 6);
+            SendPauseCommand(0.2);
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
-            MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel, 180);
+            MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel, 80);
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
             AskForMachineStatus();
-            //SendPauseCommand(1);
+            SendPauseCommand(0.2);
             //////////////////////////////////////////////////////////////////////////////
 
             // At this point we know that the endmill is exactly at SemiAutoToolChangeSettings.getToolSetterHeight()
@@ -213,7 +214,10 @@ public class GRBLToolChangeOperator
             // of the travel between the work Z 0 point to the Tool setter top
             if (fIsTheFirstToolChangeInTheGCodeCycle)
             {
-                fTravelBetweenWorkZeroAndToolSetterTop = machinePositionZBeforeToolChange - ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ();
+                BigDecimal bigDecimalValue = new BigDecimal(machinePositionZBeforeToolChange, MathContext.DECIMAL64);
+                bigDecimalValue = bigDecimalValue.setScale(2);
+                bigDecimalValue = bigDecimalValue.subtract(new BigDecimal(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ(), MathContext.DECIMAL64));
+                fTravelBetweenWorkZeroAndToolSetterTop = bigDecimalValue.doubleValue();
                 fIsTheFirstToolChangeInTheGCodeCycle = false;
             }
 
@@ -238,10 +242,12 @@ public class GRBLToolChangeOperator
             if (fTravelBetweenWorkZeroAndToolSetterTop < 0)
             {
                 ChangeWorkPositionWithValue("Z", Math.abs(fTravelBetweenWorkZeroAndToolSetterTop) + 10);
+                SendPauseCommand(0.2);
             }
             else
             {
-                ChangeWorkPositionWithValue("Z", 0);
+                ChangeWorkPositionWithValue("Z", workPositionZBeforeToolChange);
+                SendPauseCommand(0.2);
             }
 
             // RAISE THE ENDMILL TO THE TOP IN ORDER TO AVOID WORKHOLDING
@@ -257,7 +263,7 @@ public class GRBLToolChangeOperator
 
         }
 
-        // Step 6 - Return to X and Y before Tool Change
+        // Step 5 - Return to X and Y before Tool Change
         try
         {
             frmControl.fInstance.WriteToConsole("Turn on the Spindle and press the 'Resume' button.");
@@ -279,12 +285,13 @@ public class GRBLToolChangeOperator
             ChangeWorkPositionWithValue("Z", workPositionZBeforeToolChange);
 
             AskForMachineStatus();
+
+            frmControl.fInstance.WriteToConsole("Semi auto tool change process finished!");
         }
         catch (Exception ex)
         {
             System.err.println("GRBLToolChangeOperator.DoSemiAutoToolChangeSequence Step 6 Failed:" + ex.getMessage());
         }
-
     }
 
     private void MoveFromPositionToPosition_ABSOLUTE(String axis, double to)
@@ -337,19 +344,29 @@ public class GRBLToolChangeOperator
         String value = "";
         AskForMachineStatus();
         axis = axis.toLowerCase();
+        BigDecimal bigDecimalValue;
 
         switch (axis)
         {
             case "x":
-                value = String.format("%.3f", ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX());
+                bigDecimalValue = new BigDecimal(0, MathContext.DECIMAL64);
+                bigDecimalValue = bigDecimalValue.setScale(2);
+                bigDecimalValue = bigDecimalValue.add(new BigDecimal(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX(), MathContext.DECIMAL64));
+                value = String.valueOf(bigDecimalValue.doubleValue());
                 break;
 
             case "y":
-                value = String.format("%.3f", ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY());
+                bigDecimalValue = new BigDecimal(0, MathContext.DECIMAL64);
+                bigDecimalValue = bigDecimalValue.setScale(2);
+                bigDecimalValue = bigDecimalValue.add(new BigDecimal(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY(), MathContext.DECIMAL64));
+                value = String.valueOf(bigDecimalValue.doubleValue());
                 break;
 
             case "z":
-                value = String.format("%.3f", ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ());
+                bigDecimalValue = new BigDecimal(0, MathContext.DECIMAL64);
+                bigDecimalValue = bigDecimalValue.setScale(2);
+                bigDecimalValue = bigDecimalValue.add(new BigDecimal(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ(), MathContext.DECIMAL64));
+                value = String.valueOf(bigDecimalValue.doubleValue());
                 break;
         }
 

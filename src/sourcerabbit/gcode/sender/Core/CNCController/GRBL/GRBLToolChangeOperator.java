@@ -135,7 +135,6 @@ public class GRBLToolChangeOperator
             final double machinePositionZBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ();
 
             frmControl.fInstance.WriteToConsole("Semi auto tool change process started!");
-            SendPauseCommand(0.2);
 
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // Step 2 - Raise endmill to safe distance and go to Tool Setters X And Y (Machine Position)
@@ -176,13 +175,11 @@ public class GRBLToolChangeOperator
                 // Tool setter is LOWER than Work ZERO!
                 // Move endmill back to fTravelBetweenWorkZeroAndToolSetterTop
                 MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", fTravelBetweenWorkZeroAndToolSetterTop);
-                SendPauseCommand(0.2);
                 AskForMachineStatus();
                 /////////////////////////////////////////////////////////////////////////////////
                 // Move Endmill to Z ZERO POINT !!!!!!!!!!!!
                 /////////////////////////////////////////////////////////////////////////////////
                 ChangeWorkPositionWithValue("Z", 0);
-                SendPauseCommand(0.2);
                 AskForMachineStatus();
                 /////////////////////////////////////////////////////////////////////////////////
                 RaiseEndmillToMachineZMax();
@@ -239,18 +236,15 @@ public class GRBLToolChangeOperator
         MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel - 6, 700);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
-        SendPauseCommand(0.5);
-        AskForMachineStatus();
+        WaitForMachineToStopMoving();
 
         // Move end mill to tool setter slower this time
         MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", 6);
-        SendPauseCommand(0.2);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
         MoveEndmillToToolSetter(6, 60);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
-        SendPauseCommand(0.5);
-        AskForMachineStatus();
+        WaitForMachineToStopMoving();
     }
 
     private void Step_4_GoBackToMachineX_Y_BeforeToolChange_G53(double machinePositionXBeforeToolChange, double machinePositionYBeforeToolChange) throws InterruptedException
@@ -281,11 +275,11 @@ public class GRBLToolChangeOperator
 
     private void WaitForMachineToStopMoving()
     {
+        frmControl.fInstance.WriteToConsole("Waiting for machine to stop moving...");
         double tempX = 0, tempY = 0, tempZ = 0;
         boolean machineIsMoving = false;
         do
         {
-            frmControl.fInstance.WriteToConsole("Waiting for machine to stop moving...");
             machineIsMoving = false;
             if (tempX != ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX())
             {

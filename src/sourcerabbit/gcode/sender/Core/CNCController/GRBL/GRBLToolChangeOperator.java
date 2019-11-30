@@ -199,7 +199,6 @@ public class GRBLToolChangeOperator
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
             AskForMachineStatus();
             Step_4_GoBackToMachineX_Y_BeforeToolChange_G53(machinePositionXBeforeToolChange, machinePositionYBeforeToolChange);
-
         }
         catch (Exception ex)
         {
@@ -214,8 +213,7 @@ public class GRBLToolChangeOperator
     {
         // Raise endmill to safe distance
         String raiseEndmillCommand = "G53 G0 Z-2.000";
-        String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(raiseEndmillCommand));
-        System.out.println("RaiseEndmillToMachineZMax Response:" + response);
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(raiseEndmillCommand));
         // WAIT FOR MACHINE TO STOP MOVING
         WaitForMachineToStopMoving();
     }

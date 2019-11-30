@@ -218,6 +218,10 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         {
                             fZMaxTravel = (int) Double.parseDouble(receivedStr.replace("$132=", ""));
                         }
+                        
+                        fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
+                        fLastCommandSentToController = null;
+                        fWaitForCommandToBeExecuted.Set();
                     }
                     else if (receivedStr.startsWith("ALARM"))
                     {

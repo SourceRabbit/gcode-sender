@@ -44,6 +44,8 @@ public class GRBLToolChangeOperator
     private final ManualResetEvent fWaitForMachineToBeIdle = new ManualResetEvent(false);
     protected IMachineStatusEventListener fIMachineStatusEventListener = null;
 
+    private long fLastTimeAskedForMachineStatus = System.currentTimeMillis();
+
     public GRBLToolChangeOperator(GRBLGCodeSender myGCodeSender)
     {
         fMyGCodeSender = myGCodeSender;
@@ -86,6 +88,7 @@ public class GRBLToolChangeOperator
                 @Override
                 public void GCodeCycleStarted(GCodeCycleEvent evt)
                 {
+                    fIsTheFirstToolChangeInTheGCodeCycle = true;
                 }
 
                 @Override
@@ -117,85 +120,38 @@ public class GRBLToolChangeOperator
     {
         InitializeMachineStatusEventListener();
 
+        // WAIT FOR MACHINE TO STOP MOVING !!!!
+        WaitForMachineToStopMoving();
+
         try
         {
-            Thread.sleep(600);
-        }
-        catch (Exception ex)
-        {
+            // Step 1 - Get current Work and Machine positions
+            final double workPositionXBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX();
+            final double workPositionYBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY();
+            final double workPositionZBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ();
 
-        }
-        AskForMachineStatus();
+            final double machinePositionXBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX();
+            final double machinePositionYBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY();
+            final double machinePositionZBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ();
 
-        // Step 1 - Get current work and machine positions
-        //final double workPositionXBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX();
-        //final double workPositionYBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY();
-        final double workPositionZBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ();
+            frmControl.fInstance.WriteToConsole("Semi auto tool change process started!");
+            SendPauseCommand(0.2);
 
-        final double machinePositionXBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX();
-        final double machinePositionYBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY();
-        final double machinePositionZBeforeToolChange = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ();
-
-        frmControl.fInstance.WriteToConsole("Semi auto tool change process started!");
-        SendPauseCommand(0.2);
-
-        // Step 2 - Raise endmil to safe distance
-        // and Go to Tool Setter X and Y using G53 Command
-        // and pause until user changes the tool
-        try
-        {
-            // Raise endmill to safe distance
-            String raiseEndmillCommand = "G53 G0 Z-2";
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(raiseEndmillCommand));
-            while (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ() < -2)
-            {
-                Thread.sleep(500);
-                AskForMachineStatus();
-            }
-
-            // Move to tool setter's X and Y
-            String goToToolSetterCommand = "G53 G0" + " X" + String.valueOf(SemiAutoToolChangeSettings.getToolSetterX()) + " Y" + String.valueOf(SemiAutoToolChangeSettings.getToolSetterY());
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(goToToolSetterCommand));
-            while (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY() != SemiAutoToolChangeSettings.getToolSetterY())
-            {
-                Thread.sleep(500);
-                AskForMachineStatus();
-            }
-
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Step 2 - Raise endmill to safe distance and go to Tool Setters X And Y (Machine Position)
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            RaiseEndmillToMachineZMax();
+            Step_2_GoToToolSetterXAndY_MachinePosition_G53();
             // Inform user to turn off the spindle if it is the first Tool Change or to Change Tool
             frmControl.fInstance.WriteToConsole(fIsTheFirstToolChangeInTheGCodeCycle ? "Turn off the Spindle and press the resume button." : "Change Tool " + command.getCommand() + " and press the 'Resume' button.");
-
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
             AskForMachineStatus();
-        }
-        catch (Exception ex)
-        {
-        }
 
-        // Step 3 - Touch the tool setter
-        try
-        {
-            //////////////////////////////////////////////////////////////////////////////
-            // Move Endmill to the tool setter
-            //////////////////////////////////////////////////////////////////////////////
-            frmControl.fInstance.WriteToConsole("Touching the tool setter...");
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
-            MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel - 6, 700);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
-            SendPauseCommand(0.2);
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Step 3 - Touch the tool setter
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            Step_3_TouchTheToolSetter();
             AskForMachineStatus();
-
-            // Move end mill to tool setter slower this time
-            MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", 4);
-            SendPauseCommand(0.2);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
-            MoveEndmillToToolSetter(4, 60);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
-            AskForMachineStatus();
-            SendPauseCommand(0.2);
-            //////////////////////////////////////////////////////////////////////////////
 
             // At this point we know that the endmill is exactly at the top of the tool setter
             // but... we do not know the distance between the work Z 0 (before the tool change) and the tool setter.
@@ -212,100 +168,101 @@ public class GRBLToolChangeOperator
                 //////////////////////////////////////////////////////////////////////////////////////////
                 //////////////////////////////////////////////////////////////////////////////////////////
                 fIsTheFirstToolChangeInTheGCodeCycle = false;
+                frmControl.fInstance.WriteToConsole("Distance between Work Z0 and Tool Setter is " + fTravelBetweenWorkZeroAndToolSetterTop);
             }
 
-            if (fTravelBetweenWorkZeroAndToolSetterTop < 0)
+            if (fTravelBetweenWorkZeroAndToolSetterTop > 0)
             {
-                // That means the original work zero is below the tool setter height
-                // So move the Z 10mm up
-                double currentZ = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ();
-                MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", 10);
-                while (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ() < (currentZ + 10))
-                {
-                    Thread.sleep(500);
-                    AskForMachineStatus();
-                }
+                // Tool setter is LOWER than Work ZERO!
+                // Move endmill back to fTravelBetweenWorkZeroAndToolSetterTop
+                MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", fTravelBetweenWorkZeroAndToolSetterTop);
+                SendPauseCommand(0.2);
+                AskForMachineStatus();
+                /////////////////////////////////////////////////////////////////////////////////
+                // Move Endmill to Z ZERO POINT !!!!!!!!!!!!
+                /////////////////////////////////////////////////////////////////////////////////
+                ChangeWorkPositionWithValue("Z", 0);
+                SendPauseCommand(0.2);
+                AskForMachineStatus();
+                /////////////////////////////////////////////////////////////////////////////////
+                RaiseEndmillToMachineZMax();
             }
             else
             {
-                // Move endmill back to fTravelBetweenWorkZeroAndToolSetterTop
-                AskForMachineStatus();
-                double currentZ = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ();
-                MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", fTravelBetweenWorkZeroAndToolSetterTop);
-                while (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ() < (currentZ + fTravelBetweenWorkZeroAndToolSetterTop))
-                {
-                    Thread.sleep(500);
-                    AskForMachineStatus();
-                }
+                // <=0
+                // TODO
             }
 
             AskForMachineStatus();
 
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            // At this point the Endmill is at the original Work Z 0 point
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            if (fTravelBetweenWorkZeroAndToolSetterTop < 0)
-            {
-                ChangeWorkPositionWithValue("Z", Math.abs(fTravelBetweenWorkZeroAndToolSetterTop) + 10);
-                SendPauseCommand(0.2);
-            }
-            else
-            {
-                ChangeWorkPositionWithValue("Z", workPositionZBeforeToolChange);
-                SendPauseCommand(0.2);
-            }
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Step 4 - Go Back to Work X,Y before tool change
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            frmControl.fInstance.WriteToConsole("Turn on the Spindle and press the 'Resume' button.");
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
+            AskForMachineStatus();
+            Step_4_GoBackToMachineX_Y_BeforeToolChange_G53(machinePositionXBeforeToolChange, machinePositionYBeforeToolChange);
 
-            // RAISE THE ENDMILL TO THE TOP IN ORDER TO AVOID WORKHOLDING
-            // and inform user to turn on the spindle
-            String raiseEndmillCommand = "G53 G0 Z-2";
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(raiseEndmillCommand));
-            // Wait until Z moves to -2
-            while (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ() < -2)
-            {
-                try
-                {
-                    Thread.sleep(800);
-                    AskForMachineStatus();
-                }
-                catch (Exception ex)
-                {
-
-                }
-            }
         }
         catch (Exception ex)
         {
 
         }
 
-        // Step 4 - Ask user to turn on the Spindle and
-        // --- Go back to MACHINE Position X and Y Before Tool Change
-        // --- Go back to WORK work position Z Before Tool Change
-        frmControl.fInstance.WriteToConsole("Turn on the Spindle and press the 'Resume' button.");
-        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
+        // Go back to work zero position before tool change
+        //MoveFromPositionToPosition_ABSOLUTE("Z", workPositionZBeforeToolChange);
+    }
+
+    private void RaiseEndmillToMachineZMax() throws InterruptedException
+    {
+        // Raise endmill to safe distance
+        String raiseEndmillCommand = "G53 G0 Z-2.000";
+        String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(raiseEndmillCommand));
+        System.out.println("RaiseEndmillToMachineZMax Response:" + response);
+        // WAIT FOR MACHINE TO STOP MOVING
+        WaitForMachineToStopMoving();
+    }
+
+    private void Step_2_GoToToolSetterXAndY_MachinePosition_G53() throws InterruptedException
+    {
+        // Move to tool setter's X and Y
+        String goToToolSetterCommand = "G53 G0" + " X" + String.valueOf(SemiAutoToolChangeSettings.getToolSetterX()) + " Y" + String.valueOf(SemiAutoToolChangeSettings.getToolSetterY());
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(goToToolSetterCommand));
+        // WAIT FOR MACHINE TO STOP MOVING
+        WaitForMachineToStopMoving();
+    }
+
+    private void Step_3_TouchTheToolSetter() throws Exception
+    {
+        frmControl.fInstance.WriteToConsole("Touching the tool setter...");
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
+        MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel - 6, 700);
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
+        SendPauseCommand(0.5);
         AskForMachineStatus();
 
+        // Move end mill to tool setter slower this time
+        MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", 6);
+        SendPauseCommand(0.2);
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
+        MoveEndmillToToolSetter(6, 60);
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
+        SendPauseCommand(0.5);
+        AskForMachineStatus();
+    }
+
+    private void Step_4_GoBackToMachineX_Y_BeforeToolChange_G53(double machinePositionXBeforeToolChange, double machinePositionYBeforeToolChange) throws InterruptedException
+    {
         String goBackToOriginalMachinePosition = "G53";
         goBackToOriginalMachinePosition += " G0";
         goBackToOriginalMachinePosition += " X" + String.valueOf(machinePositionXBeforeToolChange);
         goBackToOriginalMachinePosition += " Y" + String.valueOf(machinePositionYBeforeToolChange);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(goBackToOriginalMachinePosition));
-        // Wait until Y moves to machinePositionYBeforeToolChange
-        while (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY() != SemiAutoToolChangeSettings.getToolSetterY())
-        {
-            try
-            {
-                Thread.sleep(800);
-                AskForMachineStatus();
-            }
-            catch (Exception ex)
-            {
 
-            }
-        }
-        
-        // Go back to work zero position before tool change
-        MoveFromPositionToPosition_ABSOLUTE("Z", workPositionZBeforeToolChange);
+        // WAIT FOR MACHINE TO STOP MOVING
+        WaitForMachineToStopMoving();
     }
 
     private void MoveFromPositionToPosition_ABSOLUTE(String axis, double to)
@@ -322,12 +279,57 @@ public class GRBLToolChangeOperator
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
     }
 
+    private void WaitForMachineToStopMoving()
+    {
+        double tempX = 0, tempY = 0, tempZ = 0;
+        boolean machineIsMoving = false;
+        do
+        {
+            frmControl.fInstance.WriteToConsole("Waiting for machine to stop moving...");
+            machineIsMoving = false;
+            if (tempX != ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX())
+            {
+                tempX = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX();
+                machineIsMoving = true;
+            }
+
+            if (tempY != ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY())
+            {
+                tempY = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY();
+                machineIsMoving = true;
+            }
+
+            if (tempZ != ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ())
+            {
+                tempZ = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ();
+                machineIsMoving = true;
+            }
+            AskForMachineStatus();
+        }
+        while (machineIsMoving);
+    }
+
     /**
      * Send the COMMAND_GET_STATUS (?) to the controller
      */
     private void AskForMachineStatus()
     {
+        // Wait 800 milliseconds between AskForMachineStatus method calls
+        long timeNow = System.currentTimeMillis();
+        if (timeNow - fLastTimeAskedForMachineStatus < 800)
+        {
+            try
+            {
+                Thread.sleep(800);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(GRBLCommands.COMMAND_GET_STATUS));
+        fLastTimeAskedForMachineStatus = System.currentTimeMillis();
     }
 
     /**

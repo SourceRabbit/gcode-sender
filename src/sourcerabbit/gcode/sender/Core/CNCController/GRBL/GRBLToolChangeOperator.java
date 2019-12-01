@@ -177,17 +177,27 @@ public class GRBLToolChangeOperator
                 MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", fTravelBetweenWorkZeroAndToolSetterTop);
                 AskForMachineStatus();
                 /////////////////////////////////////////////////////////////////////////////////
-                // Move Endmill to Z ZERO POINT !!!!!!!!!!!!
-                /////////////////////////////////////////////////////////////////////////////////
+                // At this moment the endmill is at Z zero position!!!!!!!!!!!!!
+                // Set the work position to zero !!!!!!!!!
                 ChangeWorkPositionWithValue("Z", 0);
                 AskForMachineStatus();
                 /////////////////////////////////////////////////////////////////////////////////
+
+                // Finaly raise endmill to Z max
                 RaiseEndmillToMachineZMax();
             }
             else
             {
-                // <=0
-                // TODO
+                // Tool setter is HIGHER than Work ZERO!
+                /////////////////////////////////////////////////////////////////////////////////
+                // At this moment the endmill is at (+)fTravelBetweenWorkZeroAndToolSetterTop
+                // Set the work position to (+)fTravelBetweenWorkZeroAndToolSetterTop
+                ChangeWorkPositionWithValue("Z", Math.abs(fTravelBetweenWorkZeroAndToolSetterTop));
+                AskForMachineStatus();
+                /////////////////////////////////////////////////////////////////////////////////
+
+                // Finaly raise endmill to Z max
+                RaiseEndmillToMachineZMax();
             }
 
             AskForMachineStatus();
@@ -199,6 +209,9 @@ public class GRBLToolChangeOperator
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
             AskForMachineStatus();
             Step_4_GoBackToMachineX_Y_BeforeToolChange_G53(machinePositionXBeforeToolChange, machinePositionYBeforeToolChange);
+
+            // GO back to Z work position before tool change
+            MoveFromPositionToPosition_ABSOLUTE("Z", workPositionZBeforeToolChange);
         }
         catch (Exception ex)
         {
@@ -261,6 +274,9 @@ public class GRBLToolChangeOperator
     {
         String command = "G90 " + axis + String.valueOf(to) + "F3000";
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
+
+        // WAIT FOR MACHINE TO STOP MOVING
+        WaitForMachineToStopMoving();
     }
 
     private void MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE(String axis, double to)
@@ -269,6 +285,9 @@ public class GRBLToolChangeOperator
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
         command = "G90";
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
+
+        // WAIT FOR MACHINE TO STOP MOVING
+        WaitForMachineToStopMoving();
     }
 
     private void WaitForMachineToStopMoving()

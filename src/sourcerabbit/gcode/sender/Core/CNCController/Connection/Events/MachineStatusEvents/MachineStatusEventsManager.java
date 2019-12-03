@@ -1,4 +1,4 @@
- /*
+/*
  Copyright (C) 2015  Nikos Siatras
 
  This program is free software: you can redistribute it and/or modify
@@ -42,6 +42,19 @@ public class MachineStatusEventsManager extends EventManager
             {
                 IMachineStatusEventListener listener = (IMachineStatusEventListener) obj;
                 listener.MachineStatusChanged(evt);
+            }
+        }
+    }
+
+    public void FireMachineStatusReceived(MachineStatusEvent evt)
+    {
+        synchronized (fLock)
+        {
+            fCurrentEvent = evt;
+            for (Object obj : fEventListeners)
+            {
+                IMachineStatusEventListener listener = (IMachineStatusEventListener) obj;
+                listener.MachineStatusReceived(evt);
             }
         }
     }

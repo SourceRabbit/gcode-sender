@@ -257,6 +257,13 @@ public class frmEdgeFinder extends javax.swing.JDialog
                 final int activeState = evt.getMachineStatus();
                 UpdateUIOnMachineStatusChange(activeState, evt.getMessage());
             }
+
+            @Override
+            public void MachineStatusReceived(MachineStatusEvent evt)
+            {
+                // DO NOTHING
+            }
+
         });
     }
 

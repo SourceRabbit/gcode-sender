@@ -252,6 +252,13 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
                 final int activeState = evt.getMachineStatus();
                 UpdateUIOnMachineStatusChange(activeState);
             }
+
+            @Override
+            public void MachineStatusReceived(MachineStatusEvent evt)
+            {
+                // DO NOTHING
+            }
+
         });
     }
 

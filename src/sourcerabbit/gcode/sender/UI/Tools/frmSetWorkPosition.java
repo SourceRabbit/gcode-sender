@@ -74,6 +74,13 @@ public class frmSetWorkPosition extends javax.swing.JDialog
             {
                 MachineStatusHasChange(evt);
             }
+
+            @Override
+            public void MachineStatusReceived(MachineStatusEvent evt)
+            {
+                // DO NOTHING
+            }
+
         });
 
     }

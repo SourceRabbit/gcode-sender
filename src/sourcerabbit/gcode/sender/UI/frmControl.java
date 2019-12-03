@@ -255,6 +255,13 @@ public class frmControl extends javax.swing.JFrame
                 jButtonReturnToZero.setEnabled(activeState == GRBLActiveStates.IDLE || activeState == GRBLActiveStates.CHECK);
                 jButtonGCodeSend.setEnabled(activeState == GRBLActiveStates.IDLE || activeState == GRBLActiveStates.CHECK);
             }
+
+            @Override
+            public void MachineStatusReceived(MachineStatusEvent evt)
+            {
+                // DO NOTHING 
+            }
+
         });
 
         // Serial Connection Events

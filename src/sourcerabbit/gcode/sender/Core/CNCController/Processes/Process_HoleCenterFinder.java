@@ -166,7 +166,7 @@ public class Process_HoleCenterFinder extends Process
 
         fWaitForTouchProbeToTouchTheEdge.Reset();
         fTouchProbeTouchedTheEdge = false;
-        final GCodeCommand command = new GCodeCommand("G38.2 " + axis + (CenterHoleFinderSettings.getHoleCenterFinderDiameter()/2) + "F" + feedRate);
+        final GCodeCommand command = new GCodeCommand("G38.2 " + axis + (CenterHoleFinderSettings.getHoleCenterFinderDiameter() / 2) + "F" + feedRate);
         String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
         fWaitForTouchProbeToTouchTheEdge.WaitOne();
         return response;
@@ -247,7 +247,7 @@ public class Process_HoleCenterFinder extends Process
      */
     private void AskForMachineStatus()
     {
-        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(GRBLCommands.COMMAND_GET_STATUS));
+        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.AskForMachineStatus();
     }
 
     @Override

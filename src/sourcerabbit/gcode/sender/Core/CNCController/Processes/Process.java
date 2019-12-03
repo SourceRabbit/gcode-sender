@@ -43,6 +43,13 @@ public class Process
                 final int activeState = evt.getMachineStatus();
                 MachineStatusHasChange(activeState);
             }
+
+            @Override
+            public void MachineStatusReceived(MachineStatusEvent evt)
+            {
+                // DO NOTHING !!!!
+            }
+
         });
     }
 
@@ -83,5 +90,5 @@ public class Process
     {
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachineStatusEventsManager().RemoveListener(fIMachineStatusEventListener);
     }
-   
+
 }

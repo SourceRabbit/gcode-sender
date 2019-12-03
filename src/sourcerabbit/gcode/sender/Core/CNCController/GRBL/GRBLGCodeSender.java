@@ -78,8 +78,6 @@ public class GRBLGCodeSender extends GCodeSender
                     // Send cycle start command and ask for the new machine status
                     fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_START_CYCLE + GRBLCommands.COMMAND_GET_STATUS);
 
-                    long lastStatusRequestTimestamp = System.currentTimeMillis();
-
                     while (fKeepGCodeCycle && gcodes.size() > 0)
                     {
                         try
@@ -114,10 +112,9 @@ public class GRBLGCodeSender extends GCodeSender
                             }
 
                             // Ask for machine status every 3000 milliseconds
-                            if (System.currentTimeMillis() - lastStatusRequestTimestamp > 3000)
+                            if (System.currentTimeMillis() - fMyConnectionHandler.getLastMachineStatusReceivedTimestamp() > 3000)
                             {
-                                lastStatusRequestTimestamp = System.currentTimeMillis();
-                                fMyConnectionHandler.SendGCodeCommand(new GCodeCommand(GRBLCommands.COMMAND_GET_STATUS));
+                                fMyConnectionHandler.AskForMachineStatus();
                             }
 
                             fRowsSent += 1;
@@ -153,7 +150,8 @@ public class GRBLGCodeSender extends GCodeSender
     }
 
     /**
-     * Cancel Sending GCode to GRBL Controller! This method stops immediately the GCode cycle and the CNC machine stops.
+     * Cancel Sending GCode to GRBL Controller! This method stops immediately
+     * the GCode cycle and the CNC machine stops.
      */
     @Override
     public void CancelSendingGCode()

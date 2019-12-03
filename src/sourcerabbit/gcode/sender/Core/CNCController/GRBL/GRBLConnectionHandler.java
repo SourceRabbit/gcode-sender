@@ -47,7 +47,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
     // Status thread and Parser
     private GRBLStatusReportParser fMyStatusReportParser;
-    private long fLastMachinePositionReceivedTimestamp;
+
     private boolean fKeepStatusThread = false;
     private Thread fStatusThread;
 
@@ -125,7 +125,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 // and get the current Active State of the machine.
                 int currentActiveState = fMyStatusReportParser.ParseStatusReportMessageAndReturnActiveState(receivedStr);
 
-                //System.out.println(receivedStr);
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
                 // Check if the machine status changed
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,6 +136,16 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(fActiveState, ""));
                 }
 
+                ///////////////////////////////////////////////////////////////////////////////////////////////////
+                // FIRE FireMachineStatusReceived event all the time!!!!!!!!
+                ///////////////////////////////////////////////////////////////////////////////////////////////////
+                fMachineStatusEventsManager.FireMachineStatusReceived(new MachineStatusEvent(currentActiveState, ""));
+                ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////
+                // The first Time the machine is in IDLE status
+                // Ask for the controller Settings ($)
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////
                 if (fActiveState == GRBLActiveStates.IDLE)
                 {
                     if (!fMachineSettingsAsked)
@@ -154,10 +163,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         fMachineSettingsAsked = false;
                     }
                 }
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 // Set the fLastMachinePositionReceivedTimestamp value and the 
                 // WaitForGetStatusCommandReply manual reset event.
-                fLastMachinePositionReceivedTimestamp = System.currentTimeMillis();
+                fLastMachineStatusReceivedTimestamp = System.currentTimeMillis();
                 fWaitForGetStatusCommandReply.Set();
 
             }
@@ -218,7 +229,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         {
                             fZMaxTravel = (int) Double.parseDouble(receivedStr.replace("$132=", ""));
                         }
-                        
+
                         fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
                         fLastCommandSentToController = null;
                         fWaitForCommandToBeExecuted.Set();
@@ -347,8 +358,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
      * @return
      */
     @Override
-    public String SendGCodeCommandAndGetResponse(GCodeCommand command
-    )
+    public String SendGCodeCommandAndGetResponse(GCodeCommand command)
     {
         fGCodeCommandResponse = "";
         try
@@ -367,7 +377,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
      */
     private void StartStatusReportThread()
     {
-
         if (fConnectionEstablished)
         {
             // Start the status thread
@@ -378,7 +387,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 {
                     while (fKeepStatusThread)
                     {
-                        if ((System.currentTimeMillis() - fLastMachinePositionReceivedTimestamp) > GCodeSenderSettings.getStatusPollRate())
+                        if ((System.currentTimeMillis() - fLastMachineStatusReceivedTimestamp) > GCodeSenderSettings.getStatusPollRate())
                         {
                             try
                             {
@@ -393,7 +402,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
                                 // Ask for status report           
                                 fWaitForGetStatusCommandReply = new ManualResetEvent(false);
-                                //fWaitForGetStatusCommandReply.Reset();
 
                                 if (AskForMachineStatus())
                                 {
@@ -414,7 +422,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
                         try
                         {
-                            Thread.sleep(100);
+                            Thread.sleep(800);
                         }
                         catch (Exception ex)
                         {
@@ -433,7 +441,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
      *
      * @return true if the '?' can be sent
      */
-    private boolean AskForMachineStatus()
+    @Override
+    public boolean AskForMachineStatus()
     {
         synchronized (fSendDataLock)
         {

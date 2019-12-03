@@ -231,6 +231,13 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
                 final int activeState = evt.getMachineStatus();
                 UpdateUIOnMachineStatusChange(activeState);
             }
+
+            @Override
+            public void MachineStatusReceived(MachineStatusEvent evt)
+            {
+                // Do nothing
+            }
+
         });
 
     }

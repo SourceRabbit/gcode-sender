@@ -1,4 +1,4 @@
- /*
+/*
  Copyright (C) 2015  Nikos Siatras
 
  This program is free software: you can redistribute it and/or modify
@@ -24,4 +24,6 @@ public interface IMachineStatusEventListener
 {
 
     public void MachineStatusChanged(MachineStatusEvent evt);
+
+    public void MachineStatusReceived(MachineStatusEvent evt);
 }

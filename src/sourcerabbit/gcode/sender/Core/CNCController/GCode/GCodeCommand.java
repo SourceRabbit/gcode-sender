@@ -63,7 +63,7 @@ public class GCodeCommand
      */
     public String getOptimizedCommand()
     {
-        String optimized = GCodeOptimizer.OptimizeGCodeCommand(this);
+        //String optimized = GCodeOptimizer.OptimizeGCodeCommand(this);
         return GCodeOptimizer.OptimizeGCodeCommand(this);
     }
 

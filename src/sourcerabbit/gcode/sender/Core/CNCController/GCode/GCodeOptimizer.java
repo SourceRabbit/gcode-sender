@@ -64,10 +64,11 @@ public class GCodeOptimizer
 
     public static String OptimizeGCodeCommand(GCodeCommand command)
     {
-        return TruncateDecimals(command.getCommand().replace(" ", "").replace(command.getComment(), "").trim());
+        return command.getCommand().replace(" ", "").replace(command.getComment(), "").trim();
+        //return TruncateDecimals(command.getCommand().replace(" ", "").replace(command.getComment(), "").trim());
     }
 
-    private static String TruncateDecimals(final String command)
+    /*private static String TruncateDecimals(final String command)
     {
         Matcher matcher = fDecimalPattern.matcher(command);
         Double d;
@@ -81,5 +82,5 @@ public class GCodeOptimizer
 
 
         return sb.toString();
-    }
+    }*/
 }

@@ -111,8 +111,8 @@ public class GRBLGCodeSender extends GCodeSender
                                 }
                             }
 
-                            // Ask for machine status every 3000 milliseconds
-                            if (System.currentTimeMillis() - fMyConnectionHandler.getLastMachineStatusReceivedTimestamp() > 3000)
+                            // Ask for machine status every 4000 milliseconds
+                            if (System.currentTimeMillis() - fMyConnectionHandler.getLastMachineStatusReceivedTimestamp() > 4000)
                             {
                                 fMyConnectionHandler.AskForMachineStatus();
                             }

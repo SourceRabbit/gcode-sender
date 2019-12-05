@@ -43,6 +43,10 @@ public class GRBLConnectionHandler extends ConnectionHandler
     // Commands
     private final Object fSendDataLock = new Object();
     private final ManualResetEvent fWaitForCommandToBeExecuted;
+
+    // Ask for machine status
+    private final int fMillisecondsBetweenAskingForMachineStatus = 1000;
+    private long fLastTimeAskedForMachineStatus = System.currentTimeMillis();
     private ManualResetEvent fWaitForGetStatusCommandReply;
 
     // Status thread and Parser
@@ -387,7 +391,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 {
                     while (fKeepStatusThread)
                     {
-                        if ((System.currentTimeMillis() - fLastMachineStatusReceivedTimestamp) > GCodeSenderSettings.getStatusPollRate())
+                        if ((System.currentTimeMillis() - fLastMachineStatusReceivedTimestamp) > fMillisecondsBetweenAskingForMachineStatus)
                         {
                             try
                             {
@@ -448,7 +452,19 @@ public class GRBLConnectionHandler extends ConnectionHandler
         {
             try
             {
-                return SendData(GRBLCommands.COMMAND_GET_STATUS);
+                //////////////////////////////////////////////////////////////////////////////////////////
+                // Wait fMillisecondsBetweenAskingForMachineStatus between asking for machine status
+                //////////////////////////////////////////////////////////////////////////////////////////
+                long timeNow = System.currentTimeMillis();
+                if (timeNow - fLastTimeAskedForMachineStatus < (fMillisecondsBetweenAskingForMachineStatus))
+                {
+                    long waitFor = fMillisecondsBetweenAskingForMachineStatus - (timeNow - fLastTimeAskedForMachineStatus);
+                    Thread.sleep(waitFor);
+                }
+
+                fLastTimeAskedForMachineStatus = System.currentTimeMillis();
+                return SendGCodeCommand(new GCodeCommand(GRBLCommands.COMMAND_GET_STATUS));
+                //return SendData(GRBLCommands.COMMAND_GET_STATUS);
             }
             catch (Exception ex)
             {

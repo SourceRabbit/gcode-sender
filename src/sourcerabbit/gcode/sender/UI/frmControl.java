@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Queue;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -85,8 +86,7 @@ public class frmControl extends javax.swing.JFrame
     private EUnits fJoggingUnits = EUnits.Metric;
     private static final Object fAddRemoveLogTableLines = new Object();
 
-    private final Calendar fCalendar = Calendar.getInstance();
-    private final DateFormat fDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private final DateFormat fDateFormat = new SimpleDateFormat("HH:mm:ss");
 
     // Macros
     private final ArrayList<JTextField> fMacroTexts = new ArrayList<>();
@@ -191,7 +191,7 @@ public class frmControl extends javax.swing.JFrame
 
     public void WriteToConsole(String output)
     {
-        String dateTime = (fDateFormat.format(fCalendar.getTime()));
+        String dateTime = (fDateFormat.format(new Date(System.currentTimeMillis())));
         jTextAreaConsole.append(dateTime + " - " + output + "\n");
         jTextAreaConsole.setCaretPosition(jTextAreaConsole.getDocument().getLength());
     }

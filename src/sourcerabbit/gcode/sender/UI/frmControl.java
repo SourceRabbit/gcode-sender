@@ -42,6 +42,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -241,7 +242,7 @@ public class frmControl extends javax.swing.JFrame
 
                     case GRBLActiveStates.RESET_TO_CONTINUE:
                         jLabelActiveState.setForeground(Color.red);
-                        jLabelActiveState.setText("Reset to continue!");
+                        jLabelActiveState.setText("Click 'Soft Reset'");
                         break;
 
                     case GRBLActiveStates.JOG:
@@ -254,6 +255,13 @@ public class frmControl extends javax.swing.JFrame
                 jButtonResetWorkPosition.setEnabled(activeState == GRBLActiveStates.IDLE || activeState == GRBLActiveStates.CHECK);
                 jButtonReturnToZero.setEnabled(activeState == GRBLActiveStates.IDLE || activeState == GRBLActiveStates.CHECK);
                 jButtonGCodeSend.setEnabled(activeState == GRBLActiveStates.IDLE || activeState == GRBLActiveStates.CHECK);
+
+                // Enable or disable all components in jPanelMacros
+                Component[] components = jPanelMacros.getComponents();
+                for (Component component : components)
+                {
+                    component.setEnabled(activeState == GRBLActiveStates.IDLE);
+                }
             }
 
             @Override
@@ -497,11 +505,6 @@ public class frmControl extends javax.swing.JFrame
                 }
             }
 
-            @Override
-            public void GCodeCommandHasComment(GCodeExecutionEvent evt)
-            {
-                System.out.println(evt.getCommand().getComment());
-            }
         }
         );
     }
@@ -1823,19 +1826,34 @@ public class frmControl extends javax.swing.JFrame
             final Position4D machinePos = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition();
             if (machinePos.getX() != 0 || machinePos.getY() != 0 || machinePos.getZ() != 0)
             {
+                String response = "";
                 if (machinePos.getZ() < 2)
                 {
                     final GCodeCommand command1 = new GCodeCommand("G21 G90 G0 Z2");
-                    ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command1);
+                    response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command1);
                 }
 
-                final GCodeCommand command2 = new GCodeCommand("G21 G90 X0 Y0");
-                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command2);
+                if (response.equals("ok"))
+                {
+                    final GCodeCommand command2 = new GCodeCommand("G21 G90 X0 Y0");
+                    response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command2);
+                }
 
-                final GCodeCommand command3 = new GCodeCommand("G21 G90 G0 Z0");
-                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command3);
+                if (response.equals("ok"))
+                {
+                    final GCodeCommand command3 = new GCodeCommand("G21 G90 G0 Z0");
+                    ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command3);
+                }
 
-                WriteToConsole("Return to zero");
+                if (response.equals("ok"))
+                {
+                    WriteToConsole("Return to zero");
+                }
+                else
+                {
+                    WriteToConsole("Failed to return to zero");
+                }
+
             }
         }
         catch (Exception ex)

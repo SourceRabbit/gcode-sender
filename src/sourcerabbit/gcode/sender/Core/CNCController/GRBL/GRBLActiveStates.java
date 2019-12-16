@@ -55,10 +55,10 @@ public class GRBLActiveStates
     // GRBL controller is jogging
     public static final int JOG = 8;
 
-    // GRBL sent the "[Reset to continue]" string.
+    // GRBL sent the "[MSG:Reset to continue]" string.
     // This can happen if the hard_limits is on and the machine hits on the limit switches.
     public static final int RESET_TO_CONTINUE = 100001;
-    
+
     // GRBL sent the "['$H'|'$X' to unlock]" string.
     public static final int MACHINE_IS_LOCKED = 100002;
 
@@ -72,7 +72,7 @@ public class GRBLActiveStates
         {
             case "idle":
                 return GRBLActiveStates.IDLE;
-                
+
             case "run":
                 return GRBLActiveStates.RUN;
 

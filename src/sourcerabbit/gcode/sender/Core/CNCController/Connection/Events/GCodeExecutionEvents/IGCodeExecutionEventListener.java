@@ -29,5 +29,4 @@ public interface IGCodeExecutionEventListener
 
     public void GCodeExecutedWithError(GCodeExecutionEvent evt);
     
-    public void GCodeCommandHasComment(GCodeExecutionEvent evt);
 }

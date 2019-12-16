@@ -57,7 +57,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
     // This holds the active command that has been send to GRBL controller for execution
     private GCodeCommand fLastCommandSentToController = null;
-    private String fGCodeCommandResponse = "";
+    private String fResponseOfTheLastCommandSendToController = "";
 
     private boolean fMachineSettingsAsked = false;
 
@@ -111,12 +111,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
         try
         {
             receivedStr = new String(data).replace("\r", "").trim();
+            fResponseOfTheLastCommandSendToController = receivedStr;
 
             if (receivedStr.equals(""))
             {
                 return;
             }
-            //System.out.println("Data received:" + receivedStr);
 
             if (receivedStr.startsWith("<"))
             {
@@ -178,8 +178,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
             }
             else
             {
-                //System.out.println("Data received:" + receivedStr);
-                fGCodeCommandResponse = receivedStr;
+                System.out.println("Response Received:" + fResponseOfTheLastCommandSendToController + "\n");
+
                 if (receivedStr.equals("ok"))
                 {
                     if (fLastCommandSentToController != null)
@@ -199,21 +199,21 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         switch (fMyControlFrameworkVersion)
                         {
                             case GRBL0_9:
-                                errorMessage = receivedStr;
+                                fResponseOfTheLastCommandSendToController = "Error: " + receivedStr;
                                 break;
 
                             case GRBL1_1:
                                 String errorID = receivedStr.toLowerCase().replace("error", "").replace(":", "").trim();
                                 int errorIDInt = Integer.parseInt(errorID);
                                 errorMessage = GRBLErrorCodes.getErrorMessageFromCode(errorIDInt);
-                                fGCodeCommandResponse = "error: " + errorMessage;
+                                fResponseOfTheLastCommandSendToController = "Error: " + errorMessage;
                                 break;
                         }
 
                         System.err.println("GRBLConnectionHander Error: " + errorMessage + "---> Last Command: " + fLastCommandSentToController.getCommand());
                         frmControl.fInstance.WriteToConsole("Error: " + errorMessage + "---> Last Command: " + fLastCommandSentToController.getCommand());
 
-                        fLastCommandSentToController.setError(errorMessage);
+                        fLastCommandSentToController.setError(fResponseOfTheLastCommandSendToController);
                         fGCodeExecutionEventsManager.FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
                         fLastCommandSentToController = null;
                         fWaitForCommandToBeExecuted.Set();
@@ -242,8 +242,9 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     {
                         // ALARM is ON!
                         // Machine propably needs to be unlocked
-                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
                         fMyGCodeSender.CancelSendingGCode();
+                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
+                        fLastCommandSentToController = null;
                         fWaitForCommandToBeExecuted.Set();
                     }
                     else if (receivedStr.equals("[MSG:'$H'|'$X' to unlock]") || receivedStr.equals("['$H'|'$X' to unlock]"))
@@ -252,7 +253,21 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         // then the GRBL controller lockes and needs to be unlocked.
                         fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_IS_LOCKED, ""));
                         fMyGCodeSender.CancelSendingGCode();
+                        fLastCommandSentToController = null;
                         fWaitForCommandToBeExecuted.Set();
+                    }
+                    else if (receivedStr.equals("[MSG:Reset to continue]"))
+                    {
+                        // MACHINE HAS TO RESET TO CONTINUE!!!!!!!!!!!!!!!!!!!
+                        fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.RESET_TO_CONTINUE, ""));
+                        fMyGCodeSender.CancelSendingGCode();
+                        fLastCommandSentToController = null;
+                        fWaitForCommandToBeExecuted.Set();
+
+                        //////////////////////////////////////////////////////////////////////////////
+                        // ALSO SET THE fWaitForGetStatusCommandReply 
+                        fWaitForGetStatusCommandReply.Set();
+                        //////////////////////////////////////////////////////////////////////////////
                     }
                     else if (receivedStr.startsWith("[PRB:"))
                     {
@@ -314,22 +329,9 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 return true;
             }
 
-            //System.out.println("Data Sent: " + optimizedCommand);
+            System.out.println("Data Sent: " + optimizedCommand);
+            fResponseOfTheLastCommandSendToController = "";
             fLastCommandSentToController = command;
-
-            if (!fLastCommandSentToController.getComment().equals(""))
-            {
-                this.getSerialConnectionEventManager().FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent("Last Comment: " + fLastCommandSentToController.getComment()));
-            }
-
-            // Fire GCodeCommandSentToController
-            this.getGCodeExecutionEventsManager().FireGCodeCommandSentToController(new GCodeExecutionEvent(command));
-
-            // Command has comment !
-            if (!command.getComment().equals(""))
-            {
-                this.getGCodeExecutionEventsManager().FireGCodeCommandHasComment(new GCodeExecutionEvent(command));
-            }
 
             // Reset fWaitForCommandToBeExecuted manual reset event
             fWaitForCommandToBeExecuted.Reset();
@@ -337,7 +339,15 @@ public class GRBLConnectionHandler extends ConnectionHandler
             // Send data !!!!
             if (super.SendData(optimizedCommand))
             {
-                // Wait for "ok" or "error:" to come back
+                // Fire GCodeCommandSentToController
+                this.getGCodeExecutionEventsManager().FireGCodeCommandSentToController(new GCodeExecutionEvent(command));
+
+                // Command has comment !
+                if (!command.getComment().equals(""))
+                {
+                    this.getSerialConnectionEventManager().FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent("Last Comment: " + fLastCommandSentToController.getComment()));
+                }
+
                 fWaitForCommandToBeExecuted.WaitOne();
             }
             else
@@ -364,16 +374,19 @@ public class GRBLConnectionHandler extends ConnectionHandler
     @Override
     public String SendGCodeCommandAndGetResponse(GCodeCommand command)
     {
-        fGCodeCommandResponse = "";
-        try
+        synchronized (fSendDataLock)
         {
-            SendGCodeCommand(command);
-        }
-        catch (Exception ex)
-        {
-        }
+            try
+            {
+                SendGCodeCommand(command);
+                return fResponseOfTheLastCommandSendToController;
+            }
+            catch (Exception ex)
+            {
+            }
 
-        return fGCodeCommandResponse;
+            return fResponseOfTheLastCommandSendToController;
+        }
     }
 
     /**
@@ -464,7 +477,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
                 fLastTimeAskedForMachineStatus = System.currentTimeMillis();
                 return SendGCodeCommand(new GCodeCommand(GRBLCommands.COMMAND_GET_STATUS));
-                //return SendData(GRBLCommands.COMMAND_GET_STATUS);
             }
             catch (Exception ex)
             {

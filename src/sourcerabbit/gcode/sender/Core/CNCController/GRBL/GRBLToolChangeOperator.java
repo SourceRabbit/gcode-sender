@@ -262,7 +262,7 @@ public class GRBLToolChangeOperator
     {
         frmControl.fInstance.WriteToConsole("Touching the tool setter...");
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
-        MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel - 6, 700);
+        MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel - 6, 420);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
 
@@ -272,7 +272,7 @@ public class GRBLToolChangeOperator
         // Move end mill to tool setter slower this time
         MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", 6);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
-        MoveEndmillToToolSetter(6, 60);
+        MoveEndmillToToolSetter(6, 30);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
 

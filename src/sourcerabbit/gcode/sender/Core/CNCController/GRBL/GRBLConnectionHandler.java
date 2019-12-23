@@ -29,7 +29,6 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineSta
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRBLStatusReportParser;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRBL_0_9_StatusReportParser;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRBL_1_1_StatusReportParser;
-import sourcerabbit.gcode.sender.Core.Settings.GCodeSenderSettings;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.UI.frmControl;
 
@@ -178,7 +177,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
             }
             else
             {
-                System.out.println("Response Received:" + fResponseOfTheLastCommandSendToController + "\n");
+                //System.out.println("Response Received:" + fResponseOfTheLastCommandSendToController + "\n");
 
                 if (receivedStr.equals("ok"))
                 {
@@ -329,7 +328,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 return true;
             }
 
-            System.out.println("Data Sent: " + optimizedCommand);
+            //System.out.println("Data Sent: " + optimizedCommand);
             fResponseOfTheLastCommandSendToController = "";
             fLastCommandSentToController = command;
 
@@ -461,27 +460,24 @@ public class GRBLConnectionHandler extends ConnectionHandler
     @Override
     public boolean AskForMachineStatus()
     {
-        synchronized (fSendDataLock)
+        try
         {
-            try
+            //////////////////////////////////////////////////////////////////////////////////////////
+            // Wait fMillisecondsBetweenAskingForMachineStatus between asking for machine status
+            //////////////////////////////////////////////////////////////////////////////////////////
+            long timeNow = System.currentTimeMillis();
+            if ((timeNow - fLastTimeAskedForMachineStatus) < fMillisecondsBetweenAskingForMachineStatus)
             {
-                //////////////////////////////////////////////////////////////////////////////////////////
-                // Wait fMillisecondsBetweenAskingForMachineStatus between asking for machine status
-                //////////////////////////////////////////////////////////////////////////////////////////
-                long timeNow = System.currentTimeMillis();
-                if (timeNow - fLastTimeAskedForMachineStatus < (fMillisecondsBetweenAskingForMachineStatus))
-                {
-                    long waitFor = fMillisecondsBetweenAskingForMachineStatus - (timeNow - fLastTimeAskedForMachineStatus);
-                    Thread.sleep(waitFor);
-                }
+                long waitFor = fMillisecondsBetweenAskingForMachineStatus - (timeNow - fLastTimeAskedForMachineStatus);
+                Thread.sleep(waitFor);
+            }
 
-                fLastTimeAskedForMachineStatus = System.currentTimeMillis();
-                return SendGCodeCommand(new GCodeCommand(GRBLCommands.COMMAND_GET_STATUS));
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
+            fLastTimeAskedForMachineStatus = System.currentTimeMillis();
+            return SendGCodeCommand(new GCodeCommand(GRBLCommands.COMMAND_GET_STATUS));
+        }
+        catch (Exception ex)
+        {
+            return false;
         }
     }
 

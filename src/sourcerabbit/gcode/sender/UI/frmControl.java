@@ -46,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
@@ -64,6 +65,7 @@ import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 import sourcerabbit.gcode.sender.Core.CNCController.Processes.Process_Jogging;
+import sourcerabbit.gcode.sender.Core.CNCController.Processes.Process_SetWorkPosition;
 import sourcerabbit.gcode.sender.Core.Settings.SemiAutoToolChangeSettings;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
 import sourcerabbit.gcode.sender.Core.Units.EUnits;
@@ -542,18 +544,21 @@ public class frmControl extends javax.swing.JFrame
                 {
                     fMachineStatusThreadWait.Reset();
 
-                    // Update Machine Position
-                    jLabelMachineX.setText("X: " + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX()));
-                    jLabelMachineY.setText("Y: " + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY()));
-                    jLabelMachineZ.setText("Z: " + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ()));
-
                     // Update Work position
-                    jLabelWorkX.setText("X: " + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX()));
-                    jLabelWorkY.setText("Y: " + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY()));
-                    jLabelWorkZ.setText("Z: " + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ()));
+                    jLabelWorkPositionX.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX()));
+                    jLabelWorkPositionY.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY()));
+                    jLabelWorkPositionZ.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ()));
+
+                    // Update Machine Position
+                    jLabelMachinePositionX.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX()));
+                    jLabelMachinePositionY.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY()));
+                    jLabelMachinePositionZ.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ()));
 
                     // Update bytes per second
-                    jLabelBytesPerSecond.setText(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesInPerSec() + " / " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesOutPerSec());
+                    String bytesText = "Connection (Bytes In/Out per sec.: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesInPerSec() + " / " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesOutPerSec() + ")";
+                    TitledBorder border = (TitledBorder) jPanelConnection.getBorder();
+                    border.setTitle(bytesText);
+                    jPanelConnection.repaint();
 
                     // Semi Auto Tool Change Status
                     if (SemiAutoToolChangeSettings.isSemiAutoToolChangeEnabled())
@@ -690,19 +695,24 @@ public class frmControl extends javax.swing.JFrame
     {
 
         jPanel2 = new javax.swing.JPanel();
-        jLabelWorkX = new javax.swing.JLabel();
-        jLabelWorkY = new javax.swing.JLabel();
-        jLabelWorkZ = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabelMachineX = new javax.swing.JLabel();
-        jLabelMachineY = new javax.swing.JLabel();
-        jLabelMachineZ = new javax.swing.JLabel();
         jButtonResetWorkPosition = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        jLabelMachineX1 = new javax.swing.JLabel();
         jLabelActiveState = new javax.swing.JLabel();
         jButtonKillAlarm = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabelWorkPositionZ = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabelWorkPositionX = new javax.swing.JLabel();
+        jLabelWorkPositionY = new javax.swing.JLabel();
+        jLabelMachinePositionZ = new javax.swing.JLabel();
+        jLabelMachinePositionX = new javax.swing.JLabel();
+        jLabelMachinePositionY = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jPanelConnection = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabelConnectionStatus = new javax.swing.JLabel();
         jButtonConnectDisconnect = new javax.swing.JButton();
@@ -724,25 +734,24 @@ public class frmControl extends javax.swing.JFrame
         jPanel1 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jTextFieldGCodeFile = new javax.swing.JTextField();
-        jButtonGCodeBrowse = new javax.swing.JButton();
         jLabelRowsInFile = new javax.swing.JLabel();
         jLabelRowsInFile1 = new javax.swing.JLabel();
         jLabelRowsInFile2 = new javax.swing.JLabel();
         jLabelRowsInFile3 = new javax.swing.JLabel();
         jLabelSentRows = new javax.swing.JLabel();
         jLabelRemainingRows = new javax.swing.JLabel();
-        jButtonGCodeSend = new javax.swing.JButton();
-        jButtonGCodePause = new javax.swing.JButton();
-        jButtonGCodeCancel = new javax.swing.JButton();
-        jButtonGCodeVisualize = new javax.swing.JButton();
         jLabelRowsInFile4 = new javax.swing.JLabel();
         jLabelTimeElapsed = new javax.swing.JLabel();
         jLabelRowsInFile5 = new javax.swing.JLabel();
         jProgressBarGCodeProgress = new javax.swing.JProgressBar();
-        jLabelRowsInFile6 = new javax.swing.JLabel();
-        jLabelBytesPerSecond = new javax.swing.JLabel();
         jLabelRowsInFile7 = new javax.swing.JLabel();
         jLabelSemiAutoToolChangeStatus = new javax.swing.JLabel();
+        jPanel6 = new javax.swing.JPanel();
+        jButtonGCodePause = new javax.swing.JButton();
+        jButtonGCodeSend = new javax.swing.JButton();
+        jButtonGCodeCancel = new javax.swing.JButton();
+        jButtonGCodeBrowse = new javax.swing.JButton();
+        jButtonGCodeVisualize = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel5 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
@@ -776,31 +785,11 @@ public class frmControl extends javax.swing.JFrame
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SourceRabbit GCODE Sender");
-        setResizable(false);
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Machine Status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabelWorkX.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabelWorkX.setForeground(new java.awt.Color(0, 75, 127));
-        jLabelWorkX.setText("X: 0");
-
-        jLabelWorkY.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabelWorkY.setForeground(new java.awt.Color(0, 75, 127));
-        jLabelWorkY.setText("Y: 0");
-
-        jLabelWorkZ.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabelWorkZ.setForeground(new java.awt.Color(0, 75, 127));
-        jLabelWorkZ.setText("Z: 0");
-
-        jLabel3.setText("Machine Position:");
-
-        jLabelMachineX.setText("X: 0");
-
-        jLabelMachineY.setText("Y: 0");
-
-        jLabelMachineZ.setText("Z: 0");
-
-        jButtonResetWorkPosition.setText("Reset Work Position");
+        jButtonResetWorkPosition.setText("∅  Zero Work Position");
         jButtonResetWorkPosition.setToolTipText("Reset the Work Position to 0,0,0");
         jButtonResetWorkPosition.addActionListener(new java.awt.event.ActionListener()
         {
@@ -809,15 +798,14 @@ public class frmControl extends javax.swing.JFrame
                 jButtonResetWorkPositionActionPerformed(evt);
             }
         });
+        jPanel2.add(jButtonResetWorkPosition, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, 240, 32));
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(0, 75, 127));
-        jLabel2.setText("Work Position:");
-
-        jLabel6.setText("Active State:");
+        jLabelMachineX1.setText("Active State:");
+        jPanel2.add(jLabelMachineX1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 69, 20));
 
         jLabelActiveState.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabelActiveState.setText("Restarting...");
+        jPanel2.add(jLabelActiveState, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, 147, 20));
 
         jButtonKillAlarm.setText("Kill Alarm");
         jButtonKillAlarm.addActionListener(new java.awt.event.ActionListener()
@@ -827,77 +815,65 @@ public class frmControl extends javax.swing.JFrame
                 jButtonKillAlarmActionPerformed(evt);
             }
         });
+        jPanel2.add(jButtonKillAlarm, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 20, -1, -1));
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButtonResetWorkPosition, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(jLabel2)
-                                .addGap(55, 55, 55))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabelActiveState, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3)
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addGap(10, 10, 10)
-                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(jLabelMachineX, javax.swing.GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
-                                            .addComponent(jLabelMachineY, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(jLabelMachineZ, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                                .addGap(8, 8, 8))
-                            .addComponent(jButtonKillAlarm, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabelWorkZ, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabelWorkY, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabelWorkX, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(jLabelActiveState)
-                    .addComponent(jButtonKillAlarm))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabelWorkX)
-                    .addComponent(jLabelMachineX))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabelWorkY)
-                    .addComponent(jLabelMachineY))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabelWorkZ)
-                    .addComponent(jLabelMachineZ))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButtonResetWorkPosition, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(153, 153, 153))
-        );
+        jPanel3.setLayout(new java.awt.GridLayout(1, 0));
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(0, 75, 127));
+        jPanel3.add(jLabel6);
+
+        jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 270, -1));
+
+        jLabel11.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel11.setText("Machine Position");
+        jPanel2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, -1, 20));
+
+        jLabelWorkPositionZ.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabelWorkPositionZ.setForeground(new java.awt.Color(0, 75, 127));
+        jLabelWorkPositionZ.setText("Z0");
+        jPanel2.add(jLabelWorkPositionZ, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, -1, 20));
+
+        jLabel13.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(0, 75, 127));
+        jLabel13.setText("Work Position");
+        jPanel2.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, -1, -1));
+
+        jLabelWorkPositionX.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabelWorkPositionX.setForeground(new java.awt.Color(0, 75, 127));
+        jLabelWorkPositionX.setText("X0");
+        jPanel2.add(jLabelWorkPositionX, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 70, -1, 20));
+
+        jLabelWorkPositionY.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabelWorkPositionY.setForeground(new java.awt.Color(0, 75, 127));
+        jLabelWorkPositionY.setText("Y0");
+        jPanel2.add(jLabelWorkPositionY, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 90, -1, 20));
+
+        jLabelMachinePositionZ.setText("Z0");
+        jPanel2.add(jLabelMachinePositionZ, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 110, -1, 20));
+
+        jLabelMachinePositionX.setText("X0");
+        jPanel2.add(jLabelMachinePositionX, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 70, -1, 20));
+
+        jLabelMachinePositionY.setText("Y0");
+        jPanel2.add(jLabelMachinePositionY, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 90, -1, 20));
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel2.setText("Z:");
+        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 20, 20));
+
+        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel3.setText("X:");
+        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 20, 20));
+
+        jLabel12.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel12.setText("Y:");
+        jPanel2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 20, 20));
+
+        jPanelConnection.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
 
         jLabel1.setText("Status:");
 
@@ -923,32 +899,32 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+        javax.swing.GroupLayout jPanelConnectionLayout = new javax.swing.GroupLayout(jPanelConnection);
+        jPanelConnection.setLayout(jPanelConnectionLayout);
+        jPanelConnectionLayout.setHorizontalGroup(
+            jPanelConnectionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelConnectionLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanelConnectionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelConnectionLayout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addGap(18, 18, 18)
                         .addComponent(jLabelConnectionStatus))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
+                    .addGroup(jPanelConnectionLayout.createSequentialGroup()
                         .addComponent(jButtonConnectDisconnect)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonSoftReset)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+        jPanelConnectionLayout.setVerticalGroup(
+            jPanelConnectionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelConnectionLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanelConnectionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jLabelConnectionStatus))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanelConnectionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonConnectDisconnect)
                     .addComponent(jButtonSoftReset))
                 .addContainerGap())
@@ -1072,37 +1048,35 @@ public class frmControl extends javax.swing.JFrame
             jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelMachineControlLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                        .addComponent(jButtonXMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButtonYPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButtonYMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonXPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButtonZMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButtonZPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                        .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelMachineControlLayout.createSequentialGroup()
-                                    .addComponent(jLabel4)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(jSpinnerStep))
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelMachineControlLayout.createSequentialGroup()
-                                    .addComponent(jRadioButtonInches)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(jRadioButtonMillimeters)))
-                            .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                                .addComponent(jCheckBoxEnableKeyboardJogging)
+                    .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanelMachineControlLayout.createSequentialGroup()
+                            .addComponent(jCheckBoxEnableKeyboardJogging)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jLabelRemoveFocus))
+                        .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelMachineControlLayout.createSequentialGroup()
+                                .addComponent(jButtonXMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(6, 6, 6)
+                                .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButtonYPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButtonYMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabelRemoveFocus)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                                .addComponent(jButtonXPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButtonZPlus, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButtonZMinus, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelMachineControlLayout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jSpinnerStep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jRadioButtonInches)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jRadioButtonMillimeters)))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanelMachineControlLayout.setVerticalGroup(
             jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1110,42 +1084,41 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap()
                 .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jSpinnerStep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jSpinnerStep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jRadioButtonInches)
                     .addComponent(jRadioButtonMillimeters))
+                .addGap(18, 18, 18)
                 .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelMachineControlLayout.createSequentialGroup()
+                            .addGap(21, 21, 21)
+                            .addComponent(jButtonXPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(23, 23, 23))
+                        .addGroup(jPanelMachineControlLayout.createSequentialGroup()
+                            .addComponent(jButtonYPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jButtonYMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                                    .addGap(22, 22, 22)
-                                    .addComponent(jButtonXPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                                    .addComponent(jButtonYPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButtonYMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                                .addComponent(jButtonZPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonZMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(21, 21, 21)
+                        .addComponent(jButtonXMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                        .addGap(31, 31, 31)
-                        .addComponent(jButtonXMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButtonZPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonZMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(8, 8, 8)
                 .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCheckBoxEnableKeyboardJogging)
                     .addComponent(jLabelRemoveFocus))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "GCode File", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel5.setText("File:");
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 27, 26, -1));
 
         jTextFieldGCodeFile.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1154,36 +1127,41 @@ public class frmControl extends javax.swing.JFrame
                 jTextFieldGCodeFileActionPerformed(evt);
             }
         });
-
-        jButtonGCodeBrowse.setText("Browse");
-        jButtonGCodeBrowse.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jButtonGCodeBrowseActionPerformed(evt);
-            }
-        });
+        jPanel1.add(jTextFieldGCodeFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 47, 432, -1));
 
         jLabelRowsInFile.setText("0");
+        jPanel1.add(jLabelRowsInFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(121, 107, 54, -1));
 
         jLabelRowsInFile1.setText("Sent Rows:");
+        jPanel1.add(jLabelRowsInFile1, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 130, 99, -1));
 
         jLabelRowsInFile2.setText("Remaining Rows:");
+        jPanel1.add(jLabelRowsInFile2, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 150, 99, -1));
 
         jLabelRowsInFile3.setText("Rows in file:");
+        jPanel1.add(jLabelRowsInFile3, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 107, 99, -1));
 
         jLabelSentRows.setText("0");
+        jPanel1.add(jLabelSentRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(121, 130, 54, -1));
 
         jLabelRemainingRows.setText("0");
+        jPanel1.add(jLabelRemainingRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(121, 150, 54, -1));
 
-        jButtonGCodeSend.setText("Send");
-        jButtonGCodeSend.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jButtonGCodeSendActionPerformed(evt);
-            }
-        });
+        jLabelRowsInFile4.setText("Time elapsed:");
+        jPanel1.add(jLabelRowsInFile4, new org.netbeans.lib.awtextra.AbsoluteConstraints(225, 107, -1, -1));
+
+        jLabelTimeElapsed.setText("00:00:00");
+        jPanel1.add(jLabelTimeElapsed, new org.netbeans.lib.awtextra.AbsoluteConstraints(301, 107, 146, -1));
+
+        jLabelRowsInFile5.setText("Progress:");
+        jPanel1.add(jLabelRowsInFile5, new org.netbeans.lib.awtextra.AbsoluteConstraints(225, 130, 66, -1));
+        jPanel1.add(jProgressBarGCodeProgress, new org.netbeans.lib.awtextra.AbsoluteConstraints(301, 130, -1, -1));
+
+        jLabelRowsInFile7.setText("Semi Auto Tool Change:");
+        jPanel1.add(jLabelRowsInFile7, new org.netbeans.lib.awtextra.AbsoluteConstraints(225, 150, -1, -1));
+
+        jLabelSemiAutoToolChangeStatus.setText("Off");
+        jPanel1.add(jLabelSemiAutoToolChangeStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 150, 76, -1));
 
         jButtonGCodePause.setText("Pause");
         jButtonGCodePause.setEnabled(false);
@@ -1192,6 +1170,15 @@ public class frmControl extends javax.swing.JFrame
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
                 jButtonGCodePauseActionPerformed(evt);
+            }
+        });
+
+        jButtonGCodeSend.setText("Send");
+        jButtonGCodeSend.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonGCodeSendActionPerformed(evt);
             }
         });
 
@@ -1205,6 +1192,15 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jButtonGCodeBrowse.setText("Browse");
+        jButtonGCodeBrowse.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonGCodeBrowseActionPerformed(evt);
+            }
+        });
+
         jButtonGCodeVisualize.setText("Visualize");
         jButtonGCodeVisualize.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1214,115 +1210,32 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
-        jLabelRowsInFile4.setText("Time elapsed:");
-
-        jLabelTimeElapsed.setText("00:00:00");
-
-        jLabelRowsInFile5.setText("Progress:");
-
-        jLabelRowsInFile6.setText("Bytes In/Out (sec):");
-
-        jLabelBytesPerSecond.setText("0/0");
-
-        jLabelRowsInFile7.setText("Semi Auto Tool Change:");
-
-        jLabelSemiAutoToolChangeStatus.setText("Off");
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextFieldGCodeFile)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jButtonGCodeSend, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonGCodePause, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonGCodeCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonGCodeVisualize)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonGCodeBrowse))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jLabel5)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabelRowsInFile3)
-                                        .addGap(34, 34, 34)
-                                        .addComponent(jLabelRowsInFile, javax.swing.GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabelRowsInFile2)
-                                            .addComponent(jLabelRowsInFile1))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(jLabelSentRows, javax.swing.GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-                                            .addComponent(jLabelRemainingRows, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabelRowsInFile6)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabelBytesPerSecond, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabelRowsInFile4)
-                                            .addComponent(jLabelRowsInFile5))
-                                        .addGap(33, 33, 33)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(jProgressBarGCodeProgress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(jLabelTimeElapsed, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabelRowsInFile7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabelSemiAutoToolChangeStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addComponent(jButtonGCodeSend, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonGCodePause, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonGCodeCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addComponent(jButtonGCodeVisualize)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonGCodeBrowse))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextFieldGCodeFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButtonGCodeBrowse)
-                    .addComponent(jButtonGCodeSend)
-                    .addComponent(jButtonGCodePause)
-                    .addComponent(jButtonGCodeCancel)
-                    .addComponent(jButtonGCodeVisualize))
-                .addGap(15, 15, 15)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabelRowsInFile)
-                    .addComponent(jLabelRowsInFile3)
-                    .addComponent(jLabelRowsInFile4)
-                    .addComponent(jLabelTimeElapsed))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabelSentRows)
-                        .addComponent(jLabelRowsInFile5))
-                    .addComponent(jLabelRowsInFile1)
-                    .addComponent(jProgressBarGCodeProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabelRowsInFile6)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabelRowsInFile2)
-                        .addComponent(jLabelRemainingRows)
-                        .addComponent(jLabelBytesPerSecond)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabelRowsInFile7)
-                    .addComponent(jLabelSemiAutoToolChangeStatus)))
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(jButtonGCodePause)
+                .addComponent(jButtonGCodeSend)
+                .addComponent(jButtonGCodeCancel)
+                .addComponent(jButtonGCodeBrowse)
+                .addComponent(jButtonGCodeVisualize))
         );
+
+        jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 73, -1, -1));
 
         jTabbedPane1.setForeground(new java.awt.Color(0, 75, 127));
         jTabbedPane1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
@@ -1372,7 +1285,7 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jTextFieldCommand)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel7)
@@ -1394,7 +1307,7 @@ public class frmControl extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel8)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonClearConsole)
@@ -1472,7 +1385,7 @@ public class frmControl extends javax.swing.JFrame
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jButtonClearLog)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1483,7 +1396,7 @@ public class frmControl extends javax.swing.JFrame
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButtonClearLog)
@@ -1506,7 +1419,7 @@ public class frmControl extends javax.swing.JFrame
                 .addGroup(jPanelMacrosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel9)
                     .addComponent(jLabel10))
-                .addContainerGap(157, Short.MAX_VALUE))
+                .addContainerGap(123, Short.MAX_VALUE))
         );
         jPanelMacrosLayout.setVerticalGroup(
             jPanelMacrosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1515,7 +1428,7 @@ public class frmControl extends javax.swing.JFrame
                 .addComponent(jLabel9)
                 .addGap(3, 3, 3)
                 .addComponent(jLabel10)
-                .addContainerGap(312, Short.MAX_VALUE))
+                .addContainerGap(271, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Macros", jPanelMacros);
@@ -1628,9 +1541,9 @@ public class frmControl extends javax.swing.JFrame
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanelMachineControl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jPanelMachineControl, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanelConnection, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1641,17 +1554,18 @@ public class frmControl extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(5, 5, 5)
-                        .addComponent(jTabbedPane1)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTabbedPane1))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(jPanelConnection, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -1861,19 +1775,6 @@ public class frmControl extends javax.swing.JFrame
         }
     }//GEN-LAST:event_jButtonReturnToZeroActionPerformed
 
-    private void jButtonResetWorkPositionActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonResetWorkPositionActionPerformed
-    {//GEN-HEADEREND:event_jButtonResetWorkPositionActionPerformed
-        try
-        {
-            final GCodeCommand command = new GCodeCommand(GRBLCommands.GCODE_RESET_COORDINATES_TO_ZERO);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
-            WriteToConsole("Reset work zero");
-        }
-        catch (Exception ex)
-        {
-        }
-    }//GEN-LAST:event_jButtonResetWorkPositionActionPerformed
-
     private void jButtonSoftResetActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonSoftResetActionPerformed
     {//GEN-HEADEREND:event_jButtonSoftResetActionPerformed
         try
@@ -2074,6 +1975,19 @@ public class frmControl extends javax.swing.JFrame
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.setShowVerboseOutput(jCheckBoxShowVerboseOutput.isSelected());
     }//GEN-LAST:event_jCheckBoxShowVerboseOutputActionPerformed
 
+    private void jButtonResetWorkPositionActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonResetWorkPositionActionPerformed
+    {//GEN-HEADEREND:event_jButtonResetWorkPositionActionPerformed
+        try
+        {
+            final GCodeCommand command = new GCodeCommand(GRBLCommands.GCODE_RESET_COORDINATES_TO_ZERO);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
+            WriteToConsole("Reset work zero");
+        }
+        catch (Exception ex)
+        {
+        }
+    }//GEN-LAST:event_jButtonResetWorkPositionActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClearConsole;
     private javax.swing.JButton jButtonClearLog;
@@ -2098,6 +2012,9 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JCheckBox jCheckBoxShowVerboseOutput;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -2107,11 +2024,11 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabelActiveState;
-    private javax.swing.JLabel jLabelBytesPerSecond;
     private javax.swing.JLabel jLabelConnectionStatus;
-    private javax.swing.JLabel jLabelMachineX;
-    private javax.swing.JLabel jLabelMachineY;
-    private javax.swing.JLabel jLabelMachineZ;
+    private javax.swing.JLabel jLabelMachinePositionX;
+    private javax.swing.JLabel jLabelMachinePositionY;
+    private javax.swing.JLabel jLabelMachinePositionZ;
+    private javax.swing.JLabel jLabelMachineX1;
     private javax.swing.JLabel jLabelRemainingRows;
     private javax.swing.JLabel jLabelRemoveFocus;
     private javax.swing.JLabel jLabelRowsInFile;
@@ -2120,14 +2037,13 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JLabel jLabelRowsInFile3;
     private javax.swing.JLabel jLabelRowsInFile4;
     private javax.swing.JLabel jLabelRowsInFile5;
-    private javax.swing.JLabel jLabelRowsInFile6;
     private javax.swing.JLabel jLabelRowsInFile7;
     private javax.swing.JLabel jLabelSemiAutoToolChangeStatus;
     private javax.swing.JLabel jLabelSentRows;
     private javax.swing.JLabel jLabelTimeElapsed;
-    private javax.swing.JLabel jLabelWorkX;
-    private javax.swing.JLabel jLabelWorkY;
-    private javax.swing.JLabel jLabelWorkZ;
+    private javax.swing.JLabel jLabelWorkPositionX;
+    private javax.swing.JLabel jLabelWorkPositionY;
+    private javax.swing.JLabel jLabelWorkPositionZ;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
@@ -2146,6 +2062,8 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanelConnection;
     private javax.swing.JPanel jPanelMachineControl;
     private javax.swing.JPanel jPanelMacros;
     private javax.swing.JProgressBar jProgressBarGCodeProgress;

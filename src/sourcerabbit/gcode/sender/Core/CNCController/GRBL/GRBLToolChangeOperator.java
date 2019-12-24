@@ -262,7 +262,7 @@ public class GRBLToolChangeOperator
     {
         frmControl.fInstance.WriteToConsole("Touching the tool setter...");
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
-        MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel - 6, 420);
+        MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel - 6, 500);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
 

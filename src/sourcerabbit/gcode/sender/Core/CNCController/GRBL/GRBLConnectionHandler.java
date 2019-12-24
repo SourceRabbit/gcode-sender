@@ -438,7 +438,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
                         try
                         {
-                            Thread.sleep(800);
+                            Thread.sleep(100);
                         }
                         catch (Exception ex)
                         {

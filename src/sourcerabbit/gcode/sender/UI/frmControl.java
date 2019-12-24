@@ -832,6 +832,14 @@ public class frmControl extends javax.swing.JFrame
         jLabelWorkPositionZ.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabelWorkPositionZ.setForeground(new java.awt.Color(0, 75, 127));
         jLabelWorkPositionZ.setText("Z0");
+        jLabelWorkPositionZ.setToolTipText("Double click to zero");
+        jLabelWorkPositionZ.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                jLabelWorkPositionZMouseClicked(evt);
+            }
+        });
         jPanel2.add(jLabelWorkPositionZ, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, -1, 20));
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -842,11 +850,27 @@ public class frmControl extends javax.swing.JFrame
         jLabelWorkPositionX.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabelWorkPositionX.setForeground(new java.awt.Color(0, 75, 127));
         jLabelWorkPositionX.setText("X0");
+        jLabelWorkPositionX.setToolTipText("Double click to zero");
+        jLabelWorkPositionX.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                jLabelWorkPositionXMouseClicked(evt);
+            }
+        });
         jPanel2.add(jLabelWorkPositionX, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 70, -1, 20));
 
         jLabelWorkPositionY.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabelWorkPositionY.setForeground(new java.awt.Color(0, 75, 127));
         jLabelWorkPositionY.setText("Y0");
+        jLabelWorkPositionY.setToolTipText("Double click to zero");
+        jLabelWorkPositionY.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                jLabelWorkPositionYMouseClicked(evt);
+            }
+        });
         jPanel2.add(jLabelWorkPositionY, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 90, -1, 20));
 
         jLabelMachinePositionZ.setText("Z0");
@@ -1130,35 +1154,35 @@ public class frmControl extends javax.swing.JFrame
         jPanel1.add(jTextFieldGCodeFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 47, 432, -1));
 
         jLabelRowsInFile.setText("0");
-        jPanel1.add(jLabelRowsInFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(121, 107, 54, -1));
+        jPanel1.add(jLabelRowsInFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 110, 54, -1));
 
         jLabelRowsInFile1.setText("Sent Rows:");
-        jPanel1.add(jLabelRowsInFile1, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 130, 99, -1));
+        jPanel1.add(jLabelRowsInFile1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, 99, -1));
 
         jLabelRowsInFile2.setText("Remaining Rows:");
-        jPanel1.add(jLabelRowsInFile2, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 150, 99, -1));
+        jPanel1.add(jLabelRowsInFile2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 99, -1));
 
         jLabelRowsInFile3.setText("Rows in file:");
-        jPanel1.add(jLabelRowsInFile3, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 107, 99, -1));
+        jPanel1.add(jLabelRowsInFile3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 99, -1));
 
         jLabelSentRows.setText("0");
-        jPanel1.add(jLabelSentRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(121, 130, 54, -1));
+        jPanel1.add(jLabelSentRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 130, 54, -1));
 
         jLabelRemainingRows.setText("0");
-        jPanel1.add(jLabelRemainingRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(121, 150, 54, -1));
+        jPanel1.add(jLabelRemainingRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 150, 54, -1));
 
         jLabelRowsInFile4.setText("Time elapsed:");
-        jPanel1.add(jLabelRowsInFile4, new org.netbeans.lib.awtextra.AbsoluteConstraints(225, 107, -1, -1));
+        jPanel1.add(jLabelRowsInFile4, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 110, -1, -1));
 
         jLabelTimeElapsed.setText("00:00:00");
-        jPanel1.add(jLabelTimeElapsed, new org.netbeans.lib.awtextra.AbsoluteConstraints(301, 107, 146, -1));
+        jPanel1.add(jLabelTimeElapsed, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 110, 146, -1));
 
         jLabelRowsInFile5.setText("Progress:");
-        jPanel1.add(jLabelRowsInFile5, new org.netbeans.lib.awtextra.AbsoluteConstraints(225, 130, 66, -1));
-        jPanel1.add(jProgressBarGCodeProgress, new org.netbeans.lib.awtextra.AbsoluteConstraints(301, 130, -1, -1));
+        jPanel1.add(jLabelRowsInFile5, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 130, 66, -1));
+        jPanel1.add(jProgressBarGCodeProgress, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 130, -1, -1));
 
         jLabelRowsInFile7.setText("Semi Auto Tool Change:");
-        jPanel1.add(jLabelRowsInFile7, new org.netbeans.lib.awtextra.AbsoluteConstraints(225, 150, -1, -1));
+        jPanel1.add(jLabelRowsInFile7, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 150, -1, -1));
 
         jLabelSemiAutoToolChangeStatus.setText("Off");
         jPanel1.add(jLabelSemiAutoToolChangeStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 150, 76, -1));
@@ -1987,6 +2011,63 @@ public class frmControl extends javax.swing.JFrame
         {
         }
     }//GEN-LAST:event_jButtonResetWorkPositionActionPerformed
+
+    private void jLabelWorkPositionXMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jLabelWorkPositionXMouseClicked
+    {//GEN-HEADEREND:event_jLabelWorkPositionXMouseClicked
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE)
+        {
+            if (evt.getClickCount() == 2 && !evt.isConsumed())
+            {
+                evt.consume();
+
+                int input = JOptionPane.showConfirmDialog(null, "Do you want to zero X axis?", "Zero X Axis", JOptionPane.YES_NO_OPTION);
+                if (input == JOptionPane.YES_OPTION)
+                {
+                    String commandStr = "G92 X0";
+                    GCodeCommand command = new GCodeCommand(commandStr);
+                    ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+                }
+            }
+        }
+    }//GEN-LAST:event_jLabelWorkPositionXMouseClicked
+
+    private void jLabelWorkPositionYMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jLabelWorkPositionYMouseClicked
+    {//GEN-HEADEREND:event_jLabelWorkPositionYMouseClicked
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE)
+        {
+            if (evt.getClickCount() == 2 && !evt.isConsumed())
+            {
+                evt.consume();
+
+                int input = JOptionPane.showConfirmDialog(null, "Do you want to zero Y axis?", "Zero Y Axis", JOptionPane.YES_NO_OPTION);
+                if (input == JOptionPane.YES_OPTION)
+                {
+                    String commandStr = "G92 Y0";
+                    GCodeCommand command = new GCodeCommand(commandStr);
+                    ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+                }
+            }
+        }
+    }//GEN-LAST:event_jLabelWorkPositionYMouseClicked
+
+    private void jLabelWorkPositionZMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jLabelWorkPositionZMouseClicked
+    {//GEN-HEADEREND:event_jLabelWorkPositionZMouseClicked
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE)
+        {
+            if (evt.getClickCount() == 2 && !evt.isConsumed())
+            {
+                evt.consume();
+
+                int input = JOptionPane.showConfirmDialog(null, "Do you want to zero Z axis?", "Zero Z Axis", JOptionPane.YES_NO_OPTION);
+                if (input == JOptionPane.YES_OPTION)
+                {
+                    String commandStr = "G92 Z0";
+                    GCodeCommand command = new GCodeCommand(commandStr);
+                    ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+                }
+            }
+        }
+    }//GEN-LAST:event_jLabelWorkPositionZMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClearConsole;

@@ -119,6 +119,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
             if (receivedStr.startsWith("<"))
             {
+                // Check if user has checked the "Show Verbose Output"
                 if (isShowVerboseOutputEnabled())
                 {
                     fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
@@ -173,12 +174,9 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 // WaitForGetStatusCommandReply manual reset event.
                 fLastMachineStatusReceivedTimestamp = System.currentTimeMillis();
                 fWaitForGetStatusCommandReply.Set();
-
             }
             else
             {
-                //System.out.println("Response Received:" + fResponseOfTheLastCommandSendToController + "\n");
-
                 if (receivedStr.equals("ok"))
                 {
                     if (fLastCommandSentToController != null)
@@ -209,7 +207,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 break;
                         }
 
-                        System.err.println("GRBLConnectionHander Error: " + errorMessage + "---> Last Command: " + fLastCommandSentToController.getCommand());
                         frmControl.fInstance.WriteToConsole("Error: " + errorMessage + "---> Last Command: " + fLastCommandSentToController.getCommand());
 
                         fLastCommandSentToController.setError(fResponseOfTheLastCommandSendToController);
@@ -280,22 +277,21 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     }
                     else if (receivedStr.toLowerCase().startsWith("grbl"))
                     {
-                        // Parse the GRBL "Welcome Message" and find out which GRBL version 
-                        // is running on the controller.                    
+                        // Parse the GRBL "Welcome Message" and find out which GRBL version is running on the controller.                    
                         // From the GRBL version set the appropriate CNCControlFrameworkVersion
-                        // and StatusReportParser.
+                        // and the appropriate StatusReportParser
                         if (receivedStr.toLowerCase().contains("grbl 1."))
                         {
-                            fMyStatusReportParser = new GRBL_1_1_StatusReportParser(this);
                             this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL1_1);
+                            fMyStatusReportParser = new GRBL_1_1_StatusReportParser(this);
                         }
                         else
                         {
-                            fMyStatusReportParser = new GRBL_0_9_StatusReportParser(this);
                             this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL0_9);
+                            fMyStatusReportParser = new GRBL_0_9_StatusReportParser(this);
                         }
 
-                        // To Inform UI that connection with the controller is sucessful fire the ConnectionEstablishedEvent
+                        // To Inform UI that connection with the controller is successful and fire the ConnectionEstablishedEvent
                         fConnectionEstablished = true;
                         fConnectionEstablishedManualResetEvent.Set();
                         fSerialConnectionEventManager.FireConnectionEstablishedEvent(new SerialConnectionEvent(receivedStr));
@@ -547,4 +543,5 @@ public class GRBLConnectionHandler extends ConnectionHandler
         super.CloseConnection();
         fWaitForCommandToBeExecuted.Set();
     }
+
 }

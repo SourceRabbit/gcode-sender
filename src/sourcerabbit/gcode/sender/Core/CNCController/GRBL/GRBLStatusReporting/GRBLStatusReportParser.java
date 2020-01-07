@@ -18,6 +18,7 @@ package sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting;
 
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLConnectionHandler;
 
+
 /**
  *
  * @author Nikos Siatras
@@ -27,13 +28,15 @@ public class GRBLStatusReportParser
 
     protected final GRBLConnectionHandler fMyConnectionHandler;
 
+
     public GRBLStatusReportParser(GRBLConnectionHandler myConnectionHandler)
     {
         fMyConnectionHandler = myConnectionHandler;
     }
-    
+
     public int ParseStatusReportMessageAndReturnActiveState(String statusReportMessage)
     {
+        
         return 0;
     }
 }

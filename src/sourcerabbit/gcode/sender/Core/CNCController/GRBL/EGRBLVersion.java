@@ -14,13 +14,13 @@ Copyright (C) 2015  Nikos Siatras
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks;
+package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
 /**
  *
  * @author Nikos Siatras
  */
-public enum ECNCControlFrameworkID
+public enum EGRBLVersion
 {
-    GRBL
+    GRBL0_9, GRBL1_1
 }

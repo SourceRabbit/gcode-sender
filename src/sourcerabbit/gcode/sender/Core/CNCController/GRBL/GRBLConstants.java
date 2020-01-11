@@ -14,40 +14,21 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks;
-
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
+package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
 /**
  *
  * @author Nikos Siatras
  */
-public class CNCControlFramework
+public class GRBLConstants
 {
 
-    private final ECNCControlFrameworkID fID;
-    private final String fName;
-    private final ConnectionHandler fHandler;
+    // This is the interval the GRBLGCodeSender is allowed to ask the controller for its status
+    // during a gcode cycle.
+    public static final int MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_DURING_CYCLING = 4000;
 
-    public CNCControlFramework(ECNCControlFrameworkID id, String name, ConnectionHandler handler)
-    {
-        fID = id;
-        fName = name;
-        fHandler = handler;
-    }
+    // This is the interval the GRBLConnectionHandler Status Report Thread is allowed to 
+    // ask the controller for its status when the controller is Idle
+    public static final int MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_WHEN_CONTROLLER_IS_IDLE = 800;
 
-    public ECNCControlFrameworkID getID()
-    {
-        return fID;
-    }
-
-    public String getName()
-    {
-        return fName;
-    }
-
-    public ConnectionHandler getHandler()
-    {
-        return fHandler;
-    }
 }

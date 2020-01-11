@@ -157,7 +157,7 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         jLabel21.setText("mm");
 
         jLabel22.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-        jLabel22.setText("A proximity of the holes diameter");
+        jLabel22.setText("A proximity of the hole's diameter");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

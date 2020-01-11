@@ -127,7 +127,7 @@ public class Process_HoleCenterFinder extends Process
         // At the moment the touch probe touches the edge of the hole on "axis -" .
         // Return the touchprobe to the startWorkPosition and then towards the "axis +" until it touches the edge of the hole.
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
-        MoveMachineTo(axis, startWorkPosition, feedRate);
+        MoveMachineAbsolute(axis, startWorkPosition, feedRate);
         response = SendTouchProbeToTouchTheEdge(axis, feedRate);
         if (!response.equals("ok") || !fTouchProbeTouchedTheEdge)
         {
@@ -144,7 +144,7 @@ public class Process_HoleCenterFinder extends Process
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
         SetWorkPosition(axis, 0);
         final double xDiff = Math.max(workPosition1, workPosition2) - Math.min(workPosition1, workPosition2);
-        MoveMachineTo(axis + "-", xDiff / 2, feedRate);
+        MoveMachineAbsolute(axis + "-", xDiff / 2, feedRate);
 
         /////////////////////////////////////////////////////////////////////////////////
         // Finished !!!
@@ -163,7 +163,6 @@ public class Process_HoleCenterFinder extends Process
      */
     private String SendTouchProbeToTouchTheEdge(String axis, int feedRate)
     {
-
         fWaitForTouchProbeToTouchTheEdge.Reset();
         fTouchProbeTouchedTheEdge = false;
         final GCodeCommand command = new GCodeCommand("G38.2 " + axis + (CenterHoleFinderSettings.getHoleCenterFinderDiameter() / 2) + "F" + feedRate);
@@ -199,23 +198,9 @@ public class Process_HoleCenterFinder extends Process
      * @param position the position to go
      * @param feedRate is the feed rate to use
      */
-    private void MoveMachineTo(String axis, double position, int feedRate)
+    private void MoveMachineAbsolute(String axis, double position, int feedRate)
     {
         String str = "G21 G90 G1" + axis + position + "F" + feedRate;
-        GCodeCommand moveZCommand = new GCodeCommand(str);
-        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand);
-    }
-
-    /**
-     * Move the machine.
-     *
-     * @param axis the axis to move
-     * @param value how much to move
-     * @param feedRate is the feed rate to use
-     */
-    private void MoveMachine(String axis, double value, int feedRate)
-    {
-        String str = "G21 G91 G1" + axis + value + "F" + feedRate;
         GCodeCommand moveZCommand = new GCodeCommand(str);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(moveZCommand);
     }
@@ -262,5 +247,4 @@ public class Process_HoleCenterFinder extends Process
         {
         }
     }
-
 }

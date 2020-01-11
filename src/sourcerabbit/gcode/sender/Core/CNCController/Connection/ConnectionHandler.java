@@ -27,8 +27,7 @@ import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConn
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLGCodeSender;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.Arrays.ByteArrayBuilder;
-import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkID;
-import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkVersion;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.EGRBLVersion;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 
@@ -76,8 +75,7 @@ public class ConnectionHandler implements SerialPortEventListener
     protected boolean fAProcessIsUsingTouchProbe = false;
 
     // CNC Control Framework
-    protected ECNCControlFrameworkID fMyControlFrameworkID;
-    protected ECNCControlFrameworkVersion fMyControlFrameworkVersion;
+    protected EGRBLVersion fControllerGRBLVersion;
 
     // Max Travels
     public static int fXMaxTravel = 00;
@@ -447,23 +445,13 @@ public class ConnectionHandler implements SerialPortEventListener
     }
 
     /**
-     * Get the CNCControlFrameworkID of this handler
-     *
-     * @return
-     */
-    public ECNCControlFrameworkID getCNCControlFramework()
-    {
-        return fMyControlFrameworkID;
-    }
-
-    /**
      * Set the version for the connected controller.
      *
      * @param version is the version
      */
-    public void setCNCControlFrameworkVersion(ECNCControlFrameworkVersion version)
+    public void setCNCControlFrameworkVersion(EGRBLVersion version)
     {
-        fMyControlFrameworkVersion = version;
+        fControllerGRBLVersion = version;
     }
 
     /**
@@ -471,9 +459,9 @@ public class ConnectionHandler implements SerialPortEventListener
      *
      * @return ECNCControlFrameworkVersion
      */
-    public ECNCControlFrameworkVersion getCNCControlFrameworkVersion()
+    public EGRBLVersion getCNCControlFrameworkVersion()
     {
-        return fMyControlFrameworkVersion;
+        return fControllerGRBLVersion;
     }
 
     /**

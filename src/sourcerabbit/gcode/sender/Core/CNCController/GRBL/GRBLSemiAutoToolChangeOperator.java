@@ -29,7 +29,7 @@ import sourcerabbit.gcode.sender.UI.frmControl;
  *
  * @author Nikos Siatras
  */
-public class GRBLToolChangeOperator
+public class GRBLSemiAutoToolChangeOperator
 {
 
     private final GRBLGCodeSender fMyGCodeSender;
@@ -50,7 +50,7 @@ public class GRBLToolChangeOperator
     // Wair for machine to stop moving variables
     private final Object fMachineWaitToStopMovingLock = new Object();
 
-    public GRBLToolChangeOperator(GRBLGCodeSender myGCodeSender)
+    public GRBLSemiAutoToolChangeOperator(GRBLGCodeSender myGCodeSender)
     {
         fMyGCodeSender = myGCodeSender;
     }

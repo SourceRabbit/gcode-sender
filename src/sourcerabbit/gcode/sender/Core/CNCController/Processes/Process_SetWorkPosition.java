@@ -37,32 +37,20 @@ public class Process_SetWorkPosition extends Process
         fY = y;
         fZ = z;
     }
-    
 
     @Override
     public void Execute()
     {
-        switch (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getCNCControlFramework())
+        String commandStr = "G92 X" + fX + " Y" + fY + " Z" + fZ;
+        GCodeCommand command = new GCodeCommand(commandStr);
+        String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+        if (response.toLowerCase().equals("ok"))
         {
-            case GRBL:
-                String commandStr = "G92 X" + fX + " Y" + fY + " Z" + fZ;
-                GCodeCommand command = new GCodeCommand(commandStr);
-                String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
-                if (response.toLowerCase().equals("ok"))
-                {
-                    JOptionPane.showMessageDialog(fMyParentForm, "Work position changed!");
-                }
-                else
-                {
-                    JOptionPane.showMessageDialog(fMyParentForm, "Something went wrong.Reset the GRBL controller and try again.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-
-                break;
-
-            default:
-                JOptionPane.showMessageDialog(fMyParentForm, "Not yet implemented!", "Error", JOptionPane.ERROR_MESSAGE);
-                break;
+            JOptionPane.showMessageDialog(fMyParentForm, "Work position changed!");
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(fMyParentForm, "Something went wrong.Reset the GRBL controller and try again.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
 }

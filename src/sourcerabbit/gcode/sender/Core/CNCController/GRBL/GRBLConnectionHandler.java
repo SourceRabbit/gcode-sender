@@ -17,18 +17,13 @@
 package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
 import jssc.SerialPortException;
-import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkID;
-import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.ECNCControlFrameworkVersion;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeExecutionEvents.GCodeExecutionEvent;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.*;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.*;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
-import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEvent;
-import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRBLStatusReportParser;
-import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRBL_0_9_StatusReportParser;
-import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.GRBL_1_1_StatusReportParser;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.*;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting.*;
+import sourcerabbit.gcode.sender.Core.CNCController.Processes.Process_Homing;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.UI.frmControl;
 
@@ -44,7 +39,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
     private final ManualResetEvent fWaitForCommandToBeExecuted;
 
     // Ask for machine status
-    private final int fMillisecondsBetweenAskingForMachineStatus = 1000;
     private long fLastTimeAskedForMachineStatus = System.currentTimeMillis();
     private ManualResetEvent fWaitForGetStatusCommandReply;
 
@@ -65,9 +59,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
         super.fMessageSplitter = "\n";
         super.fMessageSplitterLength = fMessageSplitter.length();
         super.fMessageSplitterBytes = String.valueOf(fMessageSplitter).getBytes();
-
-        // Set my control framework ID
-        super.fMyControlFrameworkID = ECNCControlFrameworkID.GRBL;
 
         fWaitForCommandToBeExecuted = new ManualResetEvent(false);
 
@@ -193,7 +184,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         String errorMessage = "";
 
                         // Get the error message
-                        switch (fMyControlFrameworkVersion)
+                        switch (fControllerGRBLVersion)
                         {
                             case GRBL0_9:
                                 fResponseOfTheLastCommandSendToController = "Error: " + receivedStr;
@@ -282,12 +273,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         // and the appropriate StatusReportParser
                         if (receivedStr.toLowerCase().contains("grbl 1."))
                         {
-                            this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL1_1);
+                            this.setCNCControlFrameworkVersion(EGRBLVersion.GRBL1_1);
                             fMyStatusReportParser = new GRBL_1_1_StatusReportParser(this);
                         }
                         else
                         {
-                            this.setCNCControlFrameworkVersion(ECNCControlFrameworkVersion.GRBL0_9);
+                            this.setCNCControlFrameworkVersion(EGRBLVersion.GRBL0_9);
                             fMyStatusReportParser = new GRBL_0_9_StatusReportParser(this);
                         }
 
@@ -324,6 +315,15 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 return true;
             }
 
+            // HOMING COMMAND
+            // Start a new Process_Homing in order to not pause the UI
+            if (optimizedCommand.equals("$H"))
+            {
+                Process_Homing homingProcess = new Process_Homing(null);
+                homingProcess.ExecuteInNewThread();
+                return true;
+            }
+
             //System.out.println("Data Sent: " + optimizedCommand);
             fResponseOfTheLastCommandSendToController = "";
             fLastCommandSentToController = command;
@@ -356,6 +356,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 }
                 return false;
             }
+
         }
         return true;
     }
@@ -399,18 +400,21 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 {
                     while (fKeepStatusThread)
                     {
-                        if ((System.currentTimeMillis() - fLastMachineStatusReceivedTimestamp) > fMillisecondsBetweenAskingForMachineStatus)
+                        if ((System.currentTimeMillis() - fLastMachineStatusReceivedTimestamp) > GRBLConstants.MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_WHEN_CONTROLLER_IS_IDLE)
                         {
                             try
                             {
+                                ///////////////////////////////////////////////////////////////////////////////////////////
                                 // If a Touch Probe operation is currently active 
-                                // do not ask for the machine status. Also do not ask for machine status
-                                // if the GCodeSender is cycling GCode.
+                                // or the controller is Cycling GCode 
+                                // DO NOT ask for the machine status!!!!!!!!!!!!!!!!!!!!
                                 if (fAProcessIsUsingTouchProbe || fMyGCodeSender.IsCyclingGCode())
                                 {
-                                    Thread.sleep(100);
+                                    Thread.sleep(50);
                                     continue;
                                 }
+                                ///////////////////////////////////////////////////////////////////////////////////////////
+                                ///////////////////////////////////////////////////////////////////////////////////////////
 
                                 // Ask for status report           
                                 fWaitForGetStatusCommandReply = new ManualResetEvent(false);
@@ -459,12 +463,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
         try
         {
             //////////////////////////////////////////////////////////////////////////////////////////
-            // Wait fMillisecondsBetweenAskingForMachineStatus between asking for machine status
+            // Wait MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_WHEN_CONTROLLER_IS_IDLE between asking for machine status
             //////////////////////////////////////////////////////////////////////////////////////////
             long timeNow = System.currentTimeMillis();
-            if ((timeNow - fLastTimeAskedForMachineStatus) < fMillisecondsBetweenAskingForMachineStatus)
+            if ((timeNow - fLastTimeAskedForMachineStatus) < GRBLConstants.MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_WHEN_CONTROLLER_IS_IDLE)
             {
-                long waitFor = fMillisecondsBetweenAskingForMachineStatus - (timeNow - fLastTimeAskedForMachineStatus);
+                long waitFor = GRBLConstants.MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_WHEN_CONTROLLER_IS_IDLE - (timeNow - fLastTimeAskedForMachineStatus);
                 Thread.sleep(waitFor);
             }
 
@@ -504,15 +508,15 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
         if (super.OpenConnection(serialPort, baudRate))
         {
-            // Wait 2 seconds to establish connection.
+            // Wait 2.5 seconds to establish connection.
             // If we dont get a reply from the board then we send the Soft Reset command.
             Thread th = new Thread(new Runnable()
             {
                 @Override
                 public void run()
                 {
-                    // Wait for 2 seconds max.
-                    fConnectionEstablishedManualResetEvent.WaitOne(2000);
+                    // Wait for 2.5 seconds max.
+                    fConnectionEstablishedManualResetEvent.WaitOne(2500);
 
                     if (!fConnectionEstablished)
                     {

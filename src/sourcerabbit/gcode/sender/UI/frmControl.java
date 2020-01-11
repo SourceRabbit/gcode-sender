@@ -31,10 +31,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Queue;
 import javax.swing.JButton;
@@ -42,7 +42,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -65,7 +64,7 @@ import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 import sourcerabbit.gcode.sender.Core.CNCController.Processes.Process_Jogging;
-import sourcerabbit.gcode.sender.Core.CNCController.Processes.Process_SetWorkPosition;
+import sourcerabbit.gcode.sender.Core.Machine.MachineInformation;
 import sourcerabbit.gcode.sender.Core.Settings.SemiAutoToolChangeSettings;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
 import sourcerabbit.gcode.sender.Core.Units.EUnits;
@@ -213,6 +212,11 @@ public class frmControl extends javax.swing.JFrame
                     case GRBLActiveStates.IDLE:
                         jLabelActiveState.setForeground(new Color(0, 153, 51));
                         jLabelActiveState.setText("Idle");
+                        break;
+
+                    case GRBLActiveStates.HOME:
+                        jLabelActiveState.setForeground(Color.blue);
+                        jLabelActiveState.setText("Homing...");
                         break;
 
                     case GRBLActiveStates.CHECK:
@@ -544,53 +548,68 @@ public class frmControl extends javax.swing.JFrame
                 {
                     fMachineStatusThreadWait.Reset();
 
-                    // Update Work position
-                    jLabelWorkPositionX.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX()));
-                    jLabelWorkPositionY.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY()));
-                    jLabelWorkPositionZ.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ()));
-
-                    // Update Machine Position
-                    jLabelMachinePositionX.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX()));
-                    jLabelMachinePositionY.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY()));
-                    jLabelMachinePositionZ.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ()));
-
-                    // Update bytes per second
-                    String bytesText = "Connection (Bytes In/Out per sec.: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesInPerSec() + " / " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesOutPerSec() + ")";
-                    TitledBorder border = (TitledBorder) jPanelConnection.getBorder();
-                    border.setTitle(bytesText);
-                    jPanelConnection.repaint();
-
-                    // Semi Auto Tool Change Status
-                    if (SemiAutoToolChangeSettings.isSemiAutoToolChangeEnabled())
+                    try
                     {
-                        jLabelSemiAutoToolChangeStatus.setText("On");
-                        jLabelSemiAutoToolChangeStatus.setForeground(Color.blue);
+
+                        // Update Work position                             
+                        jLabelWorkPositionX.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX()));
+                        jLabelWorkPositionY.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY()));
+                        jLabelWorkPositionZ.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ()));
+
+                        // Update Machine Position
+                        jLabelMachinePositionX.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX()));
+                        jLabelMachinePositionY.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY()));
+                        jLabelMachinePositionZ.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ()));
+
+                        // Update real time Feed Rate
+                        jLabelRealTimeFeedRate.setText(String.valueOf(MachineInformation.LiveFeedRate().get()) + " mm/min");
+                        jLabelRealTimeSpindleRPM.setText(String.valueOf(MachineInformation.LiveSpindleRPM().get()));
+
+                        jLabelLastStatusUpdate.setText((System.currentTimeMillis() - ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getLastMachineStatusReceivedTimestamp()) +" ms ago");
+
+                        // Update bytes per second
+                        String bytesText = "Connection (Bytes In/Out per sec.: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesInPerSec() + " / " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesOutPerSec() + ")";
+                        TitledBorder border = (TitledBorder) jPanelConnection.getBorder();
+                        border.setTitle(bytesText);
+                        jPanelConnection.repaint();
+
+                        // Semi Auto Tool Change Status
+                        if (SemiAutoToolChangeSettings.isSemiAutoToolChangeEnabled())
+                        {
+                            jLabelSemiAutoToolChangeStatus.setText("On");
+                            jLabelSemiAutoToolChangeStatus.setForeground(Color.blue);
+                        }
+                        else
+                        {
+                            jLabelSemiAutoToolChangeStatus.setText("Off");
+                            jLabelSemiAutoToolChangeStatus.setForeground(Color.red);
+                        }
+
+                        // Update remaining rows & rows sent
+                        jLabelSentRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsSent()));
+                        jLabelRemainingRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsRemaining()));
+
+                        jProgressBarGCodeProgress.setValue(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsSent());
+
+                        // Time elapsed
+                        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeCycleStartedTimestamp() > 0)
+                        {
+                            long millis = System.currentTimeMillis() - ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeCycleStartedTimestamp();
+                            long second = (millis / 1000) % 60;
+                            long minute = (millis / (1000 * 60)) % 60;
+                            long hour = (millis / (1000 * 60 * 60)) % 24;
+
+                            String time = String.format("%02d:%02d:%02d", hour, minute, second);
+                            jLabelTimeElapsed.setText(time);
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        jLabelSemiAutoToolChangeStatus.setText("Off");
-                        jLabelSemiAutoToolChangeStatus.setForeground(Color.red);
+                        // DO NOTHING
+                        // This exception is here only to protect from UI update failure
                     }
 
-                    // Update remaining rows & rows sent
-                    jLabelSentRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsSent()));
-                    jLabelRemainingRows.setText(String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsRemaining()));
-
-                    jProgressBarGCodeProgress.setValue(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getRowsSent());
-
-                    // Time elapsed
-                    if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeCycleStartedTimestamp() > 0)
-                    {
-                        long millis = System.currentTimeMillis() - ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().getGCodeCycleStartedTimestamp();
-                        long second = (millis / 1000) % 60;
-                        long minute = (millis / (1000 * 60)) % 60;
-                        long hour = (millis / (1000 * 60 * 60)) % 24;
-
-                        String time = String.format("%02d:%02d:%02d", hour, minute, second);
-                        jLabelTimeElapsed.setText(time);
-                    }
-
-                    fMachineStatusThreadWait.WaitOne(200);
+                    fMachineStatusThreadWait.WaitOne(300);
                 }
             }
         });
@@ -769,6 +788,13 @@ public class frmControl extends javax.swing.JFrame
         jPanelMacros = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
+        jPanel7 = new javax.swing.JPanel();
+        jLabel14 = new javax.swing.JLabel();
+        jLabelRealTimeFeedRate = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        jLabelRealTimeSpindleRPM = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        jLabelLastStatusUpdate = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItemGRBLSettings = new javax.swing.JMenuItem();
@@ -1457,6 +1483,55 @@ public class frmControl extends javax.swing.JFrame
 
         jTabbedPane1.addTab("Macros", jPanelMacros);
 
+        jLabel14.setText("Current Feedrate:");
+
+        jLabelRealTimeFeedRate.setText("0mm/min");
+
+        jLabel15.setText("Current Spindle RPM:");
+
+        jLabelRealTimeSpindleRPM.setText("0");
+
+        jLabel16.setText("Last Status Update:");
+
+        jLabelLastStatusUpdate.setText("0");
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel15)
+                    .addComponent(jLabel14)
+                    .addComponent(jLabel16))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabelRealTimeSpindleRPM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabelRealTimeFeedRate, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
+                    .addComponent(jLabelLastStatusUpdate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(213, Short.MAX_VALUE))
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel16)
+                    .addComponent(jLabelLastStatusUpdate))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel14)
+                    .addComponent(jLabelRealTimeFeedRate))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel15)
+                    .addComponent(jLabelRealTimeSpindleRPM))
+                .addContainerGap(239, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Machine Information", jPanel7);
+
         jMenu1.setText("System");
 
         jMenuItemGRBLSettings.setText("GRBL Settings");
@@ -2096,6 +2171,9 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -2106,10 +2184,13 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabelActiveState;
     private javax.swing.JLabel jLabelConnectionStatus;
+    private javax.swing.JLabel jLabelLastStatusUpdate;
     private javax.swing.JLabel jLabelMachinePositionX;
     private javax.swing.JLabel jLabelMachinePositionY;
     private javax.swing.JLabel jLabelMachinePositionZ;
     private javax.swing.JLabel jLabelMachineX1;
+    private javax.swing.JLabel jLabelRealTimeFeedRate;
+    private javax.swing.JLabel jLabelRealTimeSpindleRPM;
     private javax.swing.JLabel jLabelRemainingRows;
     private javax.swing.JLabel jLabelRemoveFocus;
     private javax.swing.JLabel jLabelRowsInFile;
@@ -2144,6 +2225,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanelConnection;
     private javax.swing.JPanel jPanelMachineControl;
     private javax.swing.JPanel jPanelMacros;

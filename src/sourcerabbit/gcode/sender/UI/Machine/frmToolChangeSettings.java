@@ -108,7 +108,7 @@ public class frmToolChangeSettings extends javax.swing.JDialog
         jLabel20.setText("Tool Setter Y:");
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-        jLabel14.setText("Tool Setter Location according to Machine's X and Y position");
+        jLabel14.setText("Tool Setter's Position according to Machine's X and Y position");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -117,19 +117,16 @@ public class frmToolChangeSettings extends javax.swing.JDialog
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel14)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel20)
-                                .addGap(32, 32, 32)
-                                .addComponent(jTextFieldToolSetterY, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap(47, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addComponent(jLabel14, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel20)
+                        .addGap(32, 32, 32)
+                        .addComponent(jTextFieldToolSetterY, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel19)
                         .addGap(31, 31, 31)
-                        .addComponent(jTextFieldToolSetterX, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(108, Short.MAX_VALUE))))
+                        .addComponent(jTextFieldToolSetterX, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(47, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

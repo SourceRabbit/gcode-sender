@@ -71,20 +71,6 @@ public class Process_ZAxisTouchProbe extends Process
     @Override
     public void Execute()
     {
-        switch (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getCNCControlFramework())
-        {
-            case GRBL:
-                ExecuteForGRBL();
-                break;
-
-            default:
-                JOptionPane.showMessageDialog(fMyParentForm, "Not yet implemented!", "Error", JOptionPane.ERROR_MESSAGE);
-                break;
-        }
-    }
-
-    public void ExecuteForGRBL()
-    {
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
 
         // Step 1

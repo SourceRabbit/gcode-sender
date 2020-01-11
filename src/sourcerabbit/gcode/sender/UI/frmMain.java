@@ -22,12 +22,11 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import jssc.SerialPortList;
-import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.CNCControlFramework;
-import sourcerabbit.gcode.sender.Core.CNCController.CNCControllFrameworks.CNCControlFrameworkManager;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.ISerialConnectionEventListener;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
+import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLConnectionHandler;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
@@ -61,7 +60,6 @@ public class frmMain extends javax.swing.JFrame
     private void InitUI()
     {
         String[] serialPorts = SerialPortList.getPortNames();
-        ArrayList<CNCControlFramework> cncframeworks = CNCControlFrameworkManager.getCNCControlFrameworks();
 
         if (serialPorts.length < 1)
         {
@@ -86,13 +84,8 @@ public class frmMain extends javax.swing.JFrame
 
             // Add Baud rates
             jComboBoxBaud.addItem("115200");
+            jComboBoxFramework.addItem("GRBL 0.9 and later");
 
-            // Add Frameworks
-            for (CNCControlFramework framework : cncframeworks)
-            {
-                jComboBoxFramework.addItem(framework.getName());
-            }
-            jComboBoxFramework.setSelectedIndex(0);
         }
     }
 
@@ -275,12 +268,10 @@ public class frmMain extends javax.swing.JFrame
             }
         }
 
-        String frameworkName = jComboBoxFramework.getSelectedItem().toString();
         String baud = jComboBoxBaud.getSelectedItem().toString();
         String port = jComboBoxPort.getSelectedItem().toString();
 
-        CNCControlFramework framework = CNCControlFrameworkManager.getFrameworkByName(frameworkName);
-        final ConnectionHandler handler = framework.getHandler();
+        final ConnectionHandler handler = new GRBLConnectionHandler();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER = handler;
 
         // Add connection established listener

@@ -40,7 +40,7 @@ public class frmCheckForUpdate extends javax.swing.JDialog
 {
 
     private Thread fUpdateThread;
-    private final String fUpdatesXMLURL = "https://www.sourcerabbit.com/GCode-Sender/downloads/updates.xml";
+    private final String fUpdatesCheckURL = "https://www.sourcerabbit.com/el/Downloads/SourceRabbitGCodeSenderVersionCheck.php";
 
     public frmCheckForUpdate(frmControl parent, boolean modal)
     {
@@ -70,43 +70,16 @@ public class frmCheckForUpdate extends javax.swing.JDialog
     private void Step1_DownloadUpdatesXML()
     {
         jLabelStatus.setText("Contacting Server...");
-        String xmlData = HTTPRequestData.GetHTML(fUpdatesXMLURL);
+        String lastVersion = HTTPRequestData.GetHTML(fUpdatesCheckURL);
 
-        Step2_ParseXML(xmlData);
+        Step2_CheckVersion(lastVersion.trim());
     }
 
-    private void Step2_ParseXML(final String xmldata)
-    {
-        jLabelStatus.setText("Checking Version...");
-
-        try
-        {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = (Document) dBuilder.parse(new InputSource(new StringReader(xmldata)));
-
-            doc.getDocumentElement().normalize();
-            NodeList nList = doc.getElementsByTagName("entry");
-
-            if (nList.getLength() > 0)
-            {
-                Node nNode = nList.item(0);
-                Element eElement = (Element) nNode;
-                String newVersion = eElement.getAttribute("newVersion");
-                Step3_CheckNewVersion(newVersion);
-            }
-        }
-        catch (Exception ex)
-        {
-            String a = "asasa";
-        }
-    }
-
-    private void Step3_CheckNewVersion(final String newVersion)
+    private void Step2_CheckVersion(final String lastVersion)
     {
         jLabelStatus.setText("Finished!");
 
-        if (SettingsManager.getAppVersion().equals(newVersion))
+        if (SettingsManager.getAppVersion().equals(lastVersion))
         {
             // New version found
             JOptionPane.showMessageDialog(this, "Your version is up to date!", "Finished", JOptionPane.INFORMATION_MESSAGE);
@@ -120,7 +93,7 @@ public class frmCheckForUpdate extends javax.swing.JDialog
                 "Download Now",
                 "Later"
             };
-            int result = JOptionPane.showOptionDialog(this, "Latest version is " + newVersion + " !\nDo you want to download now ?\n\nhttps://www.sourcerabbit.com/GCode-Sender",
+            int result = JOptionPane.showOptionDialog(this, "Latest version is " + lastVersion + " !\nDo you want to download now ?\n\nhttps://www.sourcerabbit.com/Shop/pr-i-80-t-grbl-gcode-sender.htm",
                     "New Version Found!",
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.WARNING_MESSAGE,
@@ -132,7 +105,7 @@ public class frmCheckForUpdate extends javax.swing.JDialog
                     // Download
                     try
                     {
-                        URI uri = new URI("https://www.sourcerabbit.com/GCode-Sender/#DownloadsSection");
+                        URI uri = new URI("https://www.sourcerabbit.com/Shop/pr-i-80-t-grbl-gcode-sender.htm");
                         Desktop.getDesktop().browse(uri);
                     }
                     catch (Exception ex)

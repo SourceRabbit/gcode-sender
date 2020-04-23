@@ -74,8 +74,13 @@ public class GRBLErrorCodes
         for (ArrayList<String> array : csvData)
         {
             int id = Integer.parseInt(array.get(0));
-            fErrorsByID.put(id, array.get(1));
+            fErrorsByID.put(id, array.get(1) + ": " + array.get(2));
         }
+    }
+
+    public static void Initialize()
+    {
+
     }
 
     public static String getErrorMessageFromCode(int id)

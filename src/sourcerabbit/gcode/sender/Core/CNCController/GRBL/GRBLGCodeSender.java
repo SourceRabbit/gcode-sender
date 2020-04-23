@@ -38,7 +38,7 @@ public class GRBLGCodeSender extends GCodeSender
 
     // GRBL Tool Change
     public final GRBLSemiAutoToolChangeOperator fSemiAutoToolChangeOperator;
-
+    
     public GRBLGCodeSender(ConnectionHandler myHandler)
     {
         super(myHandler);
@@ -70,27 +70,30 @@ public class GRBLGCodeSender extends GCodeSender
                 // Create a new Queue and start sending gcode from that
                 final Queue<String> gcodes = new ArrayDeque<>(fGCodeQueue);
                 fGCodeCycleStartedTimestamp = System.currentTimeMillis();
-
+                
                 fIsCyclingGCode = true;
-
+                
                 try
                 {
                     // Send cycle start command and ask for the new machine status
                     fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_START_CYCLE + GRBLCommands.COMMAND_GET_STATUS);
-
+                    
+                    long lineNumber = 1;
                     while (fKeepGCodeCycle && gcodes.size() > 0)
                     {
                         try
                         {
                             // Create a GCode Command to send
                             final GCodeCommand command = new GCodeCommand(gcodes.remove());
+                            command.setLineNumber(lineNumber);
+                            lineNumber += 1;
 
                             ///////////////////////////////////////////////////////////////////////////////////
                             // COMMAND WITH TOOL CHANGE
                             // Check if the command has T (for tool change)
                             // and ask the GRBLSemiAutoToolChangeOperator to do the tool change
                             ///////////////////////////////////////////////////////////////////////////////////
-                            if (SemiAutoToolChangeSettings.isSemiAutoToolChangeEnabled() && command.getCommand().contains("M6") && command.getCommand().contains("T"))
+                            if (SemiAutoToolChangeSettings.isSemiAutoToolChangeEnabled() && (command.getCommand().contains("M6") || command.getCommand().contains("M06")) && command.getCommand().contains("T"))
                             {
                                 fSemiAutoToolChangeOperator.DoSemiAutoToolChangeSequence(command);
                             }
@@ -116,7 +119,7 @@ public class GRBLGCodeSender extends GCodeSender
                             {
                                 fMyConnectionHandler.AskForMachineStatus();
                             }
-
+                            
                             fRowsSent += 1;
                         }
                         catch (Exception ex)
@@ -140,7 +143,7 @@ public class GRBLGCodeSender extends GCodeSender
                     fGCodeCycleStartedTimestamp = - 1;
                     fGCodeCycleEventManager.FireGCodeCycleFinishedEvent(new GCodeCycleEvent("Finished!\nTime: " + time));
                 }
-
+                
                 fIsCyclingGCode = false;
             }
         });
@@ -175,7 +178,7 @@ public class GRBLGCodeSender extends GCodeSender
             // Fire GCodeCycleCanceledEvent
             fGCodeCycleEventManager.FireGCodeCycleCanceledEvent(new GCodeCycleEvent("Canceled"));
             fGCodeCycleStartedTimestamp = -1;
-
+            
             fIsCyclingGCode = false;
         }
     }
@@ -211,7 +214,7 @@ public class GRBLGCodeSender extends GCodeSender
         }
         fGCodeCycleEventManager.FireGCodeCycleResumedEvent(new GCodeCycleEvent("Resumed"));
     }
-
+    
     @Override
     public boolean IsCyclingGCode()
     {
@@ -227,5 +230,5 @@ public class GRBLGCodeSender extends GCodeSender
     {
         return fSemiAutoToolChangeOperator;
     }
-
+    
 }

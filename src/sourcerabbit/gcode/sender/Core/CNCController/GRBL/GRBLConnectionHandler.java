@@ -63,6 +63,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
         fWaitForCommandToBeExecuted = new ManualResetEvent(false);
 
         InitEvents();
+
+        GRBLErrorCodes.Initialize();
     }
 
     /**
@@ -187,6 +189,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                         switch (fControllerGRBLVersion)
                         {
                             case GRBL0_9:
+                                errorMessage = receivedStr;
                                 fResponseOfTheLastCommandSendToController = "Error: " + receivedStr;
                                 break;
 
@@ -198,10 +201,22 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 break;
                         }
 
-                        frmControl.fInstance.WriteToConsole("Error: " + errorMessage + "---> Last Command: " + fLastCommandSentToController.getCommand());
+                        if (fLastCommandSentToController != null)
+                        {
+                            fLastCommandSentToController.setError(fResponseOfTheLastCommandSendToController);
+                            fGCodeExecutionEventsManager.FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
 
-                        fLastCommandSentToController.setError(fResponseOfTheLastCommandSendToController);
-                        fGCodeExecutionEventsManager.FireGCodeExecutedWithError(new GCodeExecutionEvent(fLastCommandSentToController));
+                            if (fLastCommandSentToController.getCommand() == null)
+                            {
+                                // In case the command text is EMPTY
+                                frmControl.fInstance.WriteToConsole("Error-->" + errorMessage + "\n");
+                            }
+                            else
+                            {
+                                frmControl.fInstance.WriteToConsole("Error-->Command:" + fLastCommandSentToController.getCommand() + "\nError Message:" + errorMessage + "\n");
+                            }
+                        }
+
                         fLastCommandSentToController = null;
                         fWaitForCommandToBeExecuted.Set();
                     }

@@ -455,10 +455,24 @@ public class frmControl extends javax.swing.JFrame
                         synchronized (fAddRemoveLogTableLines)
                         {
                             DefaultTableModel model = (DefaultTableModel) jTableGCodeLog.getModel();
-                            model.addRow(new Object[]
+
+                            if (evt.getCommand().getLineNumber() == -1)
                             {
-                                evt.getCommand().getCommand(), true, false
-                            });
+                                // GCode Has No Line Number
+                                model.addRow(new Object[]
+                                {
+                                   "", evt.getCommand().getCommand(), true, false
+                                });
+                            }
+                            else
+                            {
+                                // GCode Has Line Number
+                                model.addRow(new Object[]
+                                {
+                                    String.valueOf(evt.getCommand().getLineNumber()), evt.getCommand().getCommand(), true, false
+                                });
+                            }
+
                         }
                     }
                 }
@@ -480,7 +494,7 @@ public class frmControl extends javax.swing.JFrame
                             if (!evt.getCommand().getCommand().equals(""))
                             {
                                 int lastRow = model.getRowCount() - 1;
-                                model.setValueAt(true, lastRow, 2);
+                                model.setValueAt(true, lastRow, 3);
                             }
                         }
                     }
@@ -501,8 +515,8 @@ public class frmControl extends javax.swing.JFrame
                         if (!evt.getCommand().equals(""))
                         {
                             int lastRow = model.getRowCount() - 1;
-                            model.setValueAt(true, lastRow, 2);
-                            model.setValueAt(evt.getCommand().getError(), lastRow, 3);
+                            model.setValueAt(true, lastRow, 3);
+                            model.setValueAt(evt.getCommand().getError(), lastRow, 4);
                         }
                     }
                 }
@@ -565,7 +579,7 @@ public class frmControl extends javax.swing.JFrame
                         jLabelRealTimeFeedRate.setText(String.valueOf(MachineInformation.LiveFeedRate().get()) + " mm/min");
                         jLabelRealTimeSpindleRPM.setText(String.valueOf(MachineInformation.LiveSpindleRPM().get()));
 
-                        jLabelLastStatusUpdate.setText((System.currentTimeMillis() - ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getLastMachineStatusReceivedTimestamp()) +" ms ago");
+                        jLabelLastStatusUpdate.setText((System.currentTimeMillis() - ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getLastMachineStatusReceivedTimestamp()) + " ms ago");
 
                         // Update bytes per second
                         String bytesText = "Connection (Bytes In/Out per sec.: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesInPerSec() + " / " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesOutPerSec() + ")";
@@ -1374,17 +1388,17 @@ public class frmControl extends javax.swing.JFrame
             },
             new String []
             {
-                "Command", "TX", "RX", "Error"
+                "Line", "Command", "TX", "RX", "Error"
             }
         )
         {
             Class[] types = new Class []
             {
-                java.lang.Object.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Object.class
+                java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean []
             {
-                true, false, false, false
+                true, true, false, false, false
             };
 
             public Class getColumnClass(int columnIndex)
@@ -1400,12 +1414,14 @@ public class frmControl extends javax.swing.JFrame
         jScrollPane1.setViewportView(jTableGCodeLog);
         if (jTableGCodeLog.getColumnModel().getColumnCount() > 0)
         {
-            jTableGCodeLog.getColumnModel().getColumn(1).setMinWidth(50);
-            jTableGCodeLog.getColumnModel().getColumn(1).setPreferredWidth(50);
-            jTableGCodeLog.getColumnModel().getColumn(1).setMaxWidth(50);
+            jTableGCodeLog.getColumnModel().getColumn(0).setMinWidth(20);
+            jTableGCodeLog.getColumnModel().getColumn(0).setPreferredWidth(20);
             jTableGCodeLog.getColumnModel().getColumn(2).setMinWidth(50);
             jTableGCodeLog.getColumnModel().getColumn(2).setPreferredWidth(50);
             jTableGCodeLog.getColumnModel().getColumn(2).setMaxWidth(50);
+            jTableGCodeLog.getColumnModel().getColumn(3).setMinWidth(50);
+            jTableGCodeLog.getColumnModel().getColumn(3).setPreferredWidth(50);
+            jTableGCodeLog.getColumnModel().getColumn(3).setMaxWidth(50);
         }
 
         jButtonClearLog.setText("Clear Log");

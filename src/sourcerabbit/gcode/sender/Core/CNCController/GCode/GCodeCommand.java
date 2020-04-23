@@ -30,6 +30,7 @@ public class GCodeCommand
 
     private String fCommand;
     private String fComment = "", fError = "";
+    private long fLineNumber = -1;
 
     // Command GCodes and coordinates
     private ArrayList<String> fGCodes;
@@ -50,9 +51,30 @@ public class GCodeCommand
         // Find command comments
         if (fCommand.contains(";"))
         {
-            int commentPosition = fCommand.indexOf(";");
-            fComment = fCommand.substring(commentPosition + 1);
-            fCommand = fCommand.substring(0, commentPosition);
+            try
+            {
+                int commentPosition = fCommand.indexOf(";");
+                fComment = fCommand.substring(commentPosition + 1);
+                fCommand = fCommand.substring(0, commentPosition);
+            }
+            catch (Exception ex)
+            {
+                System.err.println("GCodeCommand::GCodeCommand " + ex.getMessage());
+            }
+        }
+        else if (fCommand.contains("(") && fCommand.contains(")"))
+        {
+            try
+            {
+                int commentStartPosition = fCommand.indexOf("(");
+                int commentEndPosition = fCommand.indexOf(")");
+                fComment = fCommand.substring(commentStartPosition + 1, commentEndPosition).trim();
+                fCommand = fCommand.substring(0, commentStartPosition);
+            }
+            catch (Exception ex)
+            {
+                System.err.println("GCodeCommand::GCodeCommand " + ex.getMessage());
+            }
         }
     }
 
@@ -165,5 +187,21 @@ public class GCodeCommand
     public String getError()
     {
         return fError.trim();
+    }
+
+    /**
+     * Set the line number of the GCode command This is only set during GCode
+     * cycle
+     *
+     * @param lineNumber
+     */
+    public void setLineNumber(long lineNumber)
+    {
+        fLineNumber = lineNumber;
+    }
+
+    public long getLineNumber()
+    {
+        return fLineNumber;
     }
 }

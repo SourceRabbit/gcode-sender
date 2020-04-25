@@ -562,5 +562,4 @@ public class GRBLConnectionHandler extends ConnectionHandler
         super.CloseConnection();
         fWaitForCommandToBeExecuted.Set();
     }
-
 }

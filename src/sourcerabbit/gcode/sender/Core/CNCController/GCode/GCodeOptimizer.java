@@ -16,11 +16,7 @@ Copyright (C) 2015  Nikos Siatras
  */
 package sourcerabbit.gcode.sender.Core.CNCController.GCode;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import sourcerabbit.gcode.sender.Core.Settings.GCodeSenderSettings;
+
 
 /**
  *
@@ -29,9 +25,9 @@ import sourcerabbit.gcode.sender.Core.Settings.GCodeSenderSettings;
 public class GCodeOptimizer
 {
 
-    private final static DecimalFormatSymbols fDecimalSeparator = DecimalFormatSymbols.getInstance();
-    private static DecimalFormat fDecimalFormatter;
-    private static Pattern fDecimalPattern;
+    //private final static DecimalFormatSymbols fDecimalSeparator = DecimalFormatSymbols.getInstance();
+    //private static DecimalFormat fDecimalFormatter;
+    //private static Pattern fDecimalPattern;
 
     static
     {
@@ -41,8 +37,9 @@ public class GCodeOptimizer
     public static void Initialize()
     {
         // GCode decimal separator is always the '.' character.
-        fDecimalSeparator.setDecimalSeparator('.');
+        //fDecimalSeparator.setDecimalSeparator('.');
 
+        /*
         // Initialize the fDecimalFormatter
         String format = "#.";
         for (int i = 0; i < GCodeSenderSettings.getTruncateDecimalDigits(); i++)
@@ -59,7 +56,7 @@ public class GCodeOptimizer
         }
 
         format += "+";
-        fDecimalPattern = Pattern.compile(format);
+        fDecimalPattern = Pattern.compile(format);*/
     }
 
     public static String OptimizeGCodeCommand(GCodeCommand command)

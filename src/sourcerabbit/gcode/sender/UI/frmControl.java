@@ -461,7 +461,7 @@ public class frmControl extends javax.swing.JFrame
                                 // GCode Has No Line Number
                                 model.addRow(new Object[]
                                 {
-                                   "", evt.getCommand().getCommand(), true, false
+                                    "", evt.getCommand().getCommand(), true, false
                                 });
                             }
                             else
@@ -533,6 +533,11 @@ public class frmControl extends javax.swing.JFrame
     {
         // Enable Machine Control Components
         for (Component c : jPanelMachineControl.getComponents())
+        {
+            c.setEnabled(state);
+        }
+
+        for (Component c : jPanelJogButtons.getComponents())
         {
             c.setEnabled(state);
         }
@@ -755,15 +760,17 @@ public class frmControl extends javax.swing.JFrame
         jRadioButtonMillimeters = new javax.swing.JRadioButton();
         jLabel4 = new javax.swing.JLabel();
         jSpinnerStep = new javax.swing.JSpinner();
-        jButtonXPlus = new javax.swing.JButton();
-        jButtonYMinus = new javax.swing.JButton();
-        jButtonYPlus = new javax.swing.JButton();
-        jButtonXMinus = new javax.swing.JButton();
-        jButtonZMinus = new javax.swing.JButton();
-        jButtonZPlus = new javax.swing.JButton();
         jButtonReturnToZero = new javax.swing.JButton();
         jCheckBoxEnableKeyboardJogging = new javax.swing.JCheckBox();
         jLabelRemoveFocus = new javax.swing.JLabel();
+        jPanelJogButtons = new javax.swing.JPanel();
+        jButtonYMinus = new javax.swing.JButton();
+        jButtonXMinus = new javax.swing.JButton();
+        jButtonYPlus = new javax.swing.JButton();
+        jButtonXPlus = new javax.swing.JButton();
+        jButtonZPlus = new javax.swing.JButton();
+        jButtonZMinus = new javax.swing.JButton();
+        jSliderStepSize = new javax.swing.JSlider();
         jPanel1 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jTextFieldGCodeFile = new javax.swing.JTextField();
@@ -1020,60 +1027,6 @@ public class frmControl extends javax.swing.JFrame
         jSpinnerStep.setModel(new javax.swing.SpinnerNumberModel(1.0d, 0.009999999776482582d, null, 0.009999999776482582d));
         jSpinnerStep.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
-        jButtonXPlus.setText("X+");
-        jButtonXPlus.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jButtonXPlusActionPerformed(evt);
-            }
-        });
-
-        jButtonYMinus.setText("Y-");
-        jButtonYMinus.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jButtonYMinusActionPerformed(evt);
-            }
-        });
-
-        jButtonYPlus.setText("Y+");
-        jButtonYPlus.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jButtonYPlusActionPerformed(evt);
-            }
-        });
-
-        jButtonXMinus.setText("X-");
-        jButtonXMinus.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jButtonXMinusActionPerformed(evt);
-            }
-        });
-
-        jButtonZMinus.setText("Z-");
-        jButtonZMinus.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jButtonZMinusActionPerformed(evt);
-            }
-        });
-
-        jButtonZPlus.setText("Z+");
-        jButtonZPlus.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jButtonZPlusActionPerformed(evt);
-            }
-        });
-
         jButtonReturnToZero.setText("Return to 0");
         jButtonReturnToZero.setToolTipText("Return to initial Work Position (0,0,0)");
         jButtonReturnToZero.addActionListener(new java.awt.event.ActionListener()
@@ -1106,76 +1059,163 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jButtonYMinus.setText("Y-");
+        jButtonYMinus.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonYMinusActionPerformed(evt);
+            }
+        });
+
+        jButtonXMinus.setText("X-");
+        jButtonXMinus.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonXMinusActionPerformed(evt);
+            }
+        });
+
+        jButtonYPlus.setText("Y+");
+        jButtonYPlus.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonYPlusActionPerformed(evt);
+            }
+        });
+
+        jButtonXPlus.setText("X+");
+        jButtonXPlus.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonXPlusActionPerformed(evt);
+            }
+        });
+
+        jButtonZPlus.setText("Z+");
+        jButtonZPlus.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonZPlusActionPerformed(evt);
+            }
+        });
+
+        jButtonZMinus.setText("Z-");
+        jButtonZMinus.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonZMinusActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanelJogButtonsLayout = new javax.swing.GroupLayout(jPanelJogButtons);
+        jPanelJogButtons.setLayout(jPanelJogButtonsLayout);
+        jPanelJogButtonsLayout.setHorizontalGroup(
+            jPanelJogButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelJogButtonsLayout.createSequentialGroup()
+                .addComponent(jButtonXMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addGroup(jPanelJogButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButtonYPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonYMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonXPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanelJogButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButtonZPlus, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonZMinus, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanelJogButtonsLayout.setVerticalGroup(
+            jPanelJogButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelJogButtonsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelJogButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelJogButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelJogButtonsLayout.createSequentialGroup()
+                            .addGap(21, 21, 21)
+                            .addComponent(jButtonXPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(23, 23, 23))
+                        .addGroup(jPanelJogButtonsLayout.createSequentialGroup()
+                            .addComponent(jButtonYPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jButtonYMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanelJogButtonsLayout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(jButtonXMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanelJogButtonsLayout.createSequentialGroup()
+                        .addComponent(jButtonZPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonZMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jSliderStepSize.setMaximum(5);
+        jSliderStepSize.setMinorTickSpacing(1);
+        jSliderStepSize.setPaintLabels(true);
+        jSliderStepSize.setPaintTicks(true);
+        jSliderStepSize.setSnapToTicks(true);
+        jSliderStepSize.setValue(3);
+        jSliderStepSize.addChangeListener(new javax.swing.event.ChangeListener()
+        {
+            public void stateChanged(javax.swing.event.ChangeEvent evt)
+            {
+                jSliderStepSizeStateChanged(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanelMachineControlLayout = new javax.swing.GroupLayout(jPanelMachineControl);
         jPanelMachineControl.setLayout(jPanelMachineControlLayout);
         jPanelMachineControlLayout.setHorizontalGroup(
             jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelMachineControlLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                            .addComponent(jCheckBoxEnableKeyboardJogging)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jLabelRemoveFocus))
-                        .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelMachineControlLayout.createSequentialGroup()
-                                .addComponent(jButtonXMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(6, 6, 6)
-                                .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jButtonYPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jButtonYMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonXPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jButtonZPlus, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jButtonZMinus, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelMachineControlLayout.createSequentialGroup()
+                .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSliderStepSize, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanelJogButtons, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanelMachineControlLayout.createSequentialGroup()
+                        .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanelMachineControlLayout.createSequentialGroup()
                                 .addComponent(jLabel4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jSpinnerStep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jRadioButtonInches)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButtonMillimeters)))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(jRadioButtonMillimeters))
+                            .addGroup(jPanelMachineControlLayout.createSequentialGroup()
+                                .addComponent(jCheckBoxEnableKeyboardJogging)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabelRemoveFocus))
+                            .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 3, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanelMachineControlLayout.setVerticalGroup(
             jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(jSpinnerStep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jRadioButtonInches)
                     .addComponent(jRadioButtonMillimeters))
                 .addGap(18, 18, 18)
-                .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelMachineControlLayout.createSequentialGroup()
-                            .addGap(21, 21, 21)
-                            .addComponent(jButtonXPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(23, 23, 23))
-                        .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                            .addComponent(jButtonYPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jButtonYMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addComponent(jButtonXMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                        .addComponent(jButtonZPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonZMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(8, 8, 8)
+                .addComponent(jSliderStepSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanelJogButtons, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCheckBoxEnableKeyboardJogging)
                     .addComponent(jLabelRemoveFocus))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(23, 23, 23))
         );
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "GCode File", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
@@ -1349,7 +1389,7 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jTextFieldCommand)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel7)
@@ -1371,7 +1411,7 @@ public class frmControl extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel8)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonClearConsole)
@@ -1451,7 +1491,7 @@ public class frmControl extends javax.swing.JFrame
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jButtonClearLog)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1462,7 +1502,7 @@ public class frmControl extends javax.swing.JFrame
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButtonClearLog)
@@ -1485,7 +1525,7 @@ public class frmControl extends javax.swing.JFrame
                 .addGroup(jPanelMacrosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel9)
                     .addComponent(jLabel10))
-                .addContainerGap(123, Short.MAX_VALUE))
+                .addContainerGap(184, Short.MAX_VALUE))
         );
         jPanelMacrosLayout.setVerticalGroup(
             jPanelMacrosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1494,7 +1534,7 @@ public class frmControl extends javax.swing.JFrame
                 .addComponent(jLabel9)
                 .addGap(3, 3, 3)
                 .addComponent(jLabel10)
-                .addContainerGap(271, Short.MAX_VALUE))
+                .addContainerGap(324, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Macros", jPanelMacros);
@@ -1526,7 +1566,7 @@ public class frmControl extends javax.swing.JFrame
                     .addComponent(jLabelRealTimeSpindleRPM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabelRealTimeFeedRate, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
                     .addComponent(jLabelLastStatusUpdate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(213, Short.MAX_VALUE))
+                .addContainerGap(274, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1543,7 +1583,7 @@ public class frmControl extends javax.swing.JFrame
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel15)
                     .addComponent(jLabelRealTimeSpindleRPM))
-                .addContainerGap(239, Short.MAX_VALUE))
+                .addContainerGap(292, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Machine Information", jPanel7);
@@ -1669,7 +1709,7 @@ public class frmControl extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1679,9 +1719,8 @@ public class frmControl extends javax.swing.JFrame
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         getAccessibleContext().setAccessibleName("frmControl");
@@ -2160,6 +2199,38 @@ public class frmControl extends javax.swing.JFrame
         }
     }//GEN-LAST:event_jLabelWorkPositionZMouseClicked
 
+    private void jSliderStepSizeStateChanged(javax.swing.event.ChangeEvent evt)//GEN-FIRST:event_jSliderStepSizeStateChanged
+    {//GEN-HEADEREND:event_jSliderStepSizeStateChanged
+        int value = jSliderStepSize.getValue();
+        switch (value)
+        {
+            case 0:
+                jSpinnerStep.setValue(0.001);
+                break;
+
+            case 1:
+                jSpinnerStep.setValue(0.01);
+                break;
+
+            case 2:
+                jSpinnerStep.setValue(0.1);
+                break;
+
+            case 3:
+                jSpinnerStep.setValue(1.0);
+                break;
+
+            case 4:
+                jSpinnerStep.setValue(10.0);
+                break;
+
+            case 5:
+                jSpinnerStep.setValue(100.0);
+                break;
+
+        }
+    }//GEN-LAST:event_jSliderStepSizeStateChanged
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClearConsole;
     private javax.swing.JButton jButtonClearLog;
@@ -2243,6 +2314,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanelConnection;
+    private javax.swing.JPanel jPanelJogButtons;
     private javax.swing.JPanel jPanelMachineControl;
     private javax.swing.JPanel jPanelMacros;
     private javax.swing.JProgressBar jProgressBarGCodeProgress;
@@ -2250,6 +2322,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JRadioButton jRadioButtonMillimeters;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JSlider jSliderStepSize;
     private javax.swing.JSpinner jSpinnerStep;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTableGCodeLog;

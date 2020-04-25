@@ -213,7 +213,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                             }
                             else
                             {
-                                frmControl.fInstance.WriteToConsole("Error-->Command:" + fLastCommandSentToController.getCommand() + "\nError Message:" + errorMessage + "\n");
+                                frmControl.fInstance.WriteToConsole("Error-->Line:" + String.valueOf(fLastCommandSentToController.getLineNumber()) + " | Command:" + fLastCommandSentToController.getCommand() + "\n  " + errorMessage + "\n");
                             }
                         }
 
@@ -352,18 +352,30 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 // Fire GCodeCommandSentToController
                 this.getGCodeExecutionEventsManager().FireGCodeCommandSentToController(new GCodeExecutionEvent(command));
 
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+                // On PREVIOUS versions comments was send to control form  console
                 // Command has comment !
-                if (!command.getComment().equals(""))
+                /*if (!command.getComment().equals(""))
                 {
-                    this.getSerialConnectionEventManager().FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent("Last Comment: " + fLastCommandSentToController.getComment()));
-                }
-
+                    frmControl.fInstance.WriteToConsole("Last Comment: " + fLastCommandSentToController.getComment());
+                }*/
+                //////////////////////////////////////////////////////////////////////////////////////////////////
                 fWaitForCommandToBeExecuted.WaitOne();
             }
             else
             {
                 try
                 {
+                    frmControl.fInstance.WriteToConsole("Error: Unable to send command " + command.getCommand() + "(Line: " + command.getLineNumber() + ") to controller! Connection is closed!");
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                try
+                {
+
                     CloseConnection();
                 }
                 catch (Exception ex)
@@ -561,5 +573,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
     {
         super.CloseConnection();
         fWaitForCommandToBeExecuted.Set();
+        fMyGCodeSender.CancelSendingGCode();
     }
 }

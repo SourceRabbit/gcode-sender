@@ -16,6 +16,8 @@ Copyright (C) 2015  Nikos Siatras
  */
 package sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting;
 
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLConnectionHandler;
 
@@ -34,6 +36,12 @@ public class GRBL_0_9_StatusReportParser extends GRBLStatusReportParser
     @Override
     public int ParseStatusReportMessageAndReturnActiveState(String statusReportMessage)
     {
+        // Show verbose output
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.isShowVerboseOutputEnabled())
+        {
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getSerialConnectionEventManager().FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(statusReportMessage));
+        }
+        
         statusReportMessage = statusReportMessage.toLowerCase().replace("mpos", "").replace("wpos", "").replace("wco", "").replace(":", "").replace("<", "").replace(">", "");
         // Machine status received !
         String[] statusParts = statusReportMessage.split(",");

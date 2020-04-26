@@ -19,10 +19,14 @@ package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHandler;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.GCodeCycleEvents.GCodeCycleEvent;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.IMachineStatusEventListener;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.MachineStatusEvents.MachineStatusEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Connection.GCodeSender;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.Settings.SemiAutoToolChangeSettings;
+import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 
 /**
  *
@@ -34,8 +38,12 @@ public class GRBLGCodeSender extends GCodeSender
     // GRBL GCode Cycle
     private boolean fKeepGCodeCycle = false;
     private Thread fGCodeCycleThread;
-
     private boolean fIsCyclingGCode = false;
+    private boolean fGCodeCycleCanceled = false;
+
+    private boolean fEventsInitialized = false;
+    private ManualResetEvent fWaitForCycleToCancel = new ManualResetEvent(false);
+    private ManualResetEvent fWaitForStatusChangeToHold = new ManualResetEvent(false);
 
     // GRBL Tool Change
     public final GRBLSemiAutoToolChangeOperator fSemiAutoToolChangeOperator;
@@ -44,6 +52,33 @@ public class GRBLGCodeSender extends GCodeSender
     {
         super(myHandler);
         fSemiAutoToolChangeOperator = new GRBLSemiAutoToolChangeOperator(this);
+    }
+
+    private void InitializeEvents()
+    {
+        if (!fEventsInitialized)
+        {
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachineStatusEventsManager().AddListener(new IMachineStatusEventListener()
+            {
+                @Override
+                public void MachineStatusChanged(MachineStatusEvent evt)
+                {
+                    final int activeState = evt.getMachineStatus();
+                    if (activeState == GRBLActiveStates.HOLD)
+                    {
+                        fWaitForStatusChangeToHold.Set();
+                    }
+                }
+
+                @Override
+                public void MachineStatusReceived(MachineStatusEvent evt)
+                {
+
+                }
+            });
+
+            fEventsInitialized = true;
+        }
     }
 
     /**
@@ -57,6 +92,9 @@ public class GRBLGCodeSender extends GCodeSender
             return;
         }
 
+        InitializeEvents();
+        fWaitForStatusChangeToHold.Reset();
+
         ////////////////////////////////////////////////////////////
         // Call the parent StartSendingGCode method!!!!!!
         super.StartSendingGCode();
@@ -68,6 +106,9 @@ public class GRBLGCodeSender extends GCodeSender
             @Override
             public void run()
             {
+                fWaitForCycleToCancel.Reset();
+                fGCodeCycleCanceled = false;
+
                 // Create a new Queue and start sending gcode from that
                 final Queue<String> gcodes = new ArrayDeque<>(fGCodeQueue);
                 fGCodeCycleStartedTimestamp = System.currentTimeMillis();
@@ -77,7 +118,7 @@ public class GRBLGCodeSender extends GCodeSender
                 try
                 {
                     // Send cycle start command and ask for the new machine status
-                    fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_START_CYCLE + GRBLCommands.COMMAND_GET_STATUS);
+                    fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_START_CYCLE);
 
                     long lineNumber = 1;
                     while (fKeepGCodeCycle && gcodes.size() > 0)
@@ -100,19 +141,11 @@ public class GRBLGCodeSender extends GCodeSender
                             }
                             else
                             {
-                                if (command.getCommand().equals("M998"))
-                                {
-                                    // DO NOTHING
-                                    // This command tells the machine to move to the tool change height
-                                }
-                                else
-                                {
-                                    ///////////////////////////////////////////////////////////////////////////////////
-                                    // Send the command to the control Board
-                                    ///////////////////////////////////////////////////////////////////////////////////
-                                    fMyConnectionHandler.SendGCodeCommand(command);
-                                    ///////////////////////////////////////////////////////////////////////////////////
-                                }
+                                ///////////////////////////////////////////////////////////////////////////////////
+                                // Send the command to the control Board
+                                ///////////////////////////////////////////////////////////////////////////////////
+                                fMyConnectionHandler.SendGCodeCommand(command);
+                                ///////////////////////////////////////////////////////////////////////////////////
                             }
 
                             // Ask for machine status every MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_DURING_CYCLING
@@ -146,6 +179,7 @@ public class GRBLGCodeSender extends GCodeSender
                 }
 
                 fIsCyclingGCode = false;
+                fWaitForCycleToCancel.Set();
             }
         });
         fGCodeCycleThread.setPriority(Thread.NORM_PRIORITY);
@@ -163,25 +197,36 @@ public class GRBLGCodeSender extends GCodeSender
     {
         if (fKeepGCodeCycle)
         {
+            fGCodeCycleCanceled = true;
             fKeepGCodeCycle = false;
+            fIsCyclingGCode = false;
+            fWaitForCycleToCancel.WaitOne();
 
-            // Pause the GCode cycle
+            // Pause GCode Cycle
             PauseSendingGCode();
 
-            // Soft reset the machine
+            // Wait until machine goes to Hold State
+            fWaitForStatusChangeToHold.WaitOne();
+
             try
             {
-                fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_SOFT_RESET);
+                Thread.sleep(1000);
             }
             catch (Exception ex)
             {
+
+            }
+            try
+            {
+                fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector("~ ?");
+            }
+            catch (Exception ex)
+            {
+
             }
 
-            // Fire GCodeCycleCanceledEvent
-            fGCodeCycleEventManager.FireGCodeCycleCanceledEvent(new GCodeCycleEvent("Canceled"));
             fGCodeCycleStartedTimestamp = -1;
-
-            fIsCyclingGCode = false;
+            fGCodeCycleEventManager.FireGCodeCycleFinishedEvent(new GCodeCycleEvent("GCode Cycle Canceled !"));
         }
     }
 
@@ -193,7 +238,7 @@ public class GRBLGCodeSender extends GCodeSender
     {
         try
         {
-            fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector("! ?");
+            fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_PAUSE);
         }
         catch (Exception ex)
         {

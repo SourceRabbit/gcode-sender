@@ -24,9 +24,10 @@ public class GRBLCommands
 {
 
     // Real time commands
-    public static final String COMMAND_PAUSE = "!";
+    public static final String COMMAND_PAUSE = "! ?";
     public static final String COMMAND_START_CYCLE = "~";
     public static final String COMMAND_GET_STATUS = "?";
+    public static final String COMMAND_FEED_HOLD = "! ?";
     public static final String COMMAND_SOFT_RESET = String.valueOf((char) 24);
     public static final byte JOG_CANCEL_COMMAND = (byte) 0x85;
 

@@ -18,6 +18,8 @@ package sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLStatusReporting;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.ConnectionHelper;
+import sourcerabbit.gcode.sender.Core.CNCController.Connection.Events.SerialConnectionEvents.SerialConnectionEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLActiveStates;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLConnectionHandler;
 import sourcerabbit.gcode.sender.Core.Machine.MachineInformation;
@@ -41,6 +43,12 @@ public class GRBL_1_1_StatusReportParser extends GRBLStatusReportParser
     @Override
     public int ParseStatusReportMessageAndReturnActiveState(String statusReportMessage)
     {
+        // Show verbose output
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.isShowVerboseOutputEnabled())
+        {
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getSerialConnectionEventManager().FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(statusReportMessage));
+        }
+
         int currentActiveState = 0;
         // Example: <Idle|MPos:0.000,0.000,0.000|FS:0,0|WCO:0.000,0.000,0.000>
         statusReportMessage = statusReportMessage.toLowerCase().replace("<", "").replace(">", "");

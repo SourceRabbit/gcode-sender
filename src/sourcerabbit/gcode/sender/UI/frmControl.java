@@ -212,48 +212,63 @@ public class frmControl extends javax.swing.JFrame
                     case GRBLActiveStates.IDLE:
                         jLabelActiveState.setForeground(new Color(0, 153, 51));
                         jLabelActiveState.setText("Idle");
+                        jTextFieldCommand.setEnabled(true);
+                        SetMachineControlsEnabled(true);
                         break;
 
                     case GRBLActiveStates.HOME:
                         jLabelActiveState.setForeground(Color.blue);
                         jLabelActiveState.setText("Homing...");
+                        jTextFieldCommand.setEnabled(true);
+                        SetMachineControlsEnabled(false);
                         break;
 
                     case GRBLActiveStates.CHECK:
                         jLabelActiveState.setForeground(new Color(0, 153, 51));
                         jLabelActiveState.setText("Check");
+                        jTextFieldCommand.setEnabled(true);
                         break;
 
                     case GRBLActiveStates.RUN:
                         jLabelActiveState.setForeground(Color.blue);
                         jLabelActiveState.setText("Run");
+                        SetMachineControlsEnabled(false);
+                        jTextFieldCommand.setEnabled(true);
                         break;
 
                     case GRBLActiveStates.HOLD:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Hold");
+                        jTextFieldCommand.setEnabled(true);
+                        SetMachineControlsEnabled(false);
                         break;
 
                     case GRBLActiveStates.ALARM:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Alarm!");
                         jButtonKillAlarm.setText("Kill Alarm");
+                        jTextFieldCommand.setEnabled(true);
                         break;
 
                     case GRBLActiveStates.MACHINE_IS_LOCKED:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Locked!");
                         jButtonKillAlarm.setText("Unlock");
+                        jTextFieldCommand.setEnabled(true);
+                        SetMachineControlsEnabled(false);
                         break;
 
                     case GRBLActiveStates.RESET_TO_CONTINUE:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Click 'Soft Reset'");
+                        jTextFieldCommand.setEnabled(true);
+                        SetMachineControlsEnabled(false);
                         break;
 
                     case GRBLActiveStates.JOG:
                         jLabelActiveState.setForeground(new Color(0, 153, 51));
                         jLabelActiveState.setText("Jogging");
+                        jTextFieldCommand.setEnabled(true);
                         break;
                 }
 
@@ -353,9 +368,7 @@ public class frmControl extends javax.swing.JFrame
                 jButtonGCodePause.setEnabled(true);
                 jButtonGCodeCancel.setEnabled(true);
                 jButtonGCodePause.setText("Pause");
-                SetMachineControlsEnabled(false);
                 jButtonResetWorkPosition.setEnabled(false);
-                jButtonSoftReset.setEnabled(false);
 
                 jTextFieldGCodeFile.setEnabled(false);
 
@@ -378,9 +391,7 @@ public class frmControl extends javax.swing.JFrame
                 jButtonGCodePause.setEnabled(false);
                 jButtonGCodeCancel.setEnabled(false);
                 jButtonGCodePause.setText("Pause");
-                SetMachineControlsEnabled(true);
                 jButtonResetWorkPosition.setEnabled(true);
-                jButtonSoftReset.setEnabled(true);
 
                 jTextFieldGCodeFile.setEnabled(true);
 
@@ -401,9 +412,7 @@ public class frmControl extends javax.swing.JFrame
                 jButtonGCodePause.setEnabled(false);
                 jButtonGCodeCancel.setEnabled(false);
                 jButtonGCodePause.setText("Pause");
-                SetMachineControlsEnabled(true);
                 jButtonResetWorkPosition.setEnabled(true);
-                jButtonSoftReset.setEnabled(true);
 
                 jTextFieldGCodeFile.setEnabled(true);
 
@@ -422,9 +431,7 @@ public class frmControl extends javax.swing.JFrame
                 WriteToConsole("Cycle Paused");
                 jLabelActiveState.setText("Hold");
                 jLabelActiveState.setForeground(Color.red);
-
                 jButtonGCodePause.setText("Resume");
-
                 jButtonGCodeCancel.setEnabled(false);
             }
 
@@ -432,12 +439,9 @@ public class frmControl extends javax.swing.JFrame
             public void GCodeCycleResumed(GCodeCycleEvent evt)
             {
                 WriteToConsole("Cycle Resumed");
-
                 jLabelActiveState.setText("Run");
                 jLabelActiveState.setForeground(Color.blue);
-
                 jButtonGCodePause.setText("Pause");
-
                 jButtonGCodeCancel.setEnabled(true);
             }
         });

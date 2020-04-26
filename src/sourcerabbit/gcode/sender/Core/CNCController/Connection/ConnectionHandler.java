@@ -488,4 +488,6 @@ public class ConnectionHandler implements SerialPortEventListener
     {
         return fLastMachineStatusReceivedTimestamp;
     }
+
+    
 }

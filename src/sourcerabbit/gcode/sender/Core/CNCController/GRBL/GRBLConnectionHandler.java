@@ -324,68 +324,86 @@ public class GRBLConnectionHandler extends ConnectionHandler
     {
         synchronized (fSendDataLock)
         {
+            //Step 1 -  Optimize the command String
             final String optimizedCommand = command.getOptimizedCommand();
-            if (optimizedCommand.equals(""))
+
+            // Step 2 - Check Special commands
+            switch (optimizedCommand)
             {
-                return true;
+                case "":
+                    // In case the command is empty then return True
+                    return true;
+
+                case "$H":
+                    // HOMING COMMAND
+                    // Start a new Process_Homing in order to not pause the UI
+                    Process_Homing homingProcess = new Process_Homing(null);
+                    homingProcess.ExecuteInNewThread();
+                    return true;
             }
 
-            // HOMING COMMAND
-            // Start a new Process_Homing in order to not pause the UI
-            if (optimizedCommand.equals("$H"))
-            {
-                Process_Homing homingProcess = new Process_Homing(null);
-                homingProcess.ExecuteInNewThread();
-                return true;
-            }
-
-            //System.out.println("Data Sent: " + optimizedCommand);
+            // Step 3 -  Reset fWaitForCommandToBeExecuted manual reset event
             fResponseOfTheLastCommandSendToController = "";
             fLastCommandSentToController = command;
-
-            // Reset fWaitForCommandToBeExecuted manual reset event
             fWaitForCommandToBeExecuted.Reset();
 
-            // Send data !!!!
-            if (super.SendData(optimizedCommand))
+            // Step 4 - TRY to SEND the optimizedCommand to the control board.
+            boolean commandSentToControllerWithSuccess = false;
+            try
             {
-                // Fire GCodeCommandSentToController
-                this.getGCodeExecutionEventsManager().FireGCodeCommandSentToController(new GCodeExecutionEvent(command));
+                commandSentToControllerWithSuccess = super.SendData(optimizedCommand);
 
-                //////////////////////////////////////////////////////////////////////////////////////////////////
-                // On PREVIOUS versions comments was send to control form  console
-                // Command has comment !
-                /*if (!command.getComment().equals(""))
+                if (commandSentToControllerWithSuccess)
                 {
-                    frmControl.fInstance.WriteToConsole("Last Comment: " + fLastCommandSentToController.getComment());
-                }*/
-                //////////////////////////////////////////////////////////////////////////////////////////////////
-                fWaitForCommandToBeExecuted.WaitOne();
+                    // Fire GCodeCommandSentToController event
+                    this.getGCodeExecutionEventsManager().FireGCodeCommandSentToController(new GCodeExecutionEvent(command));
+                    fWaitForCommandToBeExecuted.WaitOne();
+                }
+                else
+                {
+                    CommandWasNotSentToControlBoardWithSuccess(command);
+                }
+            }
+            catch (SerialPortException ex)
+            {
+                CommandWasNotSentToControlBoardWithSuccess(command);
+                throw ex;
+            }
+
+            return commandSentToControllerWithSuccess;
+        }
+    }
+
+    /**
+     * This is called internally from the SendGCodeCommand method when the
+     * command is not able to reach the control board
+     *
+     * @param command
+     */
+    private void CommandWasNotSentToControlBoardWithSuccess(GCodeCommand command)
+    {
+        try
+        {
+            if (command.getLineNumber() > -1)
+            {
+                frmControl.fInstance.WriteToConsole("Error: Unable to send command " + command.getCommand() + "(Line: " + command.getLineNumber() + ") to controller! Connection is closed!");
             }
             else
             {
-                try
-                {
-                    frmControl.fInstance.WriteToConsole("Error: Unable to send command " + command.getCommand() + "(Line: " + command.getLineNumber() + ") to controller! Connection is closed!");
-                }
-                catch (Exception ex)
-                {
-
-                }
-
-                try
-                {
-
-                    CloseConnection();
-                }
-                catch (Exception ex)
-                {
-                }
-                return false;
+                frmControl.fInstance.WriteToConsole("Error: Unable to send command " + command.getCommand() + " to controller! Connection is closed!");
             }
+        }
+        catch (Exception ex)
+        {
 
         }
-        return true;
+        try
+        {
+            CloseConnection();
+        }
+        catch (Exception ex)
+        {
+        }
     }
 
     /**
@@ -393,6 +411,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
      *
      * @param command
      * @return
+     *
      */
     @Override
     public String SendGCodeCommandAndGetResponse(GCodeCommand command)
@@ -404,11 +423,10 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 SendGCodeCommand(command);
                 return fResponseOfTheLastCommandSendToController;
             }
-            catch (Exception ex)
+            catch (SerialPortException ex)
             {
+                return fResponseOfTheLastCommandSendToController;
             }
-
-            return fResponseOfTheLastCommandSendToController;
         }
     }
 
@@ -434,7 +452,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 ///////////////////////////////////////////////////////////////////////////////////////////
                                 // If a Touch Probe operation is currently active 
                                 // or the controller is Cycling GCode 
-                                // DO NOT ask for the machine status!!!!!!!!!!!!!!!!!!!!
+                                // DO NOT ask for the machine status 
                                 if (fAProcessIsUsingTouchProbe || fMyGCodeSender.IsCyclingGCode())
                                 {
                                     Thread.sleep(50);
@@ -571,6 +589,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
     @Override
     public void CloseConnection() throws Exception
     {
+        System.err.println("Connection Closed");
         super.CloseConnection();
         fWaitForCommandToBeExecuted.Set();
         fMyGCodeSender.CancelSendingGCode();

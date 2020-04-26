@@ -34,11 +34,12 @@ public class GRBLGCodeSender extends GCodeSender
     // GRBL GCode Cycle
     private boolean fKeepGCodeCycle = false;
     private Thread fGCodeCycleThread;
+
     private boolean fIsCyclingGCode = false;
 
     // GRBL Tool Change
     public final GRBLSemiAutoToolChangeOperator fSemiAutoToolChangeOperator;
-    
+
     public GRBLGCodeSender(ConnectionHandler myHandler)
     {
         super(myHandler);
@@ -70,14 +71,14 @@ public class GRBLGCodeSender extends GCodeSender
                 // Create a new Queue and start sending gcode from that
                 final Queue<String> gcodes = new ArrayDeque<>(fGCodeQueue);
                 fGCodeCycleStartedTimestamp = System.currentTimeMillis();
-                
+
                 fIsCyclingGCode = true;
-                
+
                 try
                 {
                     // Send cycle start command and ask for the new machine status
                     fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_START_CYCLE + GRBLCommands.COMMAND_GET_STATUS);
-                    
+
                     long lineNumber = 1;
                     while (fKeepGCodeCycle && gcodes.size() > 0)
                     {
@@ -107,7 +108,7 @@ public class GRBLGCodeSender extends GCodeSender
                                 else
                                 {
                                     ///////////////////////////////////////////////////////////////////////////////////
-                                    // Send the command
+                                    // Send the command to the control Board
                                     ///////////////////////////////////////////////////////////////////////////////////
                                     fMyConnectionHandler.SendGCodeCommand(command);
                                     ///////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +120,7 @@ public class GRBLGCodeSender extends GCodeSender
                             {
                                 fMyConnectionHandler.AskForMachineStatus();
                             }
-                            
+
                             fRowsSent += 1;
                         }
                         catch (Exception ex)
@@ -143,7 +144,7 @@ public class GRBLGCodeSender extends GCodeSender
                     fGCodeCycleStartedTimestamp = - 1;
                     fGCodeCycleEventManager.FireGCodeCycleFinishedEvent(new GCodeCycleEvent("Finished!\nTime: " + time));
                 }
-                
+
                 fIsCyclingGCode = false;
             }
         });
@@ -157,6 +158,7 @@ public class GRBLGCodeSender extends GCodeSender
      * the GCode cycle and the CNC machine stops.
      */
     @Override
+
     public void CancelSendingGCode()
     {
         if (fKeepGCodeCycle)
@@ -178,7 +180,7 @@ public class GRBLGCodeSender extends GCodeSender
             // Fire GCodeCycleCanceledEvent
             fGCodeCycleEventManager.FireGCodeCycleCanceledEvent(new GCodeCycleEvent("Canceled"));
             fGCodeCycleStartedTimestamp = -1;
-            
+
             fIsCyclingGCode = false;
         }
     }
@@ -214,7 +216,7 @@ public class GRBLGCodeSender extends GCodeSender
         }
         fGCodeCycleEventManager.FireGCodeCycleResumedEvent(new GCodeCycleEvent("Resumed"));
     }
-    
+
     @Override
     public boolean IsCyclingGCode()
     {
@@ -230,5 +232,5 @@ public class GRBLGCodeSender extends GCodeSender
     {
         return fSemiAutoToolChangeOperator;
     }
-    
+
 }

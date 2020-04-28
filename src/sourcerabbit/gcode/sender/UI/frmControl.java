@@ -219,21 +219,21 @@ public class frmControl extends javax.swing.JFrame
                     case GRBLActiveStates.HOME:
                         jLabelActiveState.setForeground(Color.blue);
                         jLabelActiveState.setText("Homing...");
-                        jTextFieldCommand.setEnabled(true);
+                        jTextFieldCommand.setEnabled(false);
                         SetMachineControlsEnabled(false);
                         break;
 
                     case GRBLActiveStates.CHECK:
                         jLabelActiveState.setForeground(new Color(0, 153, 51));
                         jLabelActiveState.setText("Check");
-                        jTextFieldCommand.setEnabled(true);
+                        jTextFieldCommand.setEnabled(false);
                         break;
 
                     case GRBLActiveStates.RUN:
                         jLabelActiveState.setForeground(Color.blue);
                         jLabelActiveState.setText("Run");
                         SetMachineControlsEnabled(false);
-                        jTextFieldCommand.setEnabled(true);
+                        jTextFieldCommand.setEnabled(false);
                         break;
 
                     case GRBLActiveStates.HOLD:
@@ -268,7 +268,7 @@ public class frmControl extends javax.swing.JFrame
                     case GRBLActiveStates.JOG:
                         jLabelActiveState.setForeground(new Color(0, 153, 51));
                         jLabelActiveState.setText("Jogging");
-                        jTextFieldCommand.setEnabled(true);
+                        jTextFieldCommand.setEnabled(false);
                         break;
                 }
 
@@ -776,8 +776,6 @@ public class frmControl extends javax.swing.JFrame
         jButtonZMinus = new javax.swing.JButton();
         jSliderStepSize = new javax.swing.JSlider();
         jPanel1 = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
-        jTextFieldGCodeFile = new javax.swing.JTextField();
         jLabelRowsInFile = new javax.swing.JLabel();
         jLabelRowsInFile1 = new javax.swing.JLabel();
         jLabelRowsInFile2 = new javax.swing.JLabel();
@@ -790,6 +788,9 @@ public class frmControl extends javax.swing.JFrame
         jProgressBarGCodeProgress = new javax.swing.JProgressBar();
         jLabelRowsInFile7 = new javax.swing.JLabel();
         jLabelSemiAutoToolChangeStatus = new javax.swing.JLabel();
+        jPanelGCodeFile = new javax.swing.JPanel();
+        jTextFieldGCodeFile = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
         jButtonGCodePause = new javax.swing.JButton();
         jButtonGCodeSend = new javax.swing.JButton();
@@ -1225,8 +1226,39 @@ public class frmControl extends javax.swing.JFrame
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "GCode File", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel5.setText("File:");
-        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 27, 26, -1));
+        jLabelRowsInFile.setText("0");
+        jPanel1.add(jLabelRowsInFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 100, 54, -1));
+
+        jLabelRowsInFile1.setText("Sent Rows:");
+        jPanel1.add(jLabelRowsInFile1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 99, -1));
+
+        jLabelRowsInFile2.setText("Remaining Rows:");
+        jPanel1.add(jLabelRowsInFile2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, 99, -1));
+
+        jLabelRowsInFile3.setText("Rows in file:");
+        jPanel1.add(jLabelRowsInFile3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 99, -1));
+
+        jLabelSentRows.setText("0");
+        jPanel1.add(jLabelSentRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 120, 54, -1));
+
+        jLabelRemainingRows.setText("0");
+        jPanel1.add(jLabelRemainingRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 140, 54, -1));
+
+        jLabelRowsInFile4.setText("Time elapsed:");
+        jPanel1.add(jLabelRowsInFile4, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 100, -1, -1));
+
+        jLabelTimeElapsed.setText("00:00:00");
+        jPanel1.add(jLabelTimeElapsed, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 100, 146, -1));
+
+        jLabelRowsInFile5.setText("Progress:");
+        jPanel1.add(jLabelRowsInFile5, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 120, 66, -1));
+        jPanel1.add(jProgressBarGCodeProgress, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 120, -1, -1));
+
+        jLabelRowsInFile7.setText("Semi Auto Tool Change:");
+        jPanel1.add(jLabelRowsInFile7, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 140, -1, -1));
+
+        jLabelSemiAutoToolChangeStatus.setText("Off");
+        jPanel1.add(jLabelSemiAutoToolChangeStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 140, 76, -1));
 
         jTextFieldGCodeFile.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1235,41 +1267,8 @@ public class frmControl extends javax.swing.JFrame
                 jTextFieldGCodeFileActionPerformed(evt);
             }
         });
-        jPanel1.add(jTextFieldGCodeFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 47, 432, -1));
 
-        jLabelRowsInFile.setText("0");
-        jPanel1.add(jLabelRowsInFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 110, 54, -1));
-
-        jLabelRowsInFile1.setText("Sent Rows:");
-        jPanel1.add(jLabelRowsInFile1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, 99, -1));
-
-        jLabelRowsInFile2.setText("Remaining Rows:");
-        jPanel1.add(jLabelRowsInFile2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 99, -1));
-
-        jLabelRowsInFile3.setText("Rows in file:");
-        jPanel1.add(jLabelRowsInFile3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 99, -1));
-
-        jLabelSentRows.setText("0");
-        jPanel1.add(jLabelSentRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 130, 54, -1));
-
-        jLabelRemainingRows.setText("0");
-        jPanel1.add(jLabelRemainingRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 150, 54, -1));
-
-        jLabelRowsInFile4.setText("Time elapsed:");
-        jPanel1.add(jLabelRowsInFile4, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 110, -1, -1));
-
-        jLabelTimeElapsed.setText("00:00:00");
-        jPanel1.add(jLabelTimeElapsed, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 110, 146, -1));
-
-        jLabelRowsInFile5.setText("Progress:");
-        jPanel1.add(jLabelRowsInFile5, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 130, 66, -1));
-        jPanel1.add(jProgressBarGCodeProgress, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 130, -1, -1));
-
-        jLabelRowsInFile7.setText("Semi Auto Tool Change:");
-        jPanel1.add(jLabelRowsInFile7, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 150, -1, -1));
-
-        jLabelSemiAutoToolChangeStatus.setText("Off");
-        jPanel1.add(jLabelSemiAutoToolChangeStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 150, 76, -1));
+        jLabel5.setText("File:");
 
         jButtonGCodePause.setText("Pause");
         jButtonGCodePause.setEnabled(false);
@@ -1343,7 +1342,29 @@ public class frmControl extends javax.swing.JFrame
                 .addComponent(jButtonGCodeVisualize))
         );
 
-        jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 73, -1, -1));
+        javax.swing.GroupLayout jPanelGCodeFileLayout = new javax.swing.GroupLayout(jPanelGCodeFile);
+        jPanelGCodeFile.setLayout(jPanelGCodeFileLayout);
+        jPanelGCodeFileLayout.setHorizontalGroup(
+            jPanelGCodeFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelGCodeFileLayout.createSequentialGroup()
+                .addGroup(jPanelGCodeFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextFieldGCodeFile, javax.swing.GroupLayout.PREFERRED_SIZE, 432, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 48, Short.MAX_VALUE))
+        );
+        jPanelGCodeFileLayout.setVerticalGroup(
+            jPanelGCodeFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelGCodeFileLayout.createSequentialGroup()
+                .addComponent(jLabel5)
+                .addGap(6, 6, 6)
+                .addComponent(jTextFieldGCodeFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 1, Short.MAX_VALUE))
+        );
+
+        jPanel1.add(jPanelGCodeFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 480, 70));
 
         jTabbedPane1.setForeground(new java.awt.Color(0, 75, 127));
         jTabbedPane1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
@@ -1415,7 +1436,7 @@ public class frmControl extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel8)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonClearConsole)
@@ -1506,7 +1527,7 @@ public class frmControl extends javax.swing.JFrame
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButtonClearLog)
@@ -1538,7 +1559,7 @@ public class frmControl extends javax.swing.JFrame
                 .addComponent(jLabel9)
                 .addGap(3, 3, 3)
                 .addComponent(jLabel10)
-                .addContainerGap(324, Short.MAX_VALUE))
+                .addContainerGap(335, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Macros", jPanelMacros);
@@ -1587,7 +1608,7 @@ public class frmControl extends javax.swing.JFrame
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel15)
                     .addComponent(jLabelRealTimeSpindleRPM))
-                .addContainerGap(292, Short.MAX_VALUE))
+                .addContainerGap(303, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Machine Information", jPanel7);
@@ -1713,18 +1734,19 @@ public class frmControl extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTabbedPane1))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanelConnection, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jTabbedPane1)))
+                .addContainerGap())
         );
 
         getAccessibleContext().setAccessibleName("frmControl");
@@ -1827,7 +1849,7 @@ public class frmControl extends javax.swing.JFrame
         try
         {
             fc = new JFileChooser(new File(path));
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("GCode Files (.nc, .gcode, .tap)", "nc", "gcode", "tap");
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("GCode Files (.nc, .gcode, .tap, .gc)", "nc", "gcode", "tap", "gc");
             fc.setFileFilter(filter);
         }
         catch (Exception ex)
@@ -2318,6 +2340,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanelConnection;
+    private javax.swing.JPanel jPanelGCodeFile;
     private javax.swing.JPanel jPanelJogButtons;
     private javax.swing.JPanel jPanelMachineControl;
     private javax.swing.JPanel jPanelMacros;

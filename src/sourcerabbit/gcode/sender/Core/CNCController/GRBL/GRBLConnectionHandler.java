@@ -39,7 +39,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
     private long fLastTimeAskedForMachineStatus = System.currentTimeMillis();
     private ManualResetEvent fWaitForGetStatusCommandReply;
 
-
     // Status thread and Parser
     private GRBLStatusReportParser fMyStatusReportParser;
 
@@ -115,7 +114,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 // Ask the appropriate GRBL Status Parser to parse the new Status Message
                 // and get the current Active State of the machine.
                 int newActiveState = fMyStatusReportParser.ParseStatusReportMessageAndReturnActiveState(receivedStr);
-                System.out.println(receivedStr);
 
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
                 // Check if the machine status changed
@@ -155,7 +153,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 // Set the fLastMachinePositionReceivedTimestamp value and the 
                 // WaitForGetStatusCommandReply manual reset event.
                 fLastMachineStatusReceivedTimestamp = System.currentTimeMillis();
-                System.out.println("Status received\n\n");
                 fWaitForGetStatusCommandReply.Set();
             }
             else
@@ -261,8 +258,13 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 }
                 else if (receivedStr.startsWith("[PRB:"))
                 {
-                    //System.out.println("Endmill touched the Touch Probe!");
+                    //////////////////////////////////////////////////////////////////////////////
+                    // Endmill just touched the probe!
+                    // Fire the Machine Status event with GRBLActiveStates.MACHINE_TOUCHED_PROBE
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE, receivedStr));
+                    //////////////////////////////////////////////////////////////////////////////
+                    //////////////////////////////////////////////////////////////////////////////
+
                     /////////////////////////////////////////////////////
                     // DO NOT SET THE fWaitForCommandToBeExecuted !!!
                     // GRBL sends an "OK" back.
@@ -311,7 +313,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
     {
         synchronized (fSendDataLock)
         {
-            //Step 1 -  Optimize the command String
+            //Step 1 - Optimize the command String
             final String optimizedCommand = command.getOptimizedCommand();
 
             // Step 2 - Check Special commands
@@ -329,7 +331,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     return true;
             }
 
-            // Step 3 -  Reset fWaitForCommandToBeExecuted manual reset event
+            // Step 3 - Reset fWaitForCommandToBeExecuted manual reset event
             fResponseOfTheLastCommandSendToController = "";
             fLastCommandSentToController = command;
             fWaitForCommandToBeExecuted.Reset();
@@ -493,13 +495,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
     @Override
     public boolean AskForMachineStatus()
     {
-        System.out.println("Asking for machine status");
-
-        if (fActiveState == GRBLActiveStates.HOLD)
-        {
-            return true;
-        }
-
         try
         {
             //////////////////////////////////////////////////////////////////////////////////////////

@@ -25,4 +25,8 @@ public class ConnectionHelper
 
     public static ConnectionHandler ACTIVE_CONNECTION_HANDLER;
 
+    
+    public static boolean AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE = false;
+    public static boolean A_PROCESS_IS_USING_TOUCH_PROBE = false;
+
 }

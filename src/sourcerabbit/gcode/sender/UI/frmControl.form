@@ -72,6 +72,14 @@
             <Property name="text" type="java.lang.String" value="Machine"/>
           </Properties>
           <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItemStartHomingSequence">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Start Homing Sequence"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItemStartHomingSequenceActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItemToolChangeSettings">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Tool Change Settings"/>

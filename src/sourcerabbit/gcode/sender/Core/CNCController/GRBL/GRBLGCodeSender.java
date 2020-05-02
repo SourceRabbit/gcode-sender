@@ -192,7 +192,6 @@ public class GRBLGCodeSender extends GCodeSender
      * the GCode cycle and the CNC machine stops.
      */
     @Override
-
     public void CancelSendingGCode()
     {
         if (fKeepGCodeCycle)
@@ -228,6 +227,30 @@ public class GRBLGCodeSender extends GCodeSender
             fGCodeCycleStartedTimestamp = -1;
             fGCodeCycleEventManager.FireGCodeCycleFinishedEvent(new GCodeCycleEvent("GCode Cycle Canceled !"));
         }
+    }
+
+    /**
+     * Kill GCode Cycle! This is called when the Disconnect button is clicked by
+     * the user
+     */
+    @Override
+    public void KillGCodeCycle()
+    {
+        fGCodeCycleCanceled = true;
+        fKeepGCodeCycle = false;
+        fIsCyclingGCode = false;
+
+        try
+        {
+            fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector("~ ?");
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+        fGCodeCycleStartedTimestamp = -1;
+       
     }
 
     /**

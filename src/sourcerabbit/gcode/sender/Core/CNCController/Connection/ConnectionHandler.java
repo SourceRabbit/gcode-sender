@@ -71,9 +71,6 @@ public class ConnectionHandler implements SerialPortEventListener
     // GCode
     protected final GCodeSender fMyGCodeSender;
 
-    // Touch Probe
-    protected boolean fAProcessIsUsingTouchProbe = false;
-
     // CNC Control Framework
     protected EGRBLVersion fControllerGRBLVersion;
 
@@ -322,7 +319,7 @@ public class ConnectionHandler implements SerialPortEventListener
      */
     public void StartUsingTouchProbe()
     {
-        fAProcessIsUsingTouchProbe = true;
+        ConnectionHelper.A_PROCESS_IS_USING_TOUCH_PROBE = true;
     }
 
     /**
@@ -331,7 +328,7 @@ public class ConnectionHandler implements SerialPortEventListener
      */
     public void StopUsingTouchProbe()
     {
-        fAProcessIsUsingTouchProbe = false;
+       ConnectionHelper.A_PROCESS_IS_USING_TOUCH_PROBE = false;
     }
 
     /**

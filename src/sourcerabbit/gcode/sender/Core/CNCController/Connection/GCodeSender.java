@@ -89,6 +89,11 @@ public class GCodeSender
     {
 
     }
+    
+    public void KillGCodeCycle()
+    {
+        
+    }
 
     public void PauseSendingGCode()
     {

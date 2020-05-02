@@ -134,6 +134,9 @@ public class GRBLSemiAutoToolChangeOperator
 
     public void DoSemiAutoToolChangeSequence(GCodeCommand command)
     {
+        // SET AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE to True
+        ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE = true;
+
         ////////////////////////////////////////////////////
         // FIRST THING ALL THE TIME
         ////////////////////////////////////////////////////
@@ -226,6 +229,9 @@ public class GRBLSemiAutoToolChangeOperator
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
             WaitForUserToClickResume();
 
+            // SET AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE tp FALSE
+            ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE = false;
+
             Step_4_GoBackToMachineX_Y_BeforeToolChange_G53(machinePositionXBeforeToolChange, machinePositionYBeforeToolChange);
 
             // GO back to Z work position before tool change
@@ -236,6 +242,8 @@ public class GRBLSemiAutoToolChangeOperator
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode();
             frmControl.fInstance.WriteToConsole("GRBLToolChangeOperator Error: " + ex.getMessage());
         }
+
+        ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE = false;
     }
 
     private void RaiseEndmillToMachineZMax() throws InterruptedException

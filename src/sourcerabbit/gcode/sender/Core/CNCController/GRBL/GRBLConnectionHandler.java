@@ -442,7 +442,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 // If a Touch Probe operation is currently active 
                                 // or the controller is Cycling GCode 
                                 // DO NOT ask for the machine status 
-                                if (fAProcessIsUsingTouchProbe || fMyGCodeSender.IsCyclingGCode())
+                                if (ConnectionHelper.A_PROCESS_IS_USING_TOUCH_PROBE || fMyGCodeSender.IsCyclingGCode())
                                 {
                                     Thread.sleep(50);
                                     continue;
@@ -580,8 +580,10 @@ public class GRBLConnectionHandler extends ConnectionHandler
     public void CloseConnection() throws Exception
     {
         System.err.println("Connection Closed");
+        //fMyGCodeSender.CancelSendingGCode();
+        fMyGCodeSender.KillGCodeCycle();
         super.CloseConnection();
         fWaitForCommandToBeExecuted.Set();
-        fMyGCodeSender.CancelSendingGCode();
+        
     }
 }

@@ -7,13 +7,10 @@ SourceRabbit GCode Sender
 Downloads
 ------
 
-To download the latest installer for <b>Windows</b> and <b>Mac</b> please visit:<br>
-[https://www.sourcerabbit.com/](https://www.sourcerabbit.com/)<br>
+To download the latest release visit:<br>
+[https://www.sourcerabbit.com/Downloads/](https://www.sourcerabbit.com/)<br>
 
-For other operating systems:<br>
-[https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/latest](https://github.com/nsiatras/sourcerabbit-gcode-sender/releases/latest)<br>
-
-If you don't have Java installed please visit [https://java.com/en/download/manual.jsp](https://java.com/en/download/manual.jsp).
+If you don't have Java installed download the latest version and install it on your computer from [https://java.com/en/download/manual.jsp](https://java.com/en/download/manual.jsp).
 
 About SourceRabbit GCode Sender
 ------

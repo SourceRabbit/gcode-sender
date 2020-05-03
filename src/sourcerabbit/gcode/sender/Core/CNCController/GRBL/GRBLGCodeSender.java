@@ -39,11 +39,10 @@ public class GRBLGCodeSender extends GCodeSender
     private boolean fKeepGCodeCycle = false;
     private Thread fGCodeCycleThread;
     private boolean fIsCyclingGCode = false;
-    private boolean fGCodeCycleCanceled = false;
 
     private boolean fEventsInitialized = false;
-    private ManualResetEvent fWaitForCycleToCancel = new ManualResetEvent(false);
-    private ManualResetEvent fWaitForStatusChangeToHold = new ManualResetEvent(false);
+    private final ManualResetEvent fWaitForCycleToCancel = new ManualResetEvent(false);
+    private final ManualResetEvent fWaitForStatusChangeToHold = new ManualResetEvent(false);
 
     // GRBL Tool Change
     public final GRBLSemiAutoToolChangeOperator fSemiAutoToolChangeOperator;
@@ -107,7 +106,6 @@ public class GRBLGCodeSender extends GCodeSender
             public void run()
             {
                 fWaitForCycleToCancel.Reset();
-                fGCodeCycleCanceled = false;
 
                 // Create a new Queue and start sending gcode from that
                 final Queue<String> gcodes = new ArrayDeque<>(fGCodeQueue);
@@ -119,6 +117,10 @@ public class GRBLGCodeSender extends GCodeSender
                 {
                     // Send cycle start command and ask for the new machine status
                     fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_START_CYCLE);
+
+                    // Fire a new Machine Status change event to GRBLActiveStates.RUN
+                    // This is just to inform the UI that the machine just started cycling GCode
+                    fMyConnectionHandler.getMachineStatusEventsManager().FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.RUN, ""));
 
                     long lineNumber = 1;
                     while (fKeepGCodeCycle && gcodes.size() > 0)
@@ -158,7 +160,7 @@ public class GRBLGCodeSender extends GCodeSender
                         }
                         catch (Exception ex)
                         {
-                            System.err.println(ex.getMessage());
+                            System.err.println("fGCodeCycleThread Error:-->" + ex.getMessage());
                         }
                     }
                 }
@@ -196,7 +198,6 @@ public class GRBLGCodeSender extends GCodeSender
     {
         if (fKeepGCodeCycle)
         {
-            fGCodeCycleCanceled = true;
             fKeepGCodeCycle = false;
             fIsCyclingGCode = false;
             fWaitForCycleToCancel.WaitOne();
@@ -236,7 +237,6 @@ public class GRBLGCodeSender extends GCodeSender
     @Override
     public void KillGCodeCycle()
     {
-        fGCodeCycleCanceled = true;
         fKeepGCodeCycle = false;
         fIsCyclingGCode = false;
 
@@ -250,7 +250,7 @@ public class GRBLGCodeSender extends GCodeSender
         }
 
         fGCodeCycleStartedTimestamp = -1;
-       
+
     }
 
     /**

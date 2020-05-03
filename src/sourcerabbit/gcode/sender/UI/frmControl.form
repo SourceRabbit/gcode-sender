@@ -919,7 +919,7 @@
         <Container class="javax.swing.JPanel" name="jPanelGCodeFile">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="10" y="20" width="480" height="70"/>
+              <AbsoluteConstraints x="10" y="20" width="440" height="70"/>
             </Constraint>
           </Constraints>
 
@@ -932,7 +932,7 @@
                           <Component id="jTextFieldGCodeFile" min="-2" pref="432" max="-2" attributes="0"/>
                           <Component id="jPanel6" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="0" pref="48" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="8" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1067,7 +1067,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jTextFieldCommand" max="32767" attributes="0"/>
-                          <Component id="jScrollPane2" alignment="0" pref="499" max="32767" attributes="0"/>
+                          <Component id="jScrollPane2" alignment="0" pref="465" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
@@ -1177,7 +1177,7 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jScrollPane1" pref="499" max="32767" attributes="0"/>
+                          <Component id="jScrollPane1" pref="465" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="jButtonClearLog" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="32767" attributes="0"/>
@@ -1296,7 +1296,7 @@
                           <Component id="jLabel9" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel10" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="184" max="32767" attributes="0"/>
+                      <EmptySpace pref="150" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1350,7 +1350,7 @@
                           <Component id="jLabelRealTimeFeedRate" pref="115" max="32767" attributes="0"/>
                           <Component id="jLabelLastStatusUpdate" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="274" max="32767" attributes="0"/>
+                      <EmptySpace pref="240" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

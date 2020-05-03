@@ -208,21 +208,20 @@ public class frmControl extends javax.swing.JFrame
             public void MachineStatusChanged(MachineStatusEvent evt)
             {
                 final int activeState = evt.getMachineStatus();
+                boolean enableMachineControlButtons = false;
+
                 switch (activeState)
                 {
                     case GRBLActiveStates.IDLE:
                         jLabelActiveState.setForeground(new Color(0, 153, 51));
                         jLabelActiveState.setText("Idle");
-
-                        SetMachineControlsEnabled(true);
+                        enableMachineControlButtons = true;
                         break;
 
                     case GRBLActiveStates.RUN:
-
                         jLabelActiveState.setForeground(Color.blue);
                         jLabelActiveState.setText("Run");
-
-                        SetMachineControlsEnabled(false);
+                        enableMachineControlButtons = false;
 
                         //////////////////////////////////////////////////////////////////////////////////////////////
                         // Fix the jButtonGCodePause !!!!
@@ -235,8 +234,7 @@ public class frmControl extends javax.swing.JFrame
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Hold");
                         jTextFieldCommand.setEnabled(true);
-
-                        SetMachineControlsEnabled(false);
+                        enableMachineControlButtons = false;
 
                         //////////////////////////////////////////////////////////////////////////////////////////////
                         // Fix the jButtonGCodePause !!!!
@@ -248,58 +246,75 @@ public class frmControl extends javax.swing.JFrame
                     case GRBLActiveStates.HOME:
                         jLabelActiveState.setForeground(Color.blue);
                         jLabelActiveState.setText("Homing...");
-
-                        SetMachineControlsEnabled(false);
+                        enableMachineControlButtons = false;
                         break;
 
                     case GRBLActiveStates.CHECK:
                         jLabelActiveState.setForeground(new Color(0, 153, 51));
                         jLabelActiveState.setText("Check");
+                        enableMachineControlButtons = false;
                         break;
 
                     case GRBLActiveStates.ALARM:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Alarm!");
                         jButtonKillAlarm.setText("Kill Alarm");
-
-                        SetMachineControlsEnabled(false);
+                        enableMachineControlButtons = false;
                         break;
 
                     case GRBLActiveStates.MACHINE_IS_LOCKED:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Locked!");
                         jButtonKillAlarm.setText("Unlock");
-
-                        SetMachineControlsEnabled(false);
+                        enableMachineControlButtons = false;
                         break;
 
                     case GRBLActiveStates.RESET_TO_CONTINUE:
                         jLabelActiveState.setForeground(Color.red);
                         jLabelActiveState.setText("Click 'Soft Reset'");
-
-                        SetMachineControlsEnabled(false);
+                        enableMachineControlButtons = false;
                         break;
 
                     case GRBLActiveStates.JOG:
                         jLabelActiveState.setForeground(new Color(0, 153, 51));
                         jLabelActiveState.setText("Jogging");
+                        enableMachineControlButtons = true;
                         break;
                 }
 
-                ////////////////////////////////////////////////////////////////////////////////////////////
-                // Enable or Disable appropriate components when machine is cycling GCode
-                EnableOrDisableComponentsWhenMachineIsCyclingGCode(fMachineIsCyclingGCode);
-                ////////////////////////////////////////////////////////////////////////////////////////////
-
+                // Show or Hide jButtonKillAlarm
                 jButtonKillAlarm.setVisible(activeState == GRBLActiveStates.ALARM || activeState == GRBLActiveStates.MACHINE_IS_LOCKED);
 
-                // Enable or disable all components in jPanelMacros
-                Component[] components = jPanelMacros.getComponents();
-                for (Component component : components)
+                if (activeState == GRBLActiveStates.RESET_TO_CONTINUE || activeState == GRBLActiveStates.ALARM)
                 {
-                    component.setEnabled(activeState == GRBLActiveStates.IDLE);
+                    // Machine is in Alarm State or Needs Reset
+                    // In this state disable all control components
+                    SetMachineControlsEnabled(false);
+                    EnableOrDisableComponentsWhenMachineIsCyclingGCode(false);
+                    // FIX for Machine Menu Items when machine needs reset
+                    jMenuItemToolChangeSettings.setEnabled(false);
+                    jMenuItemStartHomingSequence.setEnabled(false);
                 }
+                else
+                {
+                    // Enable or disable machine control buttons
+                    // If machine is cycling gcode then disable all control buttons
+                    SetMachineControlsEnabled((fMachineIsCyclingGCode == true) ? false : enableMachineControlButtons);
 
+                    // If the machine is changing tool then change the Active state text
+                    // and foreground color
+                    if (ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE)
+                    {
+                        jLabelActiveState.setText("Changing tool...");
+                        jLabelActiveState.setForeground(Color.blue);
+                    }
+
+                    ////////////////////////////////////////////////////////////////////////////////////////////
+                    // Enable or Disable appropriate components when machine is cycling GCode
+                    ////////////////////////////////////////////////////////////////////////////////////////////
+                    EnableOrDisableComponentsWhenMachineIsCyclingGCode(fMachineIsCyclingGCode);
+                    ////////////////////////////////////////////////////////////////////////////////////////////
+                }
             }
 
             @Override
@@ -503,23 +518,26 @@ public class frmControl extends javax.swing.JFrame
         jButtonReturnToZero.setEnabled(state);
         jButtonGCodeSend.setEnabled(state);
 
-        // Enable Machine Control Components
+        // Enable or Disable Machine Control Components
         for (Component c : jPanelMachineControl.getComponents())
         {
             c.setEnabled(state);
         }
 
+        // Enable or Disable jog buttons
         for (Component c : jPanelJogButtons.getComponents())
         {
             c.setEnabled(state);
         }
 
-        // Macros
+        // Enable or Disable Macros
         try
         {
-            for (JButton b : fMacroButtons)
+            // Enable or disable all components in jPanelMacros
+            Component[] components = jPanelMacros.getComponents();
+            for (Component component : components)
             {
-                b.setEnabled(state);
+                component.setEnabled(state);
             }
         }
         catch (Exception ex)
@@ -549,9 +567,8 @@ public class frmControl extends javax.swing.JFrame
         jMenuItemGRBLSettings.setEnabled(!isGcodeCycling);
         jMenuItemToolChangeSettings.setEnabled(!isGcodeCycling);
         jMenuItemStartHomingSequence.setEnabled(!isGcodeCycling);
-        
-        
-        if(ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE)
+
+        if (ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE)
         {
             jButtonGCodeCancel.setEnabled(false);
         }
@@ -705,15 +722,11 @@ public class frmControl extends javax.swing.JFrame
                     {
                         final double stepValue = (double) jSpinnerStep.getValue();
 
-                        Thread th = new Thread(new Runnable()
+                        Thread th = new Thread(() ->
                         {
-                            @Override
-                            public void run()
-                            {
-                                Process_Jogging p = new Process_Jogging(null, jogAxis, stepValue, fJoggingUnits);
-                                p.Execute();
-                                p.Dispose();
-                            }
+                            Process_Jogging p = new Process_Jogging(null, jogAxis, stepValue, fJoggingUnits);
+                            p.Execute();
+                            p.Dispose();
                         });
                         th.start();
 
@@ -1348,7 +1361,7 @@ public class frmControl extends javax.swing.JFrame
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextFieldGCodeFile, javax.swing.GroupLayout.PREFERRED_SIZE, 432, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 48, Short.MAX_VALUE))
+                .addGap(0, 8, Short.MAX_VALUE))
         );
         jPanelGCodeFileLayout.setVerticalGroup(
             jPanelGCodeFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1361,7 +1374,7 @@ public class frmControl extends javax.swing.JFrame
                 .addGap(0, 1, Short.MAX_VALUE))
         );
 
-        jPanel1.add(jPanelGCodeFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 480, 70));
+        jPanel1.add(jPanelGCodeFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 440, 70));
 
         jTabbedPane1.setForeground(new java.awt.Color(0, 75, 127));
         jTabbedPane1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
@@ -1411,7 +1424,7 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jTextFieldCommand)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel7)
@@ -1513,7 +1526,7 @@ public class frmControl extends javax.swing.JFrame
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jButtonClearLog)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1547,7 +1560,7 @@ public class frmControl extends javax.swing.JFrame
                 .addGroup(jPanelMacrosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel9)
                     .addComponent(jLabel10))
-                .addContainerGap(184, Short.MAX_VALUE))
+                .addContainerGap(150, Short.MAX_VALUE))
         );
         jPanelMacrosLayout.setVerticalGroup(
             jPanelMacrosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1588,7 +1601,7 @@ public class frmControl extends javax.swing.JFrame
                     .addComponent(jLabelRealTimeSpindleRPM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabelRealTimeFeedRate, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
                     .addComponent(jLabelLastStatusUpdate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(274, Short.MAX_VALUE))
+                .addContainerGap(240, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1883,9 +1896,10 @@ public class frmControl extends javax.swing.JFrame
 
     private void jButtonGCodeSendActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGCodeSendActionPerformed
     {//GEN-HEADEREND:event_jButtonGCodeSendActionPerformed
-
         boolean startCycle = true;
-        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX() != 0 || ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY() != 0 || ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ() != 0)
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getX() != 0
+                || ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getY() != 0
+                || ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getWorkPosition().getZ() != 0)
         {
             startCycle = false;
             int answer = JOptionPane.showConfirmDialog(
@@ -1920,7 +1934,22 @@ public class frmControl extends javax.swing.JFrame
 
     private void jButtonGCodeCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGCodeCancelActionPerformed
     {//GEN-HEADEREND:event_jButtonGCodeCancelActionPerformed
-        ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode();
+
+        // Create a new thread to send the Cancel command
+        // in order NOT to pause the UI !
+        Thread th = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                jButtonGCodeCancel.setEnabled(false);
+                jLabelActiveState.setText("Canceling GCode Cycle...");
+                jLabelActiveState.setForeground(Color.red);
+                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode();
+            }
+        });
+        th.start();
+
     }//GEN-LAST:event_jButtonGCodeCancelActionPerformed
 
     private void jButtonReturnToZeroActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonReturnToZeroActionPerformed

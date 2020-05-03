@@ -17,19 +17,12 @@ Copyright (C) 2015  Nikos Siatras
 package sourcerabbit.gcode.sender.UI;
 
 import java.awt.Desktop;
-import java.io.StringReader;
 import java.net.URI;
 import javax.swing.JOptionPane;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import org.xml.sax.InputSource;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.Core.HTTPRequest.HTTPRequestData;
 import sourcerabbit.gcode.sender.UI.UITools.UITools;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
+
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
 
 /**

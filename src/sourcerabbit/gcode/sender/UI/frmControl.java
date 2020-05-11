@@ -207,6 +207,12 @@ public class frmControl extends javax.swing.JFrame
             @Override
             public void MachineStatusChanged(MachineStatusEvent evt)
             {
+
+            }
+
+            @Override
+            public void MachineStatusReceived(MachineStatusEvent evt)
+            {
                 final int activeState = evt.getMachineStatus();
                 boolean enableMachineControlButtons = false;
 
@@ -285,12 +291,11 @@ public class frmControl extends javax.swing.JFrame
                 // Show or Hide jButtonKillAlarm
                 jButtonKillAlarm.setVisible(activeState == GRBLActiveStates.ALARM || activeState == GRBLActiveStates.MACHINE_IS_LOCKED);
 
-                if (activeState == GRBLActiveStates.RESET_TO_CONTINUE || activeState == GRBLActiveStates.ALARM)
+                if (activeState == GRBLActiveStates.RESET_TO_CONTINUE || activeState == GRBLActiveStates.ALARM || activeState == GRBLActiveStates.HOME)
                 {
-                    // Machine is in Alarm State or Needs Reset
+                    // Machine is in Alarm State or Needs Reset or is Homing
                     // In this state disable all control components
                     SetMachineControlsEnabled(false);
-                    EnableOrDisableComponentsWhenMachineIsCyclingGCode(false);
                     // FIX for Machine Menu Items when machine needs reset
                     jMenuItemToolChangeSettings.setEnabled(false);
                     jMenuItemStartHomingSequence.setEnabled(false);
@@ -315,12 +320,7 @@ public class frmControl extends javax.swing.JFrame
                     EnableOrDisableComponentsWhenMachineIsCyclingGCode(fMachineIsCyclingGCode);
                     ////////////////////////////////////////////////////////////////////////////////////////////
                 }
-            }
 
-            @Override
-            public void MachineStatusReceived(MachineStatusEvent evt)
-            {
-                // DO NOTHING 
             }
 
         });
@@ -396,8 +396,8 @@ public class frmControl extends javax.swing.JFrame
             @Override
             public void GCodeCycleFinished(GCodeCycleEvent evt)
             {
-                WriteToConsole("Cycle Finished!");
                 fMachineIsCyclingGCode = false;
+                WriteToConsole("Cycle Finished!");
                 JOptionPane.showMessageDialog(fInstance, evt.getSource().toString(), "Finished", JOptionPane.INFORMATION_MESSAGE);
             }
 
@@ -645,7 +645,7 @@ public class frmControl extends javax.swing.JFrame
                         // This exception is here only to protect from UI update failure
                     }
 
-                    fMachineStatusThreadWait.WaitOne(300);
+                    fMachineStatusThreadWait.WaitOne(250);
                 }
             }
         });
@@ -2001,8 +2001,8 @@ public class frmControl extends javax.swing.JFrame
             WriteToConsole("Restarting...");
             jLabelActiveState.setForeground(Color.MAGENTA);
             jLabelActiveState.setText("Restarting...");
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().KillGCodeCycle();
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_SOFT_RESET);
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().KillGCodeCycle();
         }
         catch (Exception ex)
         {
@@ -2199,9 +2199,13 @@ public class frmControl extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButtonResetWorkPositionActionPerformed
         try
         {
-            final GCodeCommand command = new GCodeCommand(GRBLCommands.GCODE_RESET_COORDINATES_TO_ZERO);
-            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
-            WriteToConsole("Reset work zero");
+            int input = JOptionPane.showConfirmDialog(null, "Do you want to zero X,Y and Z axis ?", "Zero All Positions", JOptionPane.YES_NO_OPTION);
+            if (input == JOptionPane.YES_OPTION)
+            {
+                final GCodeCommand command = new GCodeCommand(GRBLCommands.GCODE_RESET_COORDINATES_TO_ZERO);
+                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
+                WriteToConsole("Reset work zero");
+            }
         }
         catch (Exception ex)
         {
@@ -2210,7 +2214,7 @@ public class frmControl extends javax.swing.JFrame
 
     private void jLabelWorkPositionXMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jLabelWorkPositionXMouseClicked
     {//GEN-HEADEREND:event_jLabelWorkPositionXMouseClicked
-        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE)
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE && !ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE)
         {
             if (evt.getClickCount() == 2 && !evt.isConsumed())
             {
@@ -2229,7 +2233,7 @@ public class frmControl extends javax.swing.JFrame
 
     private void jLabelWorkPositionYMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jLabelWorkPositionYMouseClicked
     {//GEN-HEADEREND:event_jLabelWorkPositionYMouseClicked
-        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE)
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE && !ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE)
         {
             if (evt.getClickCount() == 2 && !evt.isConsumed())
             {
@@ -2248,7 +2252,7 @@ public class frmControl extends javax.swing.JFrame
 
     private void jLabelWorkPositionZMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jLabelWorkPositionZMouseClicked
     {//GEN-HEADEREND:event_jLabelWorkPositionZMouseClicked
-        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE)
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE && !ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE)
         {
             if (evt.getClickCount() == 2 && !evt.isConsumed())
             {

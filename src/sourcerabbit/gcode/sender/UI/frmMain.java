@@ -55,6 +55,7 @@ public class frmMain extends javax.swing.JFrame
 
         setTitle("SourceRabbit GCode Sender (Version " + SettingsManager.getAppVersion() + ")");
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("Images/SourceRabbitIcon.png")));
+
     }
 
     private void InitUI()
@@ -87,6 +88,7 @@ public class frmMain extends javax.swing.JFrame
             jComboBoxFramework.addItem("GRBL 0.9 and later");
 
         }
+
     }
 
     /**

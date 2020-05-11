@@ -204,4 +204,15 @@ public class GCodeCommand
     {
         return fLineNumber;
     }
+
+    public void Dispose()
+    {
+        // Dispose the Command
+        fCommand = null;
+        fComment = null;
+        fError = null;
+        fGCodes = null;
+        fCoordinates = null;
+    }
+
 }

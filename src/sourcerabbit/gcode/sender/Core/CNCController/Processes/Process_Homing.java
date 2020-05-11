@@ -48,6 +48,7 @@ public class Process_Homing extends Process
 
             // Send the "$H" homing command to GRBL Controller and change the active state to GRBLActiveStates.HOME
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData("$H");
+            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachineStatusEventsManager().FireMachineStatusReceived(new MachineStatusEvent(GRBLActiveStates.HOME, ""));
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachineStatusEventsManager().FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.HOME, ""));
 
             // Use the StopUsingTouchProbe in order to RESUME 

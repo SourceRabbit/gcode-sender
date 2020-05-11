@@ -231,6 +231,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     // Machine propably needs to be unlocked
                     fMyGCodeSender.CancelSendingGCode();
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
+                    fMachineStatusEventsManager.FireMachineStatusReceived(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
                 }
@@ -247,6 +248,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 {
                     // MACHINE HAS TO RESET TO CONTINUE!!!!!!!!!!!!!!!!!!!
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.RESET_TO_CONTINUE, ""));
+                    fMachineStatusEventsManager.FireMachineStatusReceived(new MachineStatusEvent(GRBLActiveStates.RESET_TO_CONTINUE, ""));
                     fMyGCodeSender.CancelSendingGCode();
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
@@ -262,6 +264,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     // Endmill just touched the probe!
                     // Fire the Machine Status event with GRBLActiveStates.MACHINE_TOUCHED_PROBE
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE, receivedStr));
+                    fMachineStatusEventsManager.FireMachineStatusReceived(new MachineStatusEvent(GRBLActiveStates.MACHINE_TOUCHED_PROBE, receivedStr));
                     //////////////////////////////////////////////////////////////////////////////
                     //////////////////////////////////////////////////////////////////////////////
 
@@ -273,6 +276,9 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 }
                 else if (receivedStr.toLowerCase().startsWith("grbl"))
                 {
+                    ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE = false;
+                    ConnectionHelper.A_PROCESS_IS_USING_TOUCH_PROBE = false;
+
                     // Parse the GRBL "Welcome Message" and find out which GRBL version is running on the controller.                    
                     // From the GRBL version set the appropriate CNCControlFrameworkVersion
                     // and the appropriate StatusReportParser
@@ -358,6 +364,10 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 CommandWasNotSentToControlBoardWithSuccess(command);
                 throw ex;
             }
+
+            // Since the command has been sucessfully sent to the controller
+            // dispose it!
+            command.Dispose();
 
             return commandSentToControllerWithSuccess;
         }
@@ -457,7 +467,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
                                 {
                                     // Wait for Get Status Command Reply
                                     fWaitForGetStatusCommandReply.WaitOne();
-
                                 }
                                 else
                                 {
@@ -584,6 +593,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
         fMyGCodeSender.KillGCodeCycle();
         super.CloseConnection();
         fWaitForCommandToBeExecuted.Set();
-        
+
     }
 }

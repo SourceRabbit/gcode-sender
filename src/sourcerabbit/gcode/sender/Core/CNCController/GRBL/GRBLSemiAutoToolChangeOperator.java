@@ -165,7 +165,7 @@ public class GRBLSemiAutoToolChangeOperator
             RaiseEndmillToMachineZMax();
             Step_2_GoToToolSetterXAndY_MachinePosition_G53();
             // Inform user to turn off the spindle if it is the first Tool Change or to Change Tool
-            frmControl.fInstance.WriteToConsole(fIsTheFirstToolChangeInTheGCodeCycle ? "Turn off the Spindle and press the resume button." : "Change Tool " + command.getCommand() + " and press the 'Resume' button.");
+            frmControl.fInstance.WriteToConsole(fIsTheFirstToolChangeInTheGCodeCycle ? "Turn off the Spindle and press the resume button." : "Change Tool " + command.getCommand() +" (" + command.getComment()+")" + " and press the 'Resume' button.");
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
             WaitForUserToClickResume();
 

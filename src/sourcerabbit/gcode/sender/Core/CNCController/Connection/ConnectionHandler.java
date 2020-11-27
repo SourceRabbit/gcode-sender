@@ -145,7 +145,8 @@ public class ConnectionHandler implements SerialPortEventListener
                 {
                     fSerialPort.closePort();
                 }
-            } finally
+            }
+            finally
             {
                 fIncomingDataBuffer = null;
                 fSerialPort = null;
@@ -328,7 +329,7 @@ public class ConnectionHandler implements SerialPortEventListener
      */
     public void StopUsingTouchProbe()
     {
-       ConnectionHelper.A_PROCESS_IS_USING_TOUCH_PROBE = false;
+        ConnectionHelper.A_PROCESS_IS_USING_TOUCH_PROBE = false;
     }
 
     /**

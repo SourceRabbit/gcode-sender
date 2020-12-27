@@ -85,7 +85,11 @@ public class GCodeSender
         fGCodeCycleEventManager.FireGCodeCycleStartedEvent(new GCodeCycleEvent("Started"));
     }
 
-    public void CancelSendingGCode()
+    /**
+     * Cancel sending GCode (Cancel GCode Cycle)
+     * @param alarmHappened If an alarm happened then alarmHappened must be true 
+     */
+    public void CancelSendingGCode(boolean alarmHappened)
     {
 
     }

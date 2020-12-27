@@ -229,18 +229,31 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 {
                     // ALARM is ON!
                     // Machine propably needs to be unlocked
-                    fMyGCodeSender.CancelSendingGCode();
+                    fMyGCodeSender.CancelSendingGCode(true);
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
                     fMachineStatusEventsManager.FireMachineStatusReceived(new MachineStatusEvent(GRBLActiveStates.ALARM, ""));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
+
+                    // Get alarm ID
+                    try
+                    {
+                        String[] parts = receivedStr.split(":");
+                        int alarmID = Integer.parseInt(parts[1]);
+                        frmControl.fInstance.WriteToConsole("ALARM:" + GRBLAlarmCodes.getAlarmMessageByID(alarmID));
+                    }
+                    catch (Exception ex)
+                    {
+                        frmControl.fInstance.WriteToConsole("ALARM: Unidentified alarm!");
+                    }
+
                 }
                 else if (receivedStr.equals("[MSG:'$H'|'$X' to unlock]") || receivedStr.equals("['$H'|'$X' to unlock]"))
                 {
                     // If the machine is in an Alarm state and the user choose to do a "soft reset"
                     // then the GRBL controller lockes and needs to be unlocked.
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.MACHINE_IS_LOCKED, ""));
-                    fMyGCodeSender.CancelSendingGCode();
+                    fMyGCodeSender.CancelSendingGCode(false);
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
                 }
@@ -249,7 +262,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     // MACHINE HAS TO RESET TO CONTINUE!!!!!!!!!!!!!!!!!!!
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.RESET_TO_CONTINUE, ""));
                     fMachineStatusEventsManager.FireMachineStatusReceived(new MachineStatusEvent(GRBLActiveStates.RESET_TO_CONTINUE, ""));
-                    fMyGCodeSender.CancelSendingGCode();
+                    fMyGCodeSender.CancelSendingGCode(false);
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
 

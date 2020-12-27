@@ -350,7 +350,7 @@ public class frmControl extends javax.swing.JFrame
             {
                 WriteToConsole("Connection Closed!");
                 fMachineIsCyclingGCode = false;
-                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode();
+                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode(false);
 
                 jLabelConnectionStatus.setForeground(Color.red);
                 jLabelConnectionStatus.setText("Disconnected");
@@ -1945,7 +1945,7 @@ public class frmControl extends javax.swing.JFrame
                 jButtonGCodeCancel.setEnabled(false);
                 jLabelActiveState.setText("Canceling GCode Cycle...");
                 jLabelActiveState.setForeground(Color.red);
-                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode();
+                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode(false);
             }
         });
         th.start();

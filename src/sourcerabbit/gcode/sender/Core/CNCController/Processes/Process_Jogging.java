@@ -77,7 +77,7 @@ public class Process_Jogging extends Process
             case GRBL1_1:
                 try
                 {
-                    GCodeCommand command = new GCodeCommand("$J=G91 " + inchesOrMillimetersGCode + fAxis + fStepValue + "F9000");
+                    GCodeCommand command = new GCodeCommand("$J=G91 " + inchesOrMillimetersGCode + fAxis + fStepValue + "F30000");
                     ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
                 }
                 catch (Exception ex)

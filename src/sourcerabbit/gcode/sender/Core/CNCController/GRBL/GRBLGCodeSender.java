@@ -194,35 +194,54 @@ public class GRBLGCodeSender extends GCodeSender
      * the GCode cycle and the CNC machine stops.
      */
     @Override
-    public void CancelSendingGCode()
+    public void CancelSendingGCode(boolean alarmHappened)
     {
         if (fKeepGCodeCycle)
         {
             fKeepGCodeCycle = false;
             fIsCyclingGCode = false;
-            fWaitForCycleToCancel.WaitOne();
 
-            // Pause GCode Cycle
-            PauseSendingGCode();
-
-            // Wait until machine goes to Hold State
-            fWaitForStatusChangeToHold.WaitOne();
-
-            try
+            if (alarmHappened)
             {
-                Thread.sleep(1000);
+                // An alarm has happened
+                // Maybe the machine touched a hard limit or the gcode moves the machine out side
+                // of the soft limits
+                try
+                {
+                    fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_SOFT_RESET);
+                }
+                catch (Exception ex)
+                {
+
+                }
+
             }
-            catch (Exception ex)
+            else
             {
+                fWaitForCycleToCancel.WaitOne();
 
-            }
-            try
-            {
-                fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector("~ ?");
-            }
-            catch (Exception ex)
-            {
+                // Pause GCode Cycle
+                PauseSendingGCode();
 
+                // Wait until machine goes to Hold State
+                fWaitForStatusChangeToHold.WaitOne();
+
+                try
+                {
+                    Thread.sleep(1000);
+                }
+                catch (Exception ex)
+                {
+
+                }
+                try
+                {
+                    fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector("~ ?");
+                }
+                catch (Exception ex)
+                {
+
+                }
             }
 
             fGCodeCycleStartedTimestamp = -1;

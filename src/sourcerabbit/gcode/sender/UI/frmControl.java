@@ -261,7 +261,7 @@ public class frmControl extends javax.swing.JFrame
                         break;
 
                     case GRBLActiveStates.HOME:
-                        jLabelActiveState.setForeground(Color.blue);
+                        jLabelActiveState.setForeground(Color.WHITE);
                         jLabelActiveState.setText("Homing...");
                         enableMachineControlButtons = false;
                         break;
@@ -321,8 +321,8 @@ public class frmControl extends javax.swing.JFrame
                     // and foreground color
                     if (ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE)
                     {
-                        jLabelActiveState.setText("Changing tool...");
-                        jLabelActiveState.setForeground(Color.blue);
+                        jLabelActiveState.setText("Changing Tool...");
+                        jLabelActiveState.setForeground(Color.WHITE);
                     }
 
                     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -855,10 +855,11 @@ public class frmControl extends javax.swing.JFrame
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SourceRabbit GCODE Sender");
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Machine Status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Machine Status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12), new java.awt.Color(255, 255, 255))); // NOI18N
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jButtonResetWorkPosition.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButtonResetWorkPosition.setForeground(new java.awt.Color(255, 255, 255));
         jButtonResetWorkPosition.setText("Ø  Zero Work Position");
         jButtonResetWorkPosition.setToolTipText("Reset the Work Position to 0,0,0");
         jButtonResetWorkPosition.addActionListener(new java.awt.event.ActionListener()
@@ -1008,7 +1009,7 @@ public class frmControl extends javax.swing.JFrame
         jLabelRealTimeSpindleRPM.setText("0");
         jPanel2.add(jLabelRealTimeSpindleRPM, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 190, 80, 20));
 
-        jPanelConnection.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Connection", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
+        jPanelConnection.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Connection", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12), new java.awt.Color(255, 255, 255))); // NOI18N
         jPanelConnection.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jButtonConnectDisconnect.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
@@ -1052,8 +1053,9 @@ public class frmControl extends javax.swing.JFrame
         jLabelActiveState.setText("Restarting...");
         jPanelConnection.add(jLabelActiveState, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 20, 120, 20));
 
-        jPanelMachineControl.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Machine Control", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
+        jPanelMachineControl.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Machine Control", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12), new java.awt.Color(255, 255, 255))); // NOI18N
 
+        jRadioButtonInches.setForeground(new java.awt.Color(255, 255, 255));
         jRadioButtonInches.setText("inch");
         jRadioButtonInches.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1063,6 +1065,7 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jRadioButtonMillimeters.setForeground(new java.awt.Color(255, 255, 255));
         jRadioButtonMillimeters.setSelected(true);
         jRadioButtonMillimeters.setText("mm");
         jRadioButtonMillimeters.addActionListener(new java.awt.event.ActionListener()
@@ -1073,11 +1076,13 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Step Size:");
 
         jSpinnerStep.setModel(new javax.swing.SpinnerNumberModel(1.0d, 0.009999999776482582d, null, 0.009999999776482582d));
         jSpinnerStep.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
+        jButtonYMinus.setForeground(new java.awt.Color(255, 255, 255));
         jButtonYMinus.setText("Y-");
         jButtonYMinus.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1087,6 +1092,7 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jButtonXMinus.setForeground(new java.awt.Color(255, 255, 255));
         jButtonXMinus.setText("X-");
         jButtonXMinus.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1096,6 +1102,7 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jButtonYPlus.setForeground(new java.awt.Color(255, 255, 255));
         jButtonYPlus.setText("Y+");
         jButtonYPlus.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1105,6 +1112,7 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jButtonXPlus.setForeground(new java.awt.Color(255, 255, 255));
         jButtonXPlus.setText("X+");
         jButtonXPlus.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1114,6 +1122,7 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jButtonZPlus.setForeground(new java.awt.Color(255, 255, 255));
         jButtonZPlus.setText("Z+");
         jButtonZPlus.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1123,6 +1132,7 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jButtonZMinus.setForeground(new java.awt.Color(255, 255, 255));
         jButtonZMinus.setText("Z-");
         jButtonZMinus.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1155,6 +1165,7 @@ public class frmControl extends javax.swing.JFrame
         });
 
         jButtonReturnToZero.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButtonReturnToZero.setForeground(new java.awt.Color(255, 255, 255));
         jButtonReturnToZero.setText("Return to Ø");
         jButtonReturnToZero.setToolTipText("Return to initial Work Position (0,0,0)");
         jButtonReturnToZero.addActionListener(new java.awt.event.ActionListener()
@@ -1271,7 +1282,7 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "GCode File", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "G-Code File", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12), new java.awt.Color(255, 255, 255))); // NOI18N
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabelRowsInFile.setText("0");
@@ -1315,6 +1326,7 @@ public class frmControl extends javax.swing.JFrame
         jLabel5.setText("File:");
 
         jButtonGCodeBrowse.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButtonGCodeBrowse.setForeground(new java.awt.Color(255, 255, 255));
         jButtonGCodeBrowse.setText("Browse");
         jButtonGCodeBrowse.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1325,6 +1337,7 @@ public class frmControl extends javax.swing.JFrame
         });
 
         jButtonGCodePause.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButtonGCodePause.setForeground(new java.awt.Color(255, 255, 255));
         jButtonGCodePause.setText("Pause");
         jButtonGCodePause.setEnabled(false);
         jButtonGCodePause.addActionListener(new java.awt.event.ActionListener()
@@ -1336,6 +1349,7 @@ public class frmControl extends javax.swing.JFrame
         });
 
         jButtonGCodeSend.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButtonGCodeSend.setForeground(new java.awt.Color(255, 255, 255));
         jButtonGCodeSend.setText("Send");
         jButtonGCodeSend.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1346,6 +1360,7 @@ public class frmControl extends javax.swing.JFrame
         });
 
         jButtonGCodeCancel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButtonGCodeCancel.setForeground(new java.awt.Color(255, 255, 255));
         jButtonGCodeCancel.setText("Cancel");
         jButtonGCodeCancel.setEnabled(false);
         jButtonGCodeCancel.addActionListener(new java.awt.event.ActionListener()
@@ -1357,6 +1372,7 @@ public class frmControl extends javax.swing.JFrame
         });
 
         jButtonGCodeVisualize.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButtonGCodeVisualize.setForeground(new java.awt.Color(255, 255, 255));
         jButtonGCodeVisualize.setText("Visualize");
         jButtonGCodeVisualize.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1408,6 +1424,7 @@ public class frmControl extends javax.swing.JFrame
 
         jPanel1.add(jPanelGCodeFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 530, 70));
 
+        jTabbedPane1.setForeground(new java.awt.Color(255, 255, 255));
         jTabbedPane1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
 
         jLabel7.setText("Command:");
@@ -1424,6 +1441,7 @@ public class frmControl extends javax.swing.JFrame
         jTextAreaConsole.setEditable(false);
         jTextAreaConsole.setColumns(20);
         jTextAreaConsole.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jTextAreaConsole.setForeground(new java.awt.Color(255, 255, 255));
         jTextAreaConsole.setRows(5);
         jScrollPane2.setViewportView(jTextAreaConsole);
 

@@ -31,12 +31,3 @@ Goals:
 * Provide a fast, accurate and easy to use software
 * Support all GRBL CNC router and milling machines
 * Can be used on computers with small amount of RAM and CPU.
-
-
-![Connect to your CNC!](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ConnectForm.png "Connect to your CNC!")
-
-![GCode Sender Control Form](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/ControlForm.png "CNC Control Form")
-
-![Touch Probe](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/Probe.png "Touch Probe")
-
-![Hole Center Finder](https://github.com/nsiatras/sourcerabbit-gcode-sender/blob/master/Images/HoleCenterFinder.png "Hole Center Finder")

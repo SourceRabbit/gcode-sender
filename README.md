@@ -8,7 +8,7 @@ Downloads
 ------
 
 To download the latest release visit:<br>
-[https://www.sourcerabbit.com/Downloads/](https://www.sourcerabbit.com/)<br>
+[https://www.sourcerabbit.com/Shop/pr-i-80-t-grbl-gcode-sender.htm](https://www.sourcerabbit.com/)<br>
 
 If you don't have Java installed download the latest version and install it on your computer from [https://java.com/en/download/manual.jsp](https://java.com/en/download/manual.jsp).
 

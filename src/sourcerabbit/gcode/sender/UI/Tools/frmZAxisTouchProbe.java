@@ -111,12 +111,10 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
         jLabel10.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 75, 127));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel1.setText("Endmill Distance from Probe");
 
         jLabel15.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel15.setForeground(new java.awt.Color(0, 75, 127));
         jLabel15.setText("D:");
 
         jLabel16.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
@@ -126,7 +124,6 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
         jLabel19.setText("Set endmill 1mm to 20mm above the touch probe");
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(0, 75, 127));
         jLabel8.setText("H:");
 
         jSpinnerHeighOfProbe.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
@@ -134,14 +131,12 @@ public class frmZAxisTouchProbe extends javax.swing.JDialog
         jSpinnerHeighOfProbe.setValue(19.2);
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(0, 75, 127));
         jLabel7.setText("mm");
 
         jLabel20.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel20.setText("The total height of the touch probe");
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(0, 75, 127));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel2.setText("Height of Probe");
 

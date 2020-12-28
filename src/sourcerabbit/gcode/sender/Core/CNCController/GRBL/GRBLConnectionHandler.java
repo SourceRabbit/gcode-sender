@@ -360,6 +360,8 @@ public class GRBLConnectionHandler extends ConnectionHandler
             try
             {
                 commandSentToControllerWithSuccess = super.SendData(optimizedCommand);
+                
+                
 
                 if (commandSentToControllerWithSuccess)
                 {
@@ -399,10 +401,12 @@ public class GRBLConnectionHandler extends ConnectionHandler
             if (command.getLineNumber() > -1)
             {
                 frmControl.fInstance.WriteToConsole("Error: Unable to send command " + command.getCommand() + "(Line: " + command.getLineNumber() + ") to controller! Connection is closed!");
+                fWaitForCommandToBeExecuted.Set();
             }
             else
             {
                 frmControl.fInstance.WriteToConsole("Error: Unable to send command " + command.getCommand() + " to controller! Connection is closed!");
+                fWaitForCommandToBeExecuted.Set();
             }
         }
         catch (Exception ex)

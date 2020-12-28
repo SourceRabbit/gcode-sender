@@ -16,9 +16,14 @@
  */
 package sourcerabbit.gcode.sender.UI;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.Toolkit;
 import java.util.ArrayList;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JRootPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import jssc.SerialPortList;
@@ -46,6 +51,13 @@ public class frmMain extends javax.swing.JFrame
     {
         fInstance = this;
         initComponents();
+
+        // Fix decoration for FlatLaf
+        dispose();
+        setUndecorated(true);
+        getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
+        setVisible(true);
+        JFrame.setDefaultLookAndFeelDecorated(false);
 
         InitUI();
 
@@ -154,7 +166,7 @@ public class frmMain extends javax.swing.JFrame
 
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sourcerabbit/gcode/sender/UI/Images/SourceRabbit.png"))); // NOI18N
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connect to your 3-Axis CNC", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Tahoma", 1, 18), new java.awt.Color(65, 130, 195))); // NOI18N
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Connect to your 3-Axis CNC", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Tahoma", 1, 18))); // NOI18N
         jPanel2.addAncestorListener(new javax.swing.event.AncestorListener()
         {
             public void ancestorMoved(javax.swing.event.AncestorEvent evt)
@@ -169,13 +181,10 @@ public class frmMain extends javax.swing.JFrame
             }
         });
 
-        jLabel2.setForeground(new java.awt.Color(0, 75, 127));
         jLabel2.setText("Port:");
 
-        jLabel4.setForeground(new java.awt.Color(0, 75, 127));
         jLabel4.setText("Baud:");
 
-        jLabel3.setForeground(new java.awt.Color(0, 75, 127));
         jLabel3.setText("Framework:");
 
         jComboBoxFramework.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -256,7 +265,7 @@ public class frmMain extends javax.swing.JFrame
                 .addComponent(jLabel5)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
 
         getAccessibleContext().setAccessibleName("frmMain");
@@ -349,15 +358,27 @@ public class frmMain extends javax.swing.JFrame
 
     public static void main(String args[])
     {
+        FlatLightLaf.install();
+
         try
         {
+
+            UIManager.setLookAndFeel(new FlatDarkLaf());
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+        /* try
+        {
+            
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
         catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex)
         {
 
-        }
-
+        }*/
         java.awt.EventQueue.invokeLater(new Runnable()
         {
             @Override

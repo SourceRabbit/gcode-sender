@@ -115,7 +115,7 @@ public class GRBLGCodeSender extends GCodeSender
 
                 try
                 {
-                    // Send cycle start command and ask for the new machine status
+                    // Send cycle start command 
                     fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_START_CYCLE);
 
                     // Fire a new Machine Status change event to GRBLActiveStates.RUN
@@ -281,10 +281,13 @@ public class GRBLGCodeSender extends GCodeSender
         try
         {
             fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_PAUSE);
+            Thread.sleep(100);
+            fMyConnectionHandler.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_GET_STATUS);
         }
         catch (Exception ex)
         {
         }
+        
         fGCodeCycleEventManager.FireGCodeCyclePausedEvent(new GCodeCycleEvent("Paused"));
     }
 

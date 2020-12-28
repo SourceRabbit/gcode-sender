@@ -42,6 +42,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JRootPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -94,11 +95,21 @@ public class frmControl extends javax.swing.JFrame
     // Macros
     private final ArrayList<JTextField> fMacroTexts = new ArrayList<>();
     private final ArrayList<JButton> fMacroButtons = new ArrayList<>();
+    
+    // Connection
+    private boolean fSerialConnectionIsOn = false;
 
     public frmControl()
     {
         fInstance = this;
         initComponents();
+
+        // Fix decoration for FlatLaf
+        dispose();
+        setUndecorated(true);
+        getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
+        setVisible(true);
+        JFrame.setDefaultLookAndFeelDecorated(false);
 
         // Set form in middle of screen
         Position2D pos = UITools.getPositionForFormToOpenInMiddleOfScreen(this.getSize().width, this.getSize().height);
@@ -225,7 +236,7 @@ public class frmControl extends javax.swing.JFrame
                         break;
 
                     case GRBLActiveStates.RUN:
-                        jLabelActiveState.setForeground(Color.blue);
+                        jLabelActiveState.setForeground(Color.WHITE);
                         jLabelActiveState.setText("Run");
                         enableMachineControlButtons = false;
 
@@ -332,9 +343,8 @@ public class frmControl extends javax.swing.JFrame
             public void ConnectionEstablished(SerialConnectionEvent evt)
             {
                 WriteToConsole("Connection Established!");
+                fSerialConnectionIsOn = true;
                 fMachineIsCyclingGCode = false;
-                jLabelConnectionStatus.setForeground(new Color(0, 153, 51));
-                jLabelConnectionStatus.setText("Connected");
                 jButtonConnectDisconnect.setText("Disconnect");
                 jButtonConnectDisconnect.setEnabled(true);
                 jButtonSoftReset.setEnabled(true);
@@ -349,17 +359,16 @@ public class frmControl extends javax.swing.JFrame
             public void ConnectionClosed(SerialConnectionEvent evt)
             {
                 WriteToConsole("Connection Closed!");
+                fSerialConnectionIsOn = false;
                 fMachineIsCyclingGCode = false;
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode(false);
 
-                jLabelConnectionStatus.setForeground(Color.red);
-                jLabelConnectionStatus.setText("Disconnected");
                 jButtonConnectDisconnect.setText("Connect");
                 jButtonConnectDisconnect.setEnabled(true);
                 jButtonSoftReset.setEnabled(false);
 
                 jLabelActiveState.setForeground(Color.red);
-                jLabelActiveState.setText("----");
+                jLabelActiveState.setText("Disconnected");
 
                 // Disable Machine Control Components
                 SetMachineControlsEnabled(false);
@@ -604,7 +613,8 @@ public class frmControl extends javax.swing.JFrame
                         jLabelLastStatusUpdate.setText((System.currentTimeMillis() - ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getLastMachineStatusReceivedTimestamp()) + " ms ago");
 
                         // Update bytes per second
-                        String bytesText = "Connection (Bytes In/Out per sec.: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesInPerSec() + " / " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesOutPerSec() + ")";
+                       
+                        String bytesText = "Connection (Bytes In/Out: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesInPerSec() + " / " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesOutPerSec() + ")";
                         TitledBorder border = (TitledBorder) jPanelConnection.getBorder();
                         border.setTitle(bytesText);
                         jPanelConnection.repaint();
@@ -613,7 +623,7 @@ public class frmControl extends javax.swing.JFrame
                         if (SemiAutoToolChangeSettings.isSemiAutoToolChangeEnabled())
                         {
                             jLabelSemiAutoToolChangeStatus.setText("On");
-                            jLabelSemiAutoToolChangeStatus.setForeground(Color.blue);
+                            jLabelSemiAutoToolChangeStatus.setForeground(Color.WHITE);
                         }
                         else
                         {
@@ -747,14 +757,9 @@ public class frmControl extends javax.swing.JFrame
 
         jPanel2 = new javax.swing.JPanel();
         jButtonResetWorkPosition = new javax.swing.JButton();
-        jLabelMachineX1 = new javax.swing.JLabel();
-        jLabelActiveState = new javax.swing.JLabel();
-        jButtonKillAlarm = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
         jLabelWorkPositionZ = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
         jLabelWorkPositionX = new javax.swing.JLabel();
         jLabelWorkPositionY = new javax.swing.JLabel();
         jLabelMachinePositionZ = new javax.swing.JLabel();
@@ -763,19 +768,26 @@ public class frmControl extends javax.swing.JFrame
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jLabelRowsInFile7 = new javax.swing.JLabel();
+        jLabelSemiAutoToolChangeStatus = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jLabelRealTimeFeedRate = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        jLabelRealTimeSpindleRPM = new javax.swing.JLabel();
         jPanelConnection = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabelConnectionStatus = new javax.swing.JLabel();
         jButtonConnectDisconnect = new javax.swing.JButton();
         jButtonSoftReset = new javax.swing.JButton();
+        jLabelMachineX1 = new javax.swing.JLabel();
+        jButtonKillAlarm = new javax.swing.JButton();
+        jLabelActiveState = new javax.swing.JLabel();
         jPanelMachineControl = new javax.swing.JPanel();
         jRadioButtonInches = new javax.swing.JRadioButton();
         jRadioButtonMillimeters = new javax.swing.JRadioButton();
         jLabel4 = new javax.swing.JLabel();
         jSpinnerStep = new javax.swing.JSpinner();
-        jButtonReturnToZero = new javax.swing.JButton();
-        jCheckBoxEnableKeyboardJogging = new javax.swing.JCheckBox();
-        jLabelRemoveFocus = new javax.swing.JLabel();
         jPanelJogButtons = new javax.swing.JPanel();
         jButtonYMinus = new javax.swing.JButton();
         jButtonXMinus = new javax.swing.JButton();
@@ -783,6 +795,9 @@ public class frmControl extends javax.swing.JFrame
         jButtonXPlus = new javax.swing.JButton();
         jButtonZPlus = new javax.swing.JButton();
         jButtonZMinus = new javax.swing.JButton();
+        jCheckBoxEnableKeyboardJogging = new javax.swing.JCheckBox();
+        jLabelRemoveFocus = new javax.swing.JLabel();
+        jButtonReturnToZero = new javax.swing.JButton();
         jSliderStepSize = new javax.swing.JSlider();
         jPanel1 = new javax.swing.JPanel();
         jLabelRowsInFile = new javax.swing.JLabel();
@@ -795,16 +810,13 @@ public class frmControl extends javax.swing.JFrame
         jLabelTimeElapsed = new javax.swing.JLabel();
         jLabelRowsInFile5 = new javax.swing.JLabel();
         jProgressBarGCodeProgress = new javax.swing.JProgressBar();
-        jLabelRowsInFile7 = new javax.swing.JLabel();
-        jLabelSemiAutoToolChangeStatus = new javax.swing.JLabel();
         jPanelGCodeFile = new javax.swing.JPanel();
         jTextFieldGCodeFile = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jPanel6 = new javax.swing.JPanel();
+        jButtonGCodeBrowse = new javax.swing.JButton();
         jButtonGCodePause = new javax.swing.JButton();
         jButtonGCodeSend = new javax.swing.JButton();
         jButtonGCodeCancel = new javax.swing.JButton();
-        jButtonGCodeBrowse = new javax.swing.JButton();
         jButtonGCodeVisualize = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel5 = new javax.swing.JPanel();
@@ -812,7 +824,6 @@ public class frmControl extends javax.swing.JFrame
         jTextFieldCommand = new javax.swing.JTextField();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextAreaConsole = new javax.swing.JTextArea();
-        jLabel8 = new javax.swing.JLabel();
         jButtonClearConsole = new javax.swing.JButton();
         jCheckBoxShowVerboseOutput = new javax.swing.JCheckBox();
         jPanel4 = new javax.swing.JPanel();
@@ -824,10 +835,6 @@ public class frmControl extends javax.swing.JFrame
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
-        jLabel14 = new javax.swing.JLabel();
-        jLabelRealTimeFeedRate = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
-        jLabelRealTimeSpindleRPM = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         jLabelLastStatusUpdate = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -848,10 +855,11 @@ public class frmControl extends javax.swing.JFrame
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SourceRabbit GCODE Sender");
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Machine Status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Machine Status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jButtonResetWorkPosition.setText("∅  Zero Work Position");
+        jButtonResetWorkPosition.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButtonResetWorkPosition.setText("Ø  Zero Work Position");
         jButtonResetWorkPosition.setToolTipText("Reset the Work Position to 0,0,0");
         jButtonResetWorkPosition.addActionListener(new java.awt.event.ActionListener()
         {
@@ -860,24 +868,7 @@ public class frmControl extends javax.swing.JFrame
                 jButtonResetWorkPositionActionPerformed(evt);
             }
         });
-        jPanel2.add(jButtonResetWorkPosition, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, 240, 32));
-
-        jLabelMachineX1.setText("Active State:");
-        jPanel2.add(jLabelMachineX1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 69, 20));
-
-        jLabelActiveState.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabelActiveState.setText("Restarting...");
-        jPanel2.add(jLabelActiveState, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, 147, 20));
-
-        jButtonKillAlarm.setText("Kill Alarm");
-        jButtonKillAlarm.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jButtonKillAlarmActionPerformed(evt);
-            }
-        });
-        jPanel2.add(jButtonKillAlarm, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 20, -1, -1));
+        jPanel2.add(jButtonResetWorkPosition, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, 240, 32));
 
         jPanel3.setLayout(new java.awt.GridLayout(1, 0));
 
@@ -887,14 +878,10 @@ public class frmControl extends javax.swing.JFrame
 
         jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 270, -1));
 
-        jLabel11.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel11.setText("Machine Position");
-        jPanel2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, -1, 20));
-
-        jLabelWorkPositionZ.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabelWorkPositionZ.setForeground(new java.awt.Color(0, 75, 127));
+        jLabelWorkPositionZ.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabelWorkPositionZ.setForeground(new java.awt.Color(255, 255, 255));
         jLabelWorkPositionZ.setText("Z0");
-        jLabelWorkPositionZ.setToolTipText("Double click to zero");
+        jLabelWorkPositionZ.setToolTipText("Z Work Position");
         jLabelWorkPositionZ.addMouseListener(new java.awt.event.MouseAdapter()
         {
             public void mouseClicked(java.awt.event.MouseEvent evt)
@@ -902,17 +889,12 @@ public class frmControl extends javax.swing.JFrame
                 jLabelWorkPositionZMouseClicked(evt);
             }
         });
-        jPanel2.add(jLabelWorkPositionZ, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, -1, 20));
+        jPanel2.add(jLabelWorkPositionZ, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 90, 100, 20));
 
-        jLabel13.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel13.setForeground(new java.awt.Color(0, 75, 127));
-        jLabel13.setText("Work Position");
-        jPanel2.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, -1, -1));
-
-        jLabelWorkPositionX.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabelWorkPositionX.setForeground(new java.awt.Color(0, 75, 127));
+        jLabelWorkPositionX.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabelWorkPositionX.setForeground(new java.awt.Color(255, 255, 255));
         jLabelWorkPositionX.setText("X0");
-        jLabelWorkPositionX.setToolTipText("Double click to zero");
+        jLabelWorkPositionX.setToolTipText("X Work Position");
         jLabelWorkPositionX.addMouseListener(new java.awt.event.MouseAdapter()
         {
             public void mouseClicked(java.awt.event.MouseEvent evt)
@@ -920,12 +902,12 @@ public class frmControl extends javax.swing.JFrame
                 jLabelWorkPositionXMouseClicked(evt);
             }
         });
-        jPanel2.add(jLabelWorkPositionX, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 70, -1, 20));
+        jPanel2.add(jLabelWorkPositionX, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 30, 100, 20));
 
-        jLabelWorkPositionY.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabelWorkPositionY.setForeground(new java.awt.Color(0, 75, 127));
+        jLabelWorkPositionY.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabelWorkPositionY.setForeground(new java.awt.Color(255, 255, 255));
         jLabelWorkPositionY.setText("Y0");
-        jLabelWorkPositionY.setToolTipText("Double click to zero");
+        jLabelWorkPositionY.setToolTipText("Y Work Position");
         jLabelWorkPositionY.addMouseListener(new java.awt.event.MouseAdapter()
         {
             public void mouseClicked(java.awt.event.MouseEvent evt)
@@ -933,40 +915,103 @@ public class frmControl extends javax.swing.JFrame
                 jLabelWorkPositionYMouseClicked(evt);
             }
         });
-        jPanel2.add(jLabelWorkPositionY, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 90, -1, 20));
+        jPanel2.add(jLabelWorkPositionY, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 60, 100, 20));
 
+        jLabelMachinePositionZ.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabelMachinePositionZ.setText("Z0");
-        jPanel2.add(jLabelMachinePositionZ, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 110, -1, 20));
+        jLabelMachinePositionZ.setToolTipText("Z Machine Position");
+        jPanel2.add(jLabelMachinePositionZ, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 90, 60, 20));
 
+        jLabelMachinePositionX.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabelMachinePositionX.setText("X0");
-        jPanel2.add(jLabelMachinePositionX, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 70, -1, 20));
+        jLabelMachinePositionX.setToolTipText("X Machine Position");
+        jPanel2.add(jLabelMachinePositionX, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 30, 60, 20));
 
+        jLabelMachinePositionY.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabelMachinePositionY.setText("Y0");
-        jPanel2.add(jLabelMachinePositionY, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 90, -1, 20));
+        jLabelMachinePositionY.setToolTipText("Y Machine Position");
+        jPanel2.add(jLabelMachinePositionY, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 60, 60, 20));
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Z:");
-        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 20, 20));
+        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 90, 20, 20));
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("X:");
-        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 20, 20));
+        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 30, 20, 20));
 
-        jLabel12.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel12.setText("Y:");
-        jPanel2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 20, 20));
+        jPanel2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 60, 20, 20));
 
-        jPanelConnection.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
+        jButton1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButton1.setText("Ø");
+        jButton1.setToolTipText("Click to Zero Z Work Position");
+        jButton1.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 30, 28));
 
-        jLabel1.setText("Status:");
+        jButton2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButton2.setText("Ø");
+        jButton2.setToolTipText("Click to Zero X Work Position");
+        jButton2.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 30, 28));
 
-        jLabelConnectionStatus.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabelConnectionStatus.setForeground(new java.awt.Color(0, 153, 51));
-        jLabelConnectionStatus.setText("Connected");
+        jButton3.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButton3.setText("Ø");
+        jButton3.setToolTipText("Click to Zero Y Work Position");
+        jButton3.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 30, 28));
 
+        jLabelRowsInFile7.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabelRowsInFile7.setText("Semi Auto Tool Change:");
+        jPanel2.add(jLabelRowsInFile7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 210, 150, 20));
+
+        jLabelSemiAutoToolChangeStatus.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabelSemiAutoToolChangeStatus.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabelSemiAutoToolChangeStatus.setText("Off");
+        jPanel2.add(jLabelSemiAutoToolChangeStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 210, 80, 20));
+
+        jLabel14.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel14.setText("Feedrate:");
+        jPanel2.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 150, 20));
+
+        jLabelRealTimeFeedRate.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabelRealTimeFeedRate.setText("0mm/min");
+        jPanel2.add(jLabelRealTimeFeedRate, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 170, 80, 20));
+
+        jLabel15.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel15.setText("Spindle RPM:");
+        jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, 150, 20));
+
+        jLabelRealTimeSpindleRPM.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabelRealTimeSpindleRPM.setText("0");
+        jPanel2.add(jLabelRealTimeSpindleRPM, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 190, 80, 20));
+
+        jPanelConnection.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Connection", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
+        jPanelConnection.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jButtonConnectDisconnect.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jButtonConnectDisconnect.setText("Disconnect");
         jButtonConnectDisconnect.addActionListener(new java.awt.event.ActionListener()
         {
@@ -975,7 +1020,9 @@ public class frmControl extends javax.swing.JFrame
                 jButtonConnectDisconnectActionPerformed(evt);
             }
         });
+        jPanelConnection.add(jButtonConnectDisconnect, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, -1, -1));
 
+        jButtonSoftReset.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jButtonSoftReset.setText("Soft Reset");
         jButtonSoftReset.addActionListener(new java.awt.event.ActionListener()
         {
@@ -984,41 +1031,30 @@ public class frmControl extends javax.swing.JFrame
                 jButtonSoftResetActionPerformed(evt);
             }
         });
+        jPanelConnection.add(jButtonSoftReset, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 50, -1, -1));
 
-        javax.swing.GroupLayout jPanelConnectionLayout = new javax.swing.GroupLayout(jPanelConnection);
-        jPanelConnection.setLayout(jPanelConnectionLayout);
-        jPanelConnectionLayout.setHorizontalGroup(
-            jPanelConnectionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelConnectionLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanelConnectionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanelConnectionLayout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabelConnectionStatus))
-                    .addGroup(jPanelConnectionLayout.createSequentialGroup()
-                        .addComponent(jButtonConnectDisconnect)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonSoftReset)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanelConnectionLayout.setVerticalGroup(
-            jPanelConnectionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelConnectionLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanelConnectionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabelConnectionStatus))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanelConnectionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButtonConnectDisconnect)
-                    .addComponent(jButtonSoftReset))
-                .addContainerGap())
-        );
+        jLabelMachineX1.setText("Status:");
+        jPanelConnection.add(jLabelMachineX1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 40, 20));
 
-        jPanelMachineControl.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Machine Control", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
+        jButtonKillAlarm.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButtonKillAlarm.setText("Kill Alarm");
+        jButtonKillAlarm.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonKillAlarmActionPerformed(evt);
+            }
+        });
+        jPanelConnection.add(jButtonKillAlarm, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 20, -1, -1));
 
-        jRadioButtonInches.setText("inches");
+        jLabelActiveState.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabelActiveState.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabelActiveState.setText("Restarting...");
+        jPanelConnection.add(jLabelActiveState, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 20, 120, 20));
+
+        jPanelMachineControl.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Machine Control", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
+
+        jRadioButtonInches.setText("inch");
         jRadioButtonInches.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1028,7 +1064,7 @@ public class frmControl extends javax.swing.JFrame
         });
 
         jRadioButtonMillimeters.setSelected(true);
-        jRadioButtonMillimeters.setText("millimeters");
+        jRadioButtonMillimeters.setText("mm");
         jRadioButtonMillimeters.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1041,38 +1077,6 @@ public class frmControl extends javax.swing.JFrame
 
         jSpinnerStep.setModel(new javax.swing.SpinnerNumberModel(1.0d, 0.009999999776482582d, null, 0.009999999776482582d));
         jSpinnerStep.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-
-        jButtonReturnToZero.setText("Return to 0");
-        jButtonReturnToZero.setToolTipText("Return to initial Work Position (0,0,0)");
-        jButtonReturnToZero.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jButtonReturnToZeroActionPerformed(evt);
-            }
-        });
-
-        jCheckBoxEnableKeyboardJogging.setSelected(true);
-        jCheckBoxEnableKeyboardJogging.setText("Enable Keyboard Jogging");
-        jCheckBoxEnableKeyboardJogging.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jCheckBoxEnableKeyboardJoggingActionPerformed(evt);
-            }
-        });
-
-        jLabelRemoveFocus.setFont(new java.awt.Font("Tahoma", 0, 9)); // NOI18N
-        jLabelRemoveFocus.setForeground(new java.awt.Color(0, 75, 127));
-        jLabelRemoveFocus.setText("[Click To Focus]");
-        jLabelRemoveFocus.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jLabelRemoveFocus.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
-                jLabelRemoveFocusMouseClicked(evt);
-            }
-        });
 
         jButtonYMinus.setText("Y-");
         jButtonYMinus.addActionListener(new java.awt.event.ActionListener()
@@ -1128,6 +1132,39 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jCheckBoxEnableKeyboardJogging.setSelected(true);
+        jCheckBoxEnableKeyboardJogging.setText("Enable Keyboard Jogging");
+        jCheckBoxEnableKeyboardJogging.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jCheckBoxEnableKeyboardJoggingActionPerformed(evt);
+            }
+        });
+
+        jLabelRemoveFocus.setFont(new java.awt.Font("Tahoma", 0, 9)); // NOI18N
+        jLabelRemoveFocus.setForeground(new java.awt.Color(255, 255, 255));
+        jLabelRemoveFocus.setText("[Click To Focus]");
+        jLabelRemoveFocus.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabelRemoveFocus.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                jLabelRemoveFocusMouseClicked(evt);
+            }
+        });
+
+        jButtonReturnToZero.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButtonReturnToZero.setText("Return to Ø");
+        jButtonReturnToZero.setToolTipText("Return to initial Work Position (0,0,0)");
+        jButtonReturnToZero.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonReturnToZeroActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanelJogButtonsLayout = new javax.swing.GroupLayout(jPanelJogButtons);
         jPanelJogButtons.setLayout(jPanelJogButtonsLayout);
         jPanelJogButtonsLayout.setHorizontalGroup(
@@ -1145,6 +1182,15 @@ public class frmControl extends javax.swing.JFrame
                     .addComponent(jButtonZPlus, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonZMinus, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(jPanelJogButtonsLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jCheckBoxEnableKeyboardJogging)
+                .addGap(18, 18, 18)
+                .addComponent(jLabelRemoveFocus))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelJogButtonsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanelJogButtonsLayout.setVerticalGroup(
             jPanelJogButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1167,7 +1213,12 @@ public class frmControl extends javax.swing.JFrame
                         .addComponent(jButtonZPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonZMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addGroup(jPanelJogButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jCheckBoxEnableKeyboardJogging)
+                    .addComponent(jLabelRemoveFocus))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jSliderStepSize.setMaximum(5);
@@ -1194,81 +1245,64 @@ public class frmControl extends javax.swing.JFrame
                     .addComponent(jSliderStepSize, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanelJogButtons, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                        .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jSpinnerStep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButtonInches)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButtonMillimeters))
-                            .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                                .addComponent(jCheckBoxEnableKeyboardJogging)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabelRemoveFocus))
-                            .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 3, Short.MAX_VALUE)))
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jSpinnerStep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jRadioButtonInches)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jRadioButtonMillimeters)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanelMachineControlLayout.setVerticalGroup(
             jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelMachineControlLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(jSpinnerStep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jRadioButtonInches)
                     .addComponent(jRadioButtonMillimeters))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSliderStepSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanelJogButtons, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanelMachineControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jCheckBoxEnableKeyboardJogging)
-                    .addComponent(jLabelRemoveFocus))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButtonReturnToZero, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(23, 23, 23))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "GCode File", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 75, 127))); // NOI18N
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "GCode File", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabelRowsInFile.setText("0");
-        jPanel1.add(jLabelRowsInFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 100, 54, -1));
+        jPanel1.add(jLabelRowsInFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 90, 54, -1));
 
         jLabelRowsInFile1.setText("Sent Rows:");
-        jPanel1.add(jLabelRowsInFile1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 99, -1));
+        jPanel1.add(jLabelRowsInFile1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 80, -1));
 
         jLabelRowsInFile2.setText("Remaining Rows:");
-        jPanel1.add(jLabelRowsInFile2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, 99, -1));
+        jPanel1.add(jLabelRowsInFile2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, 100, -1));
 
         jLabelRowsInFile3.setText("Rows in file:");
-        jPanel1.add(jLabelRowsInFile3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 99, -1));
+        jPanel1.add(jLabelRowsInFile3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 80, -1));
 
         jLabelSentRows.setText("0");
-        jPanel1.add(jLabelSentRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 120, 54, -1));
+        jPanel1.add(jLabelSentRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 110, 54, -1));
 
         jLabelRemainingRows.setText("0");
-        jPanel1.add(jLabelRemainingRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 140, 54, -1));
+        jPanel1.add(jLabelRemainingRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 130, 54, -1));
 
         jLabelRowsInFile4.setText("Time elapsed:");
-        jPanel1.add(jLabelRowsInFile4, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 100, -1, -1));
+        jPanel1.add(jLabelRowsInFile4, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 90, -1, -1));
 
         jLabelTimeElapsed.setText("00:00:00");
-        jPanel1.add(jLabelTimeElapsed, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 100, 146, -1));
+        jPanel1.add(jLabelTimeElapsed, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 90, 146, -1));
 
         jLabelRowsInFile5.setText("Progress:");
-        jPanel1.add(jLabelRowsInFile5, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 120, 66, -1));
-        jPanel1.add(jProgressBarGCodeProgress, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 120, -1, -1));
+        jPanel1.add(jLabelRowsInFile5, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 110, 66, -1));
 
-        jLabelRowsInFile7.setText("Semi Auto Tool Change:");
-        jPanel1.add(jLabelRowsInFile7, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 140, -1, -1));
-
-        jLabelSemiAutoToolChangeStatus.setText("Off");
-        jPanel1.add(jLabelSemiAutoToolChangeStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 140, 76, -1));
+        jProgressBarGCodeProgress.setPreferredSize(new java.awt.Dimension(146, 16));
+        jPanel1.add(jProgressBarGCodeProgress, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 110, 230, -1));
 
         jTextFieldGCodeFile.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1280,6 +1314,17 @@ public class frmControl extends javax.swing.JFrame
 
         jLabel5.setText("File:");
 
+        jButtonGCodeBrowse.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButtonGCodeBrowse.setText("Browse");
+        jButtonGCodeBrowse.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonGCodeBrowseActionPerformed(evt);
+            }
+        });
+
+        jButtonGCodePause.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jButtonGCodePause.setText("Pause");
         jButtonGCodePause.setEnabled(false);
         jButtonGCodePause.addActionListener(new java.awt.event.ActionListener()
@@ -1290,6 +1335,7 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jButtonGCodeSend.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jButtonGCodeSend.setText("Send");
         jButtonGCodeSend.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1299,6 +1345,7 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jButtonGCodeCancel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jButtonGCodeCancel.setText("Cancel");
         jButtonGCodeCancel.setEnabled(false);
         jButtonGCodeCancel.addActionListener(new java.awt.event.ActionListener()
@@ -1309,15 +1356,7 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
-        jButtonGCodeBrowse.setText("Browse");
-        jButtonGCodeBrowse.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jButtonGCodeBrowseActionPerformed(evt);
-            }
-        });
-
+        jButtonGCodeVisualize.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jButtonGCodeVisualize.setText("Visualize");
         jButtonGCodeVisualize.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1327,56 +1366,48 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addComponent(jButtonGCodeSend, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonGCodePause, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonGCodeCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
-                .addComponent(jButtonGCodeVisualize)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonGCodeBrowse))
-        );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(jButtonGCodePause)
-                .addComponent(jButtonGCodeSend)
-                .addComponent(jButtonGCodeCancel)
-                .addComponent(jButtonGCodeBrowse)
-                .addComponent(jButtonGCodeVisualize))
-        );
-
         javax.swing.GroupLayout jPanelGCodeFileLayout = new javax.swing.GroupLayout(jPanelGCodeFile);
         jPanelGCodeFile.setLayout(jPanelGCodeFileLayout);
         jPanelGCodeFileLayout.setHorizontalGroup(
             jPanelGCodeFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelGCodeFileLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanelGCodeFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextFieldGCodeFile, javax.swing.GroupLayout.PREFERRED_SIZE, 432, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 8, Short.MAX_VALUE))
+                    .addGroup(jPanelGCodeFileLayout.createSequentialGroup()
+                        .addComponent(jButtonGCodeSend, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonGCodePause, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonGCodeCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 93, Short.MAX_VALUE)
+                        .addComponent(jButtonGCodeVisualize)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonGCodeBrowse, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanelGCodeFileLayout.createSequentialGroup()
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldGCodeFile)))
+                .addContainerGap())
         );
         jPanelGCodeFileLayout.setVerticalGroup(
             jPanelGCodeFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelGCodeFileLayout.createSequentialGroup()
-                .addComponent(jLabel5)
-                .addGap(6, 6, 6)
-                .addComponent(jTextFieldGCodeFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(6, 6, 6)
-                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 1, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(jPanelGCodeFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(jTextFieldGCodeFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelGCodeFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonGCodePause)
+                    .addComponent(jButtonGCodeSend)
+                    .addComponent(jButtonGCodeCancel)
+                    .addComponent(jButtonGCodeVisualize)
+                    .addComponent(jButtonGCodeBrowse))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel1.add(jPanelGCodeFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 440, 70));
+        jPanel1.add(jPanelGCodeFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 530, 70));
 
-        jTabbedPane1.setForeground(new java.awt.Color(0, 75, 127));
         jTabbedPane1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
 
         jLabel7.setText("Command:");
@@ -1390,12 +1421,11 @@ public class frmControl extends javax.swing.JFrame
             }
         });
 
+        jTextAreaConsole.setEditable(false);
         jTextAreaConsole.setColumns(20);
-        jTextAreaConsole.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+        jTextAreaConsole.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jTextAreaConsole.setRows(5);
         jScrollPane2.setViewportView(jTextAreaConsole);
-
-        jLabel8.setText("Output:");
 
         jButtonClearConsole.setText("Clear Console");
         jButtonClearConsole.setToolTipText("Clear the GCode Log");
@@ -1423,16 +1453,15 @@ public class frmControl extends javax.swing.JFrame
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextFieldCommand)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel8)
-                            .addGroup(jPanel5Layout.createSequentialGroup()
-                                .addComponent(jButtonClearConsole)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jCheckBoxShowVerboseOutput)))
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldCommand))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addComponent(jButtonClearConsole)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jCheckBoxShowVerboseOutput)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -1440,13 +1469,11 @@ public class frmControl extends javax.swing.JFrame
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel7)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(jTextFieldCommand, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextFieldCommand, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel8)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 356, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonClearConsole)
@@ -1463,7 +1490,7 @@ public class frmControl extends javax.swing.JFrame
             },
             new String []
             {
-                "Line", "Command", "TX", "RX", "Error"
+                "Row", "Command", "TX", "RX", "Error"
             }
         )
         {
@@ -1526,7 +1553,7 @@ public class frmControl extends javax.swing.JFrame
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jButtonClearLog)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1537,7 +1564,7 @@ public class frmControl extends javax.swing.JFrame
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButtonClearLog)
@@ -1560,7 +1587,7 @@ public class frmControl extends javax.swing.JFrame
                 .addGroup(jPanelMacrosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel9)
                     .addComponent(jLabel10))
-                .addContainerGap(150, Short.MAX_VALUE))
+                .addContainerGap(214, Short.MAX_VALUE))
         );
         jPanelMacrosLayout.setVerticalGroup(
             jPanelMacrosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1569,21 +1596,15 @@ public class frmControl extends javax.swing.JFrame
                 .addComponent(jLabel9)
                 .addGap(3, 3, 3)
                 .addComponent(jLabel10)
-                .addContainerGap(335, Short.MAX_VALUE))
+                .addContainerGap(395, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Macros", jPanelMacros);
 
-        jLabel14.setText("Current Feedrate:");
-
-        jLabelRealTimeFeedRate.setText("0mm/min");
-
-        jLabel15.setText("Current Spindle RPM:");
-
-        jLabelRealTimeSpindleRPM.setText("0");
-
+        jLabel16.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel16.setText("Last Status Update:");
 
+        jLabelLastStatusUpdate.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabelLastStatusUpdate.setText("0");
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
@@ -1592,16 +1613,10 @@ public class frmControl extends javax.swing.JFrame
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel15)
-                    .addComponent(jLabel14)
-                    .addComponent(jLabel16))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabelRealTimeSpindleRPM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabelRealTimeFeedRate, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
-                    .addComponent(jLabelLastStatusUpdate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(240, Short.MAX_VALUE))
+                .addComponent(jLabel16)
+                .addGap(24, 24, 24)
+                .addComponent(jLabelLastStatusUpdate)
+                .addContainerGap(399, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1610,15 +1625,7 @@ public class frmControl extends javax.swing.JFrame
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel16)
                     .addComponent(jLabelLastStatusUpdate))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel14)
-                    .addComponent(jLabelRealTimeFeedRate))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel15)
-                    .addComponent(jLabelRealTimeSpindleRPM))
-                .addContainerGap(303, Short.MAX_VALUE))
+                .addContainerGap(407, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Machine Information", jPanel7);
@@ -1740,11 +1747,11 @@ public class frmControl extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(jPanelMachineControl, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanelConnection, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanelConnection, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanelMachineControl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jTabbedPane1))
@@ -1756,16 +1763,16 @@ public class frmControl extends javax.swing.JFrame
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanelConnection, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(6, 6, 6)
-                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jPanelConnection, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTabbedPane1)))
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanelMachineControl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -2214,40 +2221,12 @@ public class frmControl extends javax.swing.JFrame
 
     private void jLabelWorkPositionXMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jLabelWorkPositionXMouseClicked
     {//GEN-HEADEREND:event_jLabelWorkPositionXMouseClicked
-        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE && !ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE)
-        {
-            if (evt.getClickCount() == 2 && !evt.isConsumed())
-            {
-                evt.consume();
 
-                int input = JOptionPane.showConfirmDialog(null, "Do you want to zero X axis?", "Zero X Axis", JOptionPane.YES_NO_OPTION);
-                if (input == JOptionPane.YES_OPTION)
-                {
-                    String commandStr = "G92 X0";
-                    GCodeCommand command = new GCodeCommand(commandStr);
-                    ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
-                }
-            }
-        }
     }//GEN-LAST:event_jLabelWorkPositionXMouseClicked
 
     private void jLabelWorkPositionYMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jLabelWorkPositionYMouseClicked
     {//GEN-HEADEREND:event_jLabelWorkPositionYMouseClicked
-        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE && !ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE)
-        {
-            if (evt.getClickCount() == 2 && !evt.isConsumed())
-            {
-                evt.consume();
 
-                int input = JOptionPane.showConfirmDialog(null, "Do you want to zero Y axis?", "Zero Y Axis", JOptionPane.YES_NO_OPTION);
-                if (input == JOptionPane.YES_OPTION)
-                {
-                    String commandStr = "G92 Y0";
-                    GCodeCommand command = new GCodeCommand(commandStr);
-                    ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
-                }
-            }
-        }
     }//GEN-LAST:event_jLabelWorkPositionYMouseClicked
 
     private void jLabelWorkPositionZMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jLabelWorkPositionZMouseClicked
@@ -2313,7 +2292,54 @@ public class frmControl extends javax.swing.JFrame
         }
     }//GEN-LAST:event_jMenuItemStartHomingSequenceActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton2ActionPerformed
+    {//GEN-HEADEREND:event_jButton2ActionPerformed
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE && !ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE)
+        {
+            int input = JOptionPane.showConfirmDialog(null, "Do you want to zero X axis?", "Zero X Axis", JOptionPane.YES_NO_OPTION);
+            if (input == JOptionPane.YES_OPTION)
+            {
+                String commandStr = "G92 X0";
+                GCodeCommand command = new GCodeCommand(commandStr);
+                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+            }
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton3ActionPerformed
+    {//GEN-HEADEREND:event_jButton3ActionPerformed
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE && !ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE)
+        {
+
+            int input = JOptionPane.showConfirmDialog(null, "Do you want to zero Y axis?", "Zero Y Axis", JOptionPane.YES_NO_OPTION);
+            if (input == JOptionPane.YES_OPTION)
+            {
+                String commandStr = "G92 Y0";
+                GCodeCommand command = new GCodeCommand(commandStr);
+                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+            }
+        }
+
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton1ActionPerformed
+    {//GEN-HEADEREND:event_jButton1ActionPerformed
+        if (ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getActiveState() == GRBLActiveStates.IDLE && !ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE)
+        {
+            int input = JOptionPane.showConfirmDialog(null, "Do you want to zero Z axis?", "Zero Z Axis", JOptionPane.YES_NO_OPTION);
+            if (input == JOptionPane.YES_OPTION)
+            {
+                String commandStr = "G92 Z0";
+                GCodeCommand command = new GCodeCommand(commandStr);
+                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+            }
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButtonClearConsole;
     private javax.swing.JButton jButtonClearLog;
     private javax.swing.JButton jButtonConnectDisconnect;
@@ -2335,11 +2361,8 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JCheckBox jCheckBoxEnableGCodeLog;
     private javax.swing.JCheckBox jCheckBoxEnableKeyboardJogging;
     private javax.swing.JCheckBox jCheckBoxShowVerboseOutput;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
@@ -2349,10 +2372,8 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabelActiveState;
-    private javax.swing.JLabel jLabelConnectionStatus;
     private javax.swing.JLabel jLabelLastStatusUpdate;
     private javax.swing.JLabel jLabelMachinePositionX;
     private javax.swing.JLabel jLabelMachinePositionY;
@@ -2394,7 +2415,6 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanelConnection;
     private javax.swing.JPanel jPanelGCodeFile;

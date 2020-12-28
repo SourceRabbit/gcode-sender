@@ -60,14 +60,12 @@ public class frmAbout extends javax.swing.JDialog
         jLabel1.setText("Version:");
 
         jLabelVersion.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabelVersion.setForeground(new java.awt.Color(0, 75, 127));
         jLabelVersion.setText("000");
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sourcerabbit/gcode/sender/UI/Images/About.jpg"))); // NOI18N
         jLabel2.setText("jLabel2");
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(0, 75, 127));
         jLabel3.setText("SourceRabbit GCode Sender");
 
         jEditorPane1.setText("Copyright (C) 2015 Nikos Siatras\n\nThis program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.   \n\nSourceRabbit GCode Sender is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  \nSee the GNU General Public License for more details.\n   \nYou should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.");

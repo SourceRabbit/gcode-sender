@@ -108,7 +108,7 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
             }
         });
 
-        jLabelWarning.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabelWarning.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabelWarning.setForeground(new java.awt.Color(204, 0, 0));
         jLabelWarning.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabelWarning.setText("<html>The machine's status must be <b>Idle</b> to use the \"Hole Center Finder\" operation.</html>");
@@ -120,18 +120,15 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         jSpinnerFeedRate.setModel(new javax.swing.SpinnerNumberModel(80.0d, 10.0d, 55000.0d, 10.0d));
 
         jLabel15.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel15.setForeground(new java.awt.Color(0, 75, 127));
         jLabel15.setText("mm/min");
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         jLabel14.setText("Lower feed rate = Better Accuracy");
 
         jLabel19.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel19.setForeground(new java.awt.Color(0, 75, 127));
         jLabel19.setText("Feedrate:");
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 75, 127));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel1.setText("Hole Center Finder");
 
@@ -145,7 +142,6 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         jLabel18.setText("3. Click the \"Find Center\" button");
 
         jLabel20.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel20.setForeground(new java.awt.Color(0, 75, 127));
         jLabel20.setText("Hole Diameter:");
 
         jSpinnerDiameter.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
@@ -153,7 +149,6 @@ public class frmHoleCenterFinder extends javax.swing.JDialog
         jSpinnerDiameter.setValue(100);
 
         jLabel21.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel21.setForeground(new java.awt.Color(0, 75, 127));
         jLabel21.setText("mm");
 
         jLabel22.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N

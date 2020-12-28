@@ -57,15 +57,27 @@ public class GRBLSettingsDescription
                 + "\"100\",\"X-axis travel resolution\",\"step/mm\",\"X-axis travel resolution in steps per millimeter.\"\n"
                 + "\"101\",\"Y-axis travel resolution\",\"step/mm\",\"Y-axis travel resolution in steps per millimeter.\"\n"
                 + "\"102\",\"Z-axis travel resolution\",\"step/mm\",\"Z-axis travel resolution in steps per millimeter.\"\n"
+                + "\"103\",\"A-axis travel resolution\",\"step/mm\",\"A-axis travel resolution in steps per millimeter.\"\n"
+                + "\"104\",\"B-axis travel resolution\",\"step/mm\",\"B-axis travel resolution in steps per millimeter.\"\n"
+                + "\"105\",\"C-axis travel resolution\",\"step/mm\",\"C-axis travel resolution in steps per millimeter.\"\n"
                 + "\"110\",\"X-axis maximum rate\",\"mm/min\",\"X-axis maximum rate. Used as G0 rapid rate.\"\n"
                 + "\"111\",\"Y-axis maximum rate\",\"mm/min\",\"Y-axis maximum rate. Used as G0 rapid rate.\"\n"
                 + "\"112\",\"Z-axis maximum rate\",\"mm/min\",\"Z-axis maximum rate. Used as G0 rapid rate.\"\n"
+                + "\"113\",\"A-axis maximum rate\",\"mm/min\",\"A-axis maximum rate. Used as G0 rapid rate.\"\n"
+                + "\"114\",\"B-axis maximum rate\",\"mm/min\",\"B-axis maximum rate. Used as G0 rapid rate.\"\n"
+                + "\"115\",\"C-axis maximum rate\",\"mm/min\",\"C-axis maximum rate. Used as G0 rapid rate.\"\n"
                 + "\"120\",\"X-axis acceleration\",\"mm/sec^2\",\"X-axis acceleration. Used for motion planning to not exceed motor torque and lose steps.\"\n"
                 + "\"121\",\"Y-axis acceleration\",\"mm/sec^2\",\"Y-axis acceleration. Used for motion planning to not exceed motor torque and lose steps.\"\n"
                 + "\"122\",\"Z-axis acceleration\",\"mm/sec^2\",\"Z-axis acceleration. Used for motion planning to not exceed motor torque and lose steps.\"\n"
+                + "\"123\",\"A-axis acceleration\",\"mm/sec^2\",\"A-axis acceleration. Used for motion planning to not exceed motor torque and lose steps.\"\n"
+                + "\"124\",\"B-axis acceleration\",\"mm/sec^2\",\"B-axis acceleration. Used for motion planning to not exceed motor torque and lose steps.\"\n"
+                + "\"125\",\"C-axis acceleration\",\"mm/sec^2\",\"C-axis acceleration. Used for motion planning to not exceed motor torque and lose steps.\"\n"
                 + "\"130\",\"X-axis maximum travel\",\"millimeters\",\"Maximum X-axis travel distance from homing switch. Determines valid machine space for soft-limits and homing search distances.\"\n"
                 + "\"131\",\"Y-axis maximum travel\",\"millimeters\",\"Maximum Y-axis travel distance from homing switch. Determines valid machine space for soft-limits and homing search distances.\"\n"
-                + "\"132\",\"Z-axis maximum travel\",\"millimeters\",\"Maximum Z-axis travel distance from homing switch. Determines valid machine space for soft-limits and homing search distances.\"";
+                + "\"132\",\"Z-axis maximum travel\",\"millimeters\",\"Maximum Z-axis travel distance from homing switch. Determines valid machine space for soft-limits and homing search distances.\"\n"
+                + "\"133\",\"A-axis maximum travel\",\"millimeters\",\"Maximum A-axis travel distance from homing switch. Determines valid machine space for soft-limits and homing search distances.\"\n"
+                + "\"134\",\"B-axis maximum travel\",\"millimeters\",\"Maximum B-axis travel distance from homing switch. Determines valid machine space for soft-limits and homing search distances.\"\n"
+                + "\"135\",\"C-axis maximum travel\",\"millimeters\",\"Maximum C-axis travel distance from homing switch. Determines valid machine space for soft-limits and homing search distances.\"\n";
 
         CSVReader reader = new CSVReader();
         reader.Parse(v1_1);

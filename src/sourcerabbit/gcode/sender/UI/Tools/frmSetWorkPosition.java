@@ -140,26 +140,22 @@ public class frmSetWorkPosition extends javax.swing.JDialog
         });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 75, 127));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel1.setText("Set Work Position");
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(0, 75, 127));
         jLabel2.setText("X:");
 
         jTextFieldX.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jTextFieldX.setText("0");
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(0, 75, 127));
         jLabel3.setText("Y:");
 
         jTextFieldY.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jTextFieldY.setText("0");
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(0, 75, 127));
         jLabel4.setText("Z:");
 
         jTextFieldZ.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N

@@ -11,13 +11,6 @@
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/D:/_Development/02%20Github/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/GRBL/GRBLConstants.java</file>
-            <file>file:/D:/_Development/02%20Github/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/UI/frmControl.java</file>
-            <file>file:/D:/_Development/02%20Github/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/GRBL/GRBLConnectionHandler.java</file>
-            <file>file:/D:/_Development/02%20Github/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/GRBL/GRBLGCodeSender.java</file>
-            <file>file:/D:/_Development/02%20Github/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/Settings/SettingsManager.java</file>
-            <file>file:/D:/_Development/02%20Github/sourcerabbit-gcode-sender/src/sourcerabbit/gcode/sender/Core/CNCController/Connection/ConnectionHandler.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

@@ -29,5 +29,5 @@ Technical details:
 
 Goals:
 * Provide a fast, accurate and easy to use software
-* Support all GRBL CNC router and milling machines
+* Support all 3-Axis GRBL CNC Routers and Milling Machines
 * Can be used on computers with small amount of RAM and CPU.

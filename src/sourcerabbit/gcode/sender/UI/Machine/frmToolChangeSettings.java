@@ -214,6 +214,12 @@ public class frmToolChangeSettings extends javax.swing.JDialog
 
         SemiAutoToolChangeSettings.setEnableSemiAutoToolChange(jCheckBoxEnableSemiAutoToolChange.isSelected());
 
+        /*
+        
+        LET THE FOLLOWING AS COMMENT
+        SINCE 16-03-2021 WE NO LONGER SET TOUCH PROBE TO NC
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         // Set the touch probe to  NC (Normally Closed)
         // when Semi Auto Tool change is Enabled
         String touchProbeNC_or_NO = "$6=0";
@@ -222,15 +228,16 @@ public class frmToolChangeSettings extends javax.swing.JDialog
             // Set the touch probe to  NC (Normally Closed)
             touchProbeNC_or_NO = "$6=1";
         }
-
         try
         {
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendData(touchProbeNC_or_NO);
         }
         catch (Exception ex)
         {
-
         }
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        */
 
         SemiAutoToolChangeSettings.setToolSetterX(toolSetterX);
         SemiAutoToolChangeSettings.setToolSetterY(toolSetterY);

@@ -220,6 +220,10 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     {
                         fZMaxTravel = (int) Double.parseDouble(receivedStr.replace("$132=", ""));
                     }
+                    else if (receivedStr.startsWith("$133"))
+                    {
+                        fAMaxTravel = (int) Double.parseDouble(receivedStr.replace("$133=", ""));
+                    }
 
                     fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
                     fLastCommandSentToController = null;
@@ -360,8 +364,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
             try
             {
                 commandSentToControllerWithSuccess = super.SendData(optimizedCommand);
-                
-                
 
                 if (commandSentToControllerWithSuccess)
                 {

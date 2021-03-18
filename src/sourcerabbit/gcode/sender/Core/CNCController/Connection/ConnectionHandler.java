@@ -89,6 +89,7 @@ public class ConnectionHandler implements SerialPortEventListener
     public static int fXMaxTravel = 00;
     public static int fYMaxTravel = 00;
     public static int fZMaxTravel = 00;
+    public static int fAMaxTravel = 00;
 
     protected long fLastMachineStatusReceivedTimestamp = 0;
 
@@ -321,12 +322,12 @@ public class ConnectionHandler implements SerialPortEventListener
         {
 
             fBytesOut += data.getBytes().length + 1;
-            
+
             synchronized (fCheckConnectionLock)
             {
                 fTimeStartedSendingBytes = System.nanoTime();
             }
-            
+
             // Write Bytes
             result = fSerialPort.writeString(data + fMessageSplitter);
 

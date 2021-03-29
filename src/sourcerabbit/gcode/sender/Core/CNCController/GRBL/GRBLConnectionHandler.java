@@ -33,6 +33,7 @@ public class GRBLConnectionHandler extends ConnectionHandler
 
     // Commands
     private final Object fSendDataLock = new Object();
+    private final Object fWaitForMachineStatusLock = new Object();
     private final ManualResetEvent fWaitForCommandToBeExecuted;
 
     // Ask for machine status
@@ -525,18 +526,24 @@ public class GRBLConnectionHandler extends ConnectionHandler
     {
         try
         {
-            //////////////////////////////////////////////////////////////////////////////////////////
-            // Wait MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_WHEN_CONTROLLER_IS_IDLE between asking for machine status
-            //////////////////////////////////////////////////////////////////////////////////////////
-            long timeNow = System.currentTimeMillis();
-            if ((timeNow - fLastTimeAskedForMachineStatus) < GRBLConstants.MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_WHEN_CONTROLLER_IS_IDLE)
+            synchronized (fWaitForMachineStatusLock)
             {
-                long waitFor = GRBLConstants.MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_WHEN_CONTROLLER_IS_IDLE - (timeNow - fLastTimeAskedForMachineStatus);
-                Thread.sleep(waitFor);
-            }
+                System.out.println("Asking for Machine Status");
+                //////////////////////////////////////////////////////////////////////////////////////////
+                // Wait MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_WHEN_CONTROLLER_IS_IDLE between asking for machine status
+                //////////////////////////////////////////////////////////////////////////////////////////
+                long timeNow = System.currentTimeMillis();
+                if ((timeNow - fLastTimeAskedForMachineStatus) < GRBLConstants.MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_WHEN_CONTROLLER_IS_IDLE)
+                {
+                    long waitFor = GRBLConstants.MILLISECONDS_TO_ASK_FOR_MACHINE_STATUS_WHEN_CONTROLLER_IS_IDLE - (timeNow - fLastTimeAskedForMachineStatus);
+                    Thread.sleep(waitFor);
+                }
 
-            fLastTimeAskedForMachineStatus = System.currentTimeMillis();
-            return SendGCodeCommand(new GCodeCommand(GRBLCommands.COMMAND_GET_STATUS));
+                fLastTimeAskedForMachineStatus = System.currentTimeMillis();
+
+                return SendGCodeCommand(new GCodeCommand(GRBLCommands.COMMAND_GET_STATUS));
+
+            }
         }
         catch (Exception ex)
         {

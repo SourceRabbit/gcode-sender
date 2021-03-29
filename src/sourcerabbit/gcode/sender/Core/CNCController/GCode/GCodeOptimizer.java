@@ -25,10 +25,6 @@ package sourcerabbit.gcode.sender.Core.CNCController.GCode;
 public class GCodeOptimizer
 {
 
-    //private final static DecimalFormatSymbols fDecimalSeparator = DecimalFormatSymbols.getInstance();
-    //private static DecimalFormat fDecimalFormatter;
-    //private static Pattern fDecimalPattern;
-
     static
     {
         Initialize();
@@ -36,48 +32,15 @@ public class GCodeOptimizer
 
     public static void Initialize()
     {
-        // GCode decimal separator is always the '.' character.
-        //fDecimalSeparator.setDecimalSeparator('.');
-
-        /*
-        // Initialize the fDecimalFormatter
-        String format = "#.";
-        for (int i = 0; i < GCodeSenderSettings.getTruncateDecimalDigits(); i++)
-        {
-            format += "#";
-        }
-        fDecimalFormatter = new DecimalFormat(format, fDecimalSeparator);
-
-        // Initialize the Regular Expression that "detects" the decimals
-        format = "\\d+\\.\\d";
-        for (int i = 0; i < GCodeSenderSettings.getTruncateDecimalDigits(); i++)
-        {
-            format += "\\d";
-        }
-
-        format += "+";
-        fDecimalPattern = Pattern.compile(format);*/
+       
     }
 
     public static String OptimizeGCodeCommand(GCodeCommand command)
     {
-        return command.getCommand().replace(" ", "").replace(command.getComment(), "").trim();
+        return command.getCommand().replace(command.getComment(), "").trim();
+        //return command.getCommand().replace(" ", "").replace(command.getComment(), "").trim();
         //return TruncateDecimals(command.getCommand().replace(" ", "").replace(command.getComment(), "").trim());
     }
 
-    /*private static String TruncateDecimals(final String command)
-    {
-        Matcher matcher = fDecimalPattern.matcher(command);
-        Double d;
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find())
-        {
-            d = Double.parseDouble(matcher.group());
-            matcher.appendReplacement(sb, fDecimalFormatter.format(d));
-        }
-        matcher.appendTail(sb);
-
-
-        return sb.toString();
-    }*/
+    
 }

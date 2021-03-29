@@ -117,6 +117,20 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 int newActiveState = fMyStatusReportParser.ParseStatusReportMessageAndReturnActiveState(receivedStr);
 
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
+                // Check if the machine status changed from homing to Idle
+                //////////////////////////////////////////////////////////////////////////////////////////////////////
+                if (fActiveState == GRBLActiveStates.HOME && newActiveState == GRBLActiveStates.IDLE)
+                {
+                    // If the status changed from homing to idle
+                    // get the home position
+                    fXHomePosition = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX();
+                    fYHomePosition = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY();
+                    fZHomePosition = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ();
+
+                    frmControl.fInstance.WriteToConsole("Home Coordinates: X:" + String.valueOf(fXHomePosition) + ", Y:" + String.valueOf(fYHomePosition) + ", Z:" + String.valueOf(fZHomePosition));
+                }
+
+                //////////////////////////////////////////////////////////////////////////////////////////////////////
                 // Check if the machine status changed
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
                 if (newActiveState != fActiveState)

@@ -1,16 +1,3 @@
-/*
- Copyright (C) 2015  Nikos Siatras
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
- SourceRabbit GCode Sender is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package sourcerabbit.gcode.sender.Core.CNCController.GRBL;
 
 import java.math.BigDecimal;
@@ -34,6 +21,9 @@ public class GRBLSemiAutoToolChangeOperator
 
     private boolean fAlarmHappened = false;
     private final GRBLGCodeSender fMyGCodeSender;
+
+    private int fFastFeedrateToTouchToolSetter = 650;
+    private int fSlowFeedrateToTouchToolSetter = 60;
 
     // Tool Setter Variables
     private boolean fIsTheFirstToolChangeInTheGCodeCycle = true;
@@ -240,7 +230,7 @@ public class GRBLSemiAutoToolChangeOperator
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
             WaitForUserToClickResume();
 
-            // SET AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE tp FALSE
+            // SET AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE to FALSE
             ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE = false;
 
             Step_4_GoBackToMachineX_Y_BeforeToolChange_G53(machinePositionXBeforeToolChange, machinePositionYBeforeToolChange);
@@ -264,7 +254,7 @@ public class GRBLSemiAutoToolChangeOperator
             return;
         }
         // Raise endmill to safe distance
-        String raiseEndmillCommand = "G53 G0 Z-2.000";
+        String raiseEndmillCommand = "G53 G0 Z" + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZHomePosition);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(raiseEndmillCommand));
 
         // WAIT FOR MACHINE TO STOP MOVING
@@ -295,7 +285,7 @@ public class GRBLSemiAutoToolChangeOperator
 
         frmControl.fInstance.WriteToConsole("Touching the tool setter...");
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
-        MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel - 6, 550);
+        MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel - 6, fFastFeedrateToTouchToolSetter);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
 
@@ -305,7 +295,7 @@ public class GRBLSemiAutoToolChangeOperator
         // Move end mill to tool setter slower this time
         MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", 4);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
-        MoveEndmillToToolSetter(4, 60);
+        MoveEndmillToToolSetter(4, fSlowFeedrateToTouchToolSetter);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
 
@@ -337,7 +327,7 @@ public class GRBLSemiAutoToolChangeOperator
             return;
         }
 
-        String command = "G90 " + axis + String.valueOf(to) + "F30000";
+        String command = "G90 " + axis + String.valueOf(to) + "F90000";
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
 
         // WAIT FOR MACHINE TO STOP MOVING
@@ -351,7 +341,7 @@ public class GRBLSemiAutoToolChangeOperator
             return;
         }
 
-        String command = "G91 " + axis + String.valueOf(to) + "F30000";
+        String command = "G91 " + axis + String.valueOf(to) + "F90000";
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand("G90"));
 

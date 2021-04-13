@@ -340,7 +340,7 @@ public class GRBLSemiAutoToolChangeOperator
             return;
         }
 
-        String command = "G90 " + axis + String.valueOf(to) + "F90000";
+        String command = "G90 G0 " + axis + String.valueOf(to);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
 
         // WAIT FOR MACHINE TO STOP MOVING
@@ -354,7 +354,7 @@ public class GRBLSemiAutoToolChangeOperator
             return;
         }
 
-        String command = "G91 " + axis + String.valueOf(to) + "F90000";
+        String command = "G91 G0 " + axis + String.valueOf(to);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand("G90"));
 
@@ -434,7 +434,7 @@ public class GRBLSemiAutoToolChangeOperator
 
     private String MoveEndmillToToolSetter(int distance, int feedRate)
     {
-        String gCodeStr = "G91 G38.2Z-" + distance + "F" + feedRate;
+        String gCodeStr = "G91 G38.2 Z-" + distance + "F" + feedRate;
         final GCodeCommand command = new GCodeCommand(gCodeStr);
         return ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
     }

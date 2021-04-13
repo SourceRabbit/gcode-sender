@@ -91,11 +91,14 @@ public class frmControl extends javax.swing.JFrame
     private static final Object fAddRemoveLogTableLines = new Object();
 
     private final DateFormat fDateFormat = new SimpleDateFormat("HH:mm:ss");
+    
+    // Position
+    private boolean fWorkPositionHasBeenZeroed = false;
 
     // Macros
     private final ArrayList<JTextField> fMacroTexts = new ArrayList<>();
     private final ArrayList<JButton> fMacroButtons = new ArrayList<>();
-    
+
     // Connection
     private boolean fSerialConnectionIsOn = false;
 
@@ -345,6 +348,7 @@ public class frmControl extends javax.swing.JFrame
                 WriteToConsole("Connection Established!");
                 fSerialConnectionIsOn = true;
                 fMachineIsCyclingGCode = false;
+                fWorkPositionHasBeenZeroed = false;
                 jButtonConnectDisconnect.setText("Disconnect");
                 jButtonConnectDisconnect.setEnabled(true);
                 jButtonSoftReset.setEnabled(true);
@@ -361,6 +365,7 @@ public class frmControl extends javax.swing.JFrame
                 WriteToConsole("Connection Closed!");
                 fSerialConnectionIsOn = false;
                 fMachineIsCyclingGCode = false;
+                fWorkPositionHasBeenZeroed = false;
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode(false);
 
                 jButtonConnectDisconnect.setText("Connect");
@@ -533,10 +538,17 @@ public class frmControl extends javax.swing.JFrame
             c.setEnabled(state);
         }
 
-        // Enable or Disable jog buttons
+         // Enable or Disable jog buttons
         for (Component c : jPanelJogButtons.getComponents())
         {
-            c.setEnabled(state);
+            if (c == jButtonReturnToZero)
+            {
+                jButtonReturnToZero.setEnabled(state == true ? fWorkPositionHasBeenZeroed : false);
+            }
+            else
+            {
+                c.setEnabled(state);
+            }
         }
 
         // Enable or Disable Macros
@@ -613,7 +625,6 @@ public class frmControl extends javax.swing.JFrame
                         jLabelLastStatusUpdate.setText((System.currentTimeMillis() - ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getLastMachineStatusReceivedTimestamp()) + " ms ago");
 
                         // Update bytes per second
-                       
                         String bytesText = "Connection (Bytes In/Out: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesInPerSec() + " / " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesOutPerSec() + ")";
                         TitledBorder border = (TitledBorder) jPanelConnection.getBorder();
                         border.setTitle(bytesText);
@@ -2230,7 +2241,12 @@ public class frmControl extends javax.swing.JFrame
             if (input == JOptionPane.YES_OPTION)
             {
                 final GCodeCommand command = new GCodeCommand(GRBLCommands.GCODE_RESET_COORDINATES_TO_ZERO);
-                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(command);
+                String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+                if (response.equals("ok"))
+                {
+                    fWorkPositionHasBeenZeroed = true;
+                    jButtonReturnToZero.setEnabled(true);
+                }
                 WriteToConsole("Reset work zero");
             }
         }

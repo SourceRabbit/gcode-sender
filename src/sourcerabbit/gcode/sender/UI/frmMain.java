@@ -280,19 +280,24 @@ public class frmMain extends javax.swing.JFrame
         {
             try
             {
+                if(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.isConnectionEstablished())
+                {
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.CloseConnection();
+                }
             }
             catch (Exception ex)
             {
 
             }
         }
+         
 
         String baud = jComboBoxBaud.getSelectedItem().toString();
         String port = jComboBoxPort.getSelectedItem().toString();
 
         final ConnectionHandler handler = new GRBLConnectionHandler();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER = handler;
+        
 
         // Add connection established listener
         handler.getSerialConnectionEventManager().RemoveListener(fConnectionEstablishedEventListener);
@@ -314,11 +319,11 @@ public class frmMain extends javax.swing.JFrame
                     {
                         fWaitToEstablishConnectionResetEvent.WaitOne(3000);
 
-                        if (!handler.isConnectionEstablished())
+                        if (!ConnectionHelper.ACTIVE_CONNECTION_HANDLER.isConnectionEstablished())
                         {
                             try
                             {
-                                handler.CloseConnection();
+                                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.CloseConnection();
                             }
                             catch (Exception ex)
                             {

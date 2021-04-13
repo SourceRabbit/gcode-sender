@@ -115,6 +115,21 @@ public class GRBLConnectionHandler extends ConnectionHandler
                 // and get the current Active State of the machine.
                 int newActiveState = fMyStatusReportParser.ParseStatusReportMessageAndReturnActiveState(receivedStr);
 
+                 //////////////////////////////////////////////////////////////////////////////////////////////////////
+                // Check if the machine status changed from homing to Idle
+                //////////////////////////////////////////////////////////////////////////////////////////////////////
+                if (fActiveState == GRBLActiveStates.HOME && newActiveState == GRBLActiveStates.IDLE)
+                {
+                    // If the status changed from homing to idle
+                    // get the home position
+                    fXHomePosition = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getX();
+                    fYHomePosition = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getY();
+                    fZHomePosition = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMachinePosition().getZ();
+ 
+                    frmControl.fInstance.WriteToConsole("Home Coordinates: X:" + String.valueOf(fXHomePosition) + ", Y:" + String.valueOf(fYHomePosition) + ", Z:" + String.valueOf(fZHomePosition));
+                }   
+
+
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
                 // Check if the machine status changed
                 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -313,9 +328,16 @@ public class GRBLConnectionHandler extends ConnectionHandler
                     fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
                     fMachineStatusEventsManager.FireMachineStatusChangedEvent(new MachineStatusEvent(GRBLActiveStates.IDLE, ""));
                 }
+                else if (receivedStr.toLowerCase().startsWith("[msg"))
+                {
+                    //String message = receivedStr.substring(5, receivedStr.length() - 1);
+                    //fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(message));
+                    fLastCommandSentToController = null;
+                    fWaitForCommandToBeExecuted.Set();
+                }
                 else
                 {
-                    fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
+                    //fSerialConnectionEventManager.FireDataReceivedFromSerialConnectionEvent(new SerialConnectionEvent(receivedStr));
                     fLastCommandSentToController = null;
                     fWaitForCommandToBeExecuted.Set();
                 }
@@ -360,8 +382,6 @@ public class GRBLConnectionHandler extends ConnectionHandler
             try
             {
                 commandSentToControllerWithSuccess = super.SendData(optimizedCommand);
-                
-                
 
                 if (commandSentToControllerWithSuccess)
                 {
@@ -610,6 +630,5 @@ public class GRBLConnectionHandler extends ConnectionHandler
         fMyGCodeSender.KillGCodeCycle();
         super.CloseConnection();
         fWaitForCommandToBeExecuted.Set();
-
     }
 }

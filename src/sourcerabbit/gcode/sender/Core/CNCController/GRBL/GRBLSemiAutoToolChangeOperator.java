@@ -35,6 +35,9 @@ public class GRBLSemiAutoToolChangeOperator
     private boolean fAlarmHappened = false;
     private final GRBLGCodeSender fMyGCodeSender;
 
+    private final int fFastFeedrateToTouchToolSetter = 550;
+    private final int fSlowFeedrateToTouchToolSetter = 60;
+
     // Tool Setter Variables
     private boolean fIsTheFirstToolChangeInTheGCodeCycle = true;
     private double fTravelBetweenWorkZeroAndToolSetterTop = 0;
@@ -240,7 +243,7 @@ public class GRBLSemiAutoToolChangeOperator
             ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().PauseSendingGCode();
             WaitForUserToClickResume();
 
-            // SET AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE tp FALSE
+            // SET AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE to FALSE
             ConnectionHelper.AUTO_TOOL_CHANGE_OPERATION_IS_ACTIVE = false;
 
             Step_4_GoBackToMachineX_Y_BeforeToolChange_G53(machinePositionXBeforeToolChange, machinePositionYBeforeToolChange);
@@ -264,7 +267,7 @@ public class GRBLSemiAutoToolChangeOperator
             return;
         }
         // Raise endmill to safe distance
-        String raiseEndmillCommand = "G53 G0 Z-2.000";
+        String raiseEndmillCommand = "G53 G0 Z" + String.valueOf(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZHomePosition);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(raiseEndmillCommand));
 
         // WAIT FOR MACHINE TO STOP MOVING
@@ -295,7 +298,7 @@ public class GRBLSemiAutoToolChangeOperator
 
         frmControl.fInstance.WriteToConsole("Touching the tool setter...");
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
-        MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel - 6, 550);
+        MoveEndmillToToolSetter(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZMaxTravel - 6, fFastFeedrateToTouchToolSetter);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
 
@@ -305,7 +308,7 @@ public class GRBLSemiAutoToolChangeOperator
         // Move end mill to tool setter slower this time
         MoveFromPositionToPosition_INCREMENTAL_AND_THEN_CHANGE_TO_ABSOLUTE("Z", 4);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StartUsingTouchProbe();
-        MoveEndmillToToolSetter(4, 60);
+        MoveEndmillToToolSetter(4, fSlowFeedrateToTouchToolSetter);
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.StopUsingTouchProbe();
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommand(new GCodeCommand("G0G90"));
 
@@ -337,7 +340,7 @@ public class GRBLSemiAutoToolChangeOperator
             return;
         }
 
-        String command = "G90 " + axis + String.valueOf(to) + "F30000";
+        String command = "G90 " + axis + String.valueOf(to) + "F90000";
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
 
         // WAIT FOR MACHINE TO STOP MOVING
@@ -351,7 +354,7 @@ public class GRBLSemiAutoToolChangeOperator
             return;
         }
 
-        String command = "G91 " + axis + String.valueOf(to) + "F30000";
+        String command = "G91 " + axis + String.valueOf(to) + "F90000";
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand(command));
         ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(new GCodeCommand("G90"));
 

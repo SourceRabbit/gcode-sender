@@ -16,8 +16,6 @@
  */
 package sourcerabbit.gcode.sender.Core.CNCController.Connection;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
@@ -30,7 +28,6 @@ import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLGCodeSender;
 import sourcerabbit.gcode.sender.Core.CNCController.GCode.GCodeCommand;
 import sourcerabbit.gcode.sender.Core.Arrays.ByteArrayBuilder;
 import sourcerabbit.gcode.sender.Core.CNCController.GRBL.EGRBLVersion;
-import sourcerabbit.gcode.sender.Core.CNCController.GRBL.GRBLConnectionHandler;
 import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 import sourcerabbit.gcode.sender.UI.frmControl;
@@ -89,6 +86,11 @@ public class ConnectionHandler implements SerialPortEventListener
     public static int fXMaxTravel = 00;
     public static int fYMaxTravel = 00;
     public static int fZMaxTravel = 00;
+    
+     // Home Position
+    public double fXHomePosition = -255;
+    public double fYHomePosition = -255;
+    public double fZHomePosition = -255;
 
     protected long fLastMachineStatusReceivedTimestamp = 0;
 
@@ -229,7 +231,10 @@ public class ConnectionHandler implements SerialPortEventListener
         fConnectionEstablished = false;
 
         // Fire connection closed event
-        fSerialConnectionEventManager.FireConnectionClosedEvent(new SerialConnectionEvent("Connection Closed"));
+        if (fSerialConnectionEventManager != null)
+        {
+            fSerialConnectionEventManager.FireConnectionClosedEvent(new SerialConnectionEvent("Connection Closed"));
+        }
 
         StopByteCountThread();
     }
@@ -321,12 +326,12 @@ public class ConnectionHandler implements SerialPortEventListener
         {
 
             fBytesOut += data.getBytes().length + 1;
-            
+
             synchronized (fCheckConnectionLock)
             {
                 fTimeStartedSendingBytes = System.nanoTime();
             }
-            
+
             // Write Bytes
             result = fSerialPort.writeString(data + fMessageSplitter);
 

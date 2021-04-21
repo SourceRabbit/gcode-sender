@@ -65,6 +65,7 @@ import sourcerabbit.gcode.sender.Core.Threading.ManualResetEvent;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position2D;
 import sourcerabbit.gcode.sender.Core.CNCController.Position.Position4D;
 import sourcerabbit.gcode.sender.Core.CNCController.Processes.Process_Jogging;
+import sourcerabbit.gcode.sender.Core.CNCController.Processes.Process_ZeroWorkPosition;
 import sourcerabbit.gcode.sender.Core.Machine.MachineInformation;
 import sourcerabbit.gcode.sender.Core.Settings.SemiAutoToolChangeSettings;
 import sourcerabbit.gcode.sender.Core.Settings.SettingsManager;
@@ -91,9 +92,6 @@ public class frmControl extends javax.swing.JFrame
     private static final Object fAddRemoveLogTableLines = new Object();
 
     private final DateFormat fDateFormat = new SimpleDateFormat("HH:mm:ss");
-    
-    // Position
-    private boolean fWorkPositionHasBeenZeroed = false;
 
     // Macros
     private final ArrayList<JTextField> fMacroTexts = new ArrayList<>();
@@ -291,8 +289,16 @@ public class frmControl extends javax.swing.JFrame
 
                     case GRBLActiveStates.RESET_TO_CONTINUE:
                         jLabelActiveState.setForeground(Color.red);
-                        jLabelActiveState.setText("Click 'Soft Reset'");
+                        jLabelActiveState.setText("Error: Soft Reset...");
                         enableMachineControlButtons = false;
+                        try
+                        {
+                            ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendDataImmediately_WithoutMessageCollector(GRBLCommands.COMMAND_SOFT_RESET);
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
                         break;
 
                     case GRBLActiveStates.JOG:
@@ -334,9 +340,7 @@ public class frmControl extends javax.swing.JFrame
                     EnableOrDisableComponentsWhenMachineIsCyclingGCode(fMachineIsCyclingGCode);
                     ////////////////////////////////////////////////////////////////////////////////////////////
                 }
-
             }
-
         });
 
         // Serial Connection Events
@@ -348,7 +352,6 @@ public class frmControl extends javax.swing.JFrame
                 WriteToConsole("Connection Established!");
                 fSerialConnectionIsOn = true;
                 fMachineIsCyclingGCode = false;
-                fWorkPositionHasBeenZeroed = false;
                 jButtonConnectDisconnect.setText("Disconnect");
                 jButtonConnectDisconnect.setEnabled(true);
                 jButtonSoftReset.setEnabled(true);
@@ -365,7 +368,6 @@ public class frmControl extends javax.swing.JFrame
                 WriteToConsole("Connection Closed!");
                 fSerialConnectionIsOn = false;
                 fMachineIsCyclingGCode = false;
-                fWorkPositionHasBeenZeroed = false;
                 ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getMyGCodeSender().CancelSendingGCode(false);
 
                 jButtonConnectDisconnect.setText("Connect");
@@ -538,17 +540,10 @@ public class frmControl extends javax.swing.JFrame
             c.setEnabled(state);
         }
 
-         // Enable or Disable jog buttons
+        // Enable or Disable jog buttons
         for (Component c : jPanelJogButtons.getComponents())
         {
-            if (c == jButtonReturnToZero)
-            {
-                jButtonReturnToZero.setEnabled(state == true ? fWorkPositionHasBeenZeroed : false);
-            }
-            else
-            {
-                c.setEnabled(state);
-            }
+            c.setEnabled(state);
         }
 
         // Enable or Disable Macros
@@ -623,6 +618,8 @@ public class frmControl extends javax.swing.JFrame
                         jLabelRealTimeSpindleRPM.setText(String.valueOf(MachineInformation.LiveSpindleRPM().get()));
 
                         jLabelLastStatusUpdate.setText((System.currentTimeMillis() - ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getLastMachineStatusReceivedTimestamp()) + " ms ago");
+
+                        jLabelMachineHomePosition.setText(ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fXHomePosition + ", " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fYHomePosition + ", " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.fZHomePosition);
 
                         // Update bytes per second
                         String bytesText = "Connection (Bytes In/Out: " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesInPerSec() + " / " + ConnectionHelper.ACTIVE_CONNECTION_HANDLER.getBytesOutPerSec() + ")";
@@ -848,6 +845,8 @@ public class frmControl extends javax.swing.JFrame
         jPanel7 = new javax.swing.JPanel();
         jLabel16 = new javax.swing.JLabel();
         jLabelLastStatusUpdate = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        jLabelMachineHomePosition = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItemGRBLSettings = new javax.swing.JMenuItem();
@@ -1638,16 +1637,28 @@ public class frmControl extends javax.swing.JFrame
         jLabelLastStatusUpdate.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabelLastStatusUpdate.setText("0");
 
+        jLabel17.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel17.setText("Home Position X,Y,Z:");
+
+        jLabelMachineHomePosition.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabelMachineHomePosition.setText("0,0,0");
+
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel16)
-                .addGap(24, 24, 24)
-                .addComponent(jLabelLastStatusUpdate)
-                .addContainerGap(399, Short.MAX_VALUE))
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(jLabel16)
+                        .addGap(24, 24, 24)
+                        .addComponent(jLabelLastStatusUpdate))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(jLabel17)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabelMachineHomePosition, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(206, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1656,7 +1667,11 @@ public class frmControl extends javax.swing.JFrame
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel16)
                     .addComponent(jLabelLastStatusUpdate))
-                .addContainerGap(407, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel17)
+                    .addComponent(jLabelMachineHomePosition))
+                .addContainerGap(381, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Machine Information", jPanel7);
@@ -2240,14 +2255,11 @@ public class frmControl extends javax.swing.JFrame
             int input = JOptionPane.showConfirmDialog(null, "Do you want to zero X,Y and Z axis ?", "Zero All Positions", JOptionPane.YES_NO_OPTION);
             if (input == JOptionPane.YES_OPTION)
             {
-                final GCodeCommand command = new GCodeCommand(GRBLCommands.GCODE_RESET_COORDINATES_TO_ZERO);
-                String response = ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
-                if (response.equals("ok"))
+                Process_ZeroWorkPosition process = new Process_ZeroWorkPosition(new String[]
                 {
-                    fWorkPositionHasBeenZeroed = true;
-                    jButtonReturnToZero.setEnabled(true);
-                }
-                WriteToConsole("Reset work zero");
+                    "X", "Y", "Z"
+                });
+                process.Execute();
             }
         }
         catch (Exception ex)
@@ -2335,9 +2347,11 @@ public class frmControl extends javax.swing.JFrame
             int input = JOptionPane.showConfirmDialog(null, "Do you want to zero X axis?", "Zero X Axis", JOptionPane.YES_NO_OPTION);
             if (input == JOptionPane.YES_OPTION)
             {
-                String commandStr = "G92 X0";
-                GCodeCommand command = new GCodeCommand(commandStr);
-                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+                Process_ZeroWorkPosition process = new Process_ZeroWorkPosition(new String[]
+                {
+                    "X"
+                });
+                process.Execute();
             }
         }
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -2350,9 +2364,11 @@ public class frmControl extends javax.swing.JFrame
             int input = JOptionPane.showConfirmDialog(null, "Do you want to zero Y axis?", "Zero Y Axis", JOptionPane.YES_NO_OPTION);
             if (input == JOptionPane.YES_OPTION)
             {
-                String commandStr = "G92 Y0";
-                GCodeCommand command = new GCodeCommand(commandStr);
-                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+                Process_ZeroWorkPosition process = new Process_ZeroWorkPosition(new String[]
+                {
+                    "Y"
+                });
+                process.Execute();
             }
         }
 
@@ -2365,9 +2381,11 @@ public class frmControl extends javax.swing.JFrame
             int input = JOptionPane.showConfirmDialog(null, "Do you want to zero Z axis?", "Zero Z Axis", JOptionPane.YES_NO_OPTION);
             if (input == JOptionPane.YES_OPTION)
             {
-                String commandStr = "G92 Z0";
-                GCodeCommand command = new GCodeCommand(commandStr);
-                ConnectionHelper.ACTIVE_CONNECTION_HANDLER.SendGCodeCommandAndGetResponse(command);
+                Process_ZeroWorkPosition process = new Process_ZeroWorkPosition(new String[]
+                {
+                    "Z"
+                });
+                process.Execute();
             }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -2402,6 +2420,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -2411,6 +2430,7 @@ public class frmControl extends javax.swing.JFrame
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabelActiveState;
     private javax.swing.JLabel jLabelLastStatusUpdate;
+    private javax.swing.JLabel jLabelMachineHomePosition;
     private javax.swing.JLabel jLabelMachinePositionX;
     private javax.swing.JLabel jLabelMachinePositionY;
     private javax.swing.JLabel jLabelMachinePositionZ;

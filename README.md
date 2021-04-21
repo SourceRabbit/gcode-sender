@@ -8,9 +8,8 @@ Downloads
 ------
 
 To download the latest release visit:<br>
-[https://www.sourcerabbit.com/](https://www.sourcerabbit.com/Shop/pr-i-80-t-grbl-gcode-sender.htm/)<br>
+[https://www.sourcerabbit.com/](https://www.sourcerabbit.com/Shop/pr-i-80-t-grbl-gcode-sender.htm)<br>
 
-If you don't have Java installed download the latest version and install it on your computer from [https://java.com/en/download/manual.jsp](https://java.com/en/download/manual.jsp).
 
 About SourceRabbit GCode Sender
 ------
@@ -29,5 +28,5 @@ Technical details:
 
 Goals:
 * Provide a fast, accurate and easy to use software
-* Support all GRBL CNC router and milling machines
+* Support all GRBL CNC Routers, Lasers, Plasma Cutters and Milling Machines
 * Can be used on computers with small amount of RAM and CPU.

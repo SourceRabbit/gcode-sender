@@ -33,7 +33,7 @@ public class frmCheckForUpdate extends javax.swing.JDialog
 {
 
     private Thread fUpdateThread;
-    private final String fUpdatesCheckURL = "https://www.sourcerabbit.com/el/Downloads/SourceRabbitGCodeSenderVersionCheck.php";
+    private final String fUpdatesCheckURL = "https://www.sourcerabbit.com/Downloads/SoftwareVersionsCheck/SourceRabbitGCodeSenderVersionCheck.php";
 
     public frmCheckForUpdate(frmControl parent, boolean modal)
     {
@@ -100,12 +100,12 @@ public class frmCheckForUpdate extends javax.swing.JDialog
                     {
                         URI uri = new URI("https://www.sourcerabbit.com/Shop/pr-i-80-t-grbl-gcode-sender.htm");
                         Desktop.getDesktop().browse(uri);
-                    }
-                    catch (Exception ex)
-                    {
+                }
+                catch (Exception ex)
+                {
 
-                    }
-                    break;
+                }
+                break;
 
                 case 1:
                     // Later
@@ -133,7 +133,7 @@ public class frmCheckForUpdate extends javax.swing.JDialog
         setResizable(false);
 
         jLabelStatus.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabelStatus.setForeground(new java.awt.Color(0, 75, 127));
+        jLabelStatus.setForeground(new java.awt.Color(255, 255, 255));
         jLabelStatus.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabelStatus.setText("Status....");
 

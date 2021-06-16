@@ -6,7 +6,7 @@ SourceRabbit GCode Sender
 
 End of Life - 13/Jun/2021
 ------
-The course of SourceRabbit GCode Sender began in 2015 when <a href="https://github.com/nsiatras">Nikos Siatras</a>, CEO of SourceRabbit, decided to build the controllers of the company's CNC machines, on the GRBL firmware.
+The course of SourceRabbit GCode Sender began in 2015 when Nikos Siatras (<a href="https://github.com/nsiatras">GitHub</a>, <a href="https://twitter.com/nsiatras">Twitter</a>), CEO of SourceRabbit, decided to build the controllers of the company's CNC machines, on the GRBL firmware.
 
 From 2015 until 2021, the GCode Sender was improved and acquired new features that were fully compatible with the CNC machines we manufacture. At the beginning of 2021 we started to build a new multi-axis software, <a href="https://www.sourcerabbit.com/Shop/pr-i-88-t-grbl-gcode-sender-4axis.htm">GCode Sender 4-Axis</a>, which replaced the  "classic" GCode Sender and which we will fully support from now on.
 

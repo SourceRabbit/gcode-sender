@@ -23,7 +23,7 @@ Downloads
 ------
 
 To download the latest release visit:<br>
-[https://www.sourcerabbit.com/](https://www.sourcerabbit.com/Shop/pr-i-80-t-grbl-gcode-sender.htm)<br>
+[https://www.sourcerabbit.com/](https://www.sourcerabbit.com/Shop/pr-i-91-t-focus-cnc-control-software.htm)<br>
 
 
 About SourceRabbit GCode Sender

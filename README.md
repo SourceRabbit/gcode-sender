@@ -4,6 +4,8 @@ SourceRabbit GCode Sender
 <a href="https://www.sourcerabbit.com/Shop/"><img src="https://raw.githubusercontent.com/nsiatras/sourcerabbit-gcode-sender/master/Images/GitHubPageBanner.png" alt="SourceRabbit.com"></a>
 </p>
 
+Join our Discord Server: https://discord.com/invite/nRKETyjJ7E
+
 End of Life - 13/Jun/2021
 ------
 The course of SourceRabbit GCode Sender began in 2015 when Nikos Siatras (<a href="https://github.com/nsiatras">GitHub</a>, <a href="https://twitter.com/nsiatras">Twitter</a>), CEO of SourceRabbit, decided to build the controllers of the company's CNC machines, on the GRBL firmware.

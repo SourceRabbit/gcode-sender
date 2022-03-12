@@ -4,7 +4,8 @@ SourceRabbit GCode Sender
 <a href="https://www.sourcerabbit.com/Shop/"><img src="https://raw.githubusercontent.com/nsiatras/sourcerabbit-gcode-sender/master/Images/GitHubPageBanner.png" alt="SourceRabbit.com"></a>
 </p>
 
-Join our Discord Server: https://discord.com/invite/nRKETyjJ7E
+Join our Discord Server:<br> 
+![Discord Shield](https://discordapp.com/api/guilds/952140843546972161/widget.png?style=shield)
 
 End of Life - 13/Jun/2021
 ------

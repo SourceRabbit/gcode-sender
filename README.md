@@ -1,7 +1,7 @@
 SourceRabbit GCode Sender
 ------
 <p align="center">
-<a href="https://www.sourcerabbit.com/Shop/"><img src="https://raw.githubusercontent.com/nsiatras/sourcerabbit-gcode-sender/master/Images/GitHubPageBanner.png" alt="SourceRabbit.com"></a>
+<a href="https://www.sourcerabbit.com"><img src="https://raw.githubusercontent.com/nsiatras/sourcerabbit-gcode-sender/master/Images/GitHubPageBanner.png" alt="SourceRabbit.com"></a>
 </p>
 
 Join our Discord Server:<br> 
